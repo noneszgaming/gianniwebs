@@ -25,8 +25,9 @@ const AmountCounter = ({ className }) => {
         <input 
             className='w-[60px] h-[30px] text-center focus:text-accent focus:caret-accent bg-zinc-200 rounded-lg outline-none'
             type="number" 
-            min="0"
+            min="1"
             max="100"
+            defaultValue={1}
             onKeyDown={handleKeyDown}
             onChange={handleInputChange}
         />
