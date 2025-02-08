@@ -1,16 +1,15 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 // MongoDB kapcsolat
-mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
+mongoose.connect(process.env.MONGODB_URI).then(() => {
     console.log('Connected to MongoDB');
 }).catch(err => {
     console.error('Failed to connect to MongoDB', err);
 });
+
 
 // Adatok definiálása
 const seedItems = [

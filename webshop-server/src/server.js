@@ -21,13 +21,9 @@ app.use('/api', itemRoutes);
 app.use('/api',adminRoutes);
 
 // MongoDB kapcsolat
-mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('Failed to connect to MongoDB', err);
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => {console.log('Connected to MongoDB');})
+    .catch(err => {console.error('Failed to connect to MongoDB', err);
 });
 
 // Szerver indítása
