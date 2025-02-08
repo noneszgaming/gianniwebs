@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
@@ -19,6 +20,7 @@ const ChoosePaymentPage = () => {
         <h2 className='text-[34px] text-light text-center font-bold mb-10 select-none'>PayPal</h2>
         <PayPalScriptProvider options={initialOptions}>
           <PayPalButtons
+            className='w-[100%] h-[100%]'
             createOrder={(data, actions) => {
               return actions.order.create({
                 purchase_units: [
