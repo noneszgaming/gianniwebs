@@ -1,23 +1,33 @@
-/* eslint-disable no-unused-vars */
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from '../components/Card'
 
 const HomePage = () => {
+  const [foods, setFoods] = useState([]);
+
+  useEffect(() => {
+    const fetchFoods = async () => {
+      const response = await fetch('http://localhost:3001/api/food');
+      const data = await response.json();
+      setFoods(data);
+    };
+
+    fetchFoods();
+  }, []);
+
   return (
     <div 
-        className='w-full h-fit grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-items-center gap-y-40 pt-[2%] pb-[4%]'
-        style={{ zIndex: 1 }}
+      className='w-full h-fit grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-items-center gap-y-40 pt-[2%] pb-[4%]'
+      style={{ zIndex: 1 }}
     >
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="3000" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and" price="2700" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="2500" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="2900" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="3000" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and" price="2700" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="2500" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="2900" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and typesetting industry." price="3000" img="" />
-        <Card name="Lorem Ipsum" description="Lorem Ipsum is simply dummy text of the printing and" price="2700" img="" />
+      {foods.map((food) => (
+        <Card
+          key={food._id}
+          name={food.name}
+          description={food.description}
+          price={food.price}
+          img={food.img}
+        />
+      ))}
     </div>
   )
 }
