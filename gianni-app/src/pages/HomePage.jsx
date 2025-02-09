@@ -23,6 +23,7 @@ const HomePage = () => {
       {foods.map((food) => (
         <Card
           key={food._id}
+          id={food._id}
           name={food.name}
           description={food.description}
           price={food.price}
