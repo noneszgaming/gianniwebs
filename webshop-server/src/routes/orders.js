@@ -36,7 +36,8 @@ router.post('/order', async (req, res) => {
             customer: customer._id,
             items: orderItems,
             status: 'pending',
-            created_date: new Date()
+            created_date: new Date(),
+            address: req.body.address
         });
         await order.save();
 

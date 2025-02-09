@@ -12,11 +12,8 @@ const customerSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true
-    },
-    address: {
-        type: String,
-        required: true
     }
+
 });
 
 module.exports = mongoose.model('Customer', customerSchema);

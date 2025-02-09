@@ -68,14 +68,14 @@ const ChoosePaymentPage = () => {
                 const orderData = {
                   customer: {
                     name: details.purchase_units[0]?.shipping?.name?.full_name || 'N/A',
-                    email: details.payer.email_address,
-                    address: details.purchase_units[0]?.shipping?.address?.address_line_1 || 'N/A'
+                    email: details.payer.email_address
+                    
                   },
                   items: cartItems.map(item => ({
                     _id: item._id,
                     quantity: item.quantity
                   })),
-                 
+                  address: details.purchase_units[0]?.shipping?.address?.address_line_1 || 'N/A'
                 };
                 console.log('Order data:', orderData);
                 console.log(JSON.stringify(orderData))
