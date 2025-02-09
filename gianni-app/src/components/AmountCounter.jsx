@@ -3,6 +3,7 @@
 import React from 'react'
 
 const AmountCounter = ({ className, type, name, onQuantityChange }) => {
+  
     const getQuantityFromStorage = () => {
         if (type === "cartItem") {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -19,6 +20,17 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
         }
         value = Math.min(Math.max(parseInt(value) || 0, 0), 100);
         e.target.value = value;
+
+        if (type === "cartItem") {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemIndex = cart.findIndex(item => item.name === name);
+            if (itemIndex !== -1) {
+                cart[itemIndex].quantity = parseInt(value);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                window.dispatchEvent(new Event('cartUpdated'));
+            }
+        }
+
         if (onQuantityChange) {
             onQuantityChange(value);
         }
@@ -48,5 +60,6 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
 }
 
 export default AmountCounter
+
 
 
