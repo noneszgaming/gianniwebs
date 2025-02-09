@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import CartPage from './pages/CartPage'
 import OrderDataPage from './pages/OrderDataPage'
 import ChoosePaymentPage from './pages/ChoosePaymentPage'
+import AdminLogin from './components/admin/AdminLogin'
 
 function App() {
   useSignals();
@@ -15,6 +16,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
+        <Route path="/admin" element={<AdminLogin />} />
       </Routes>
     </div>
   )
