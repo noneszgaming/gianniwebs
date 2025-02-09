@@ -12,21 +12,17 @@ const NavBar = ({ type }) => {
   useEffect(() => {
     const handleStorageChange = () => {
         const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
-        setCartCount(currentCart.length);
+        const totalQuantity = currentCart.reduce((total, item) => total + item.quantity, 0);
+        setCartCount(totalQuantity);
     };
 
-    // Initial count
     handleStorageChange();
-
-    // Listen for our custom event
     window.addEventListener('cartUpdated', handleStorageChange);
     
     return () => {
         window.removeEventListener('cartUpdated', handleStorageChange);
     };
   }, []);
-
-  //TODO: fix the cart count doesnt counts amount
 
   return (
     <div

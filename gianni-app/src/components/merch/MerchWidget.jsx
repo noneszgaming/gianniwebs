@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import PrimaryBtn from '../buttons/PrimaryBtn'
+import { useEffect, useState } from 'react';
 import MerchWidgetItem from './MerchWidgetItem'
 
 const MerchWidget = () => {
