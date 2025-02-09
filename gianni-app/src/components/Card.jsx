@@ -5,7 +5,7 @@ import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter';
 import { useState } from 'react';
 
-const Card = ({ name, description, price, img }) => {
+const Card = ({ name, description, price, img, id }) => {
 
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
@@ -17,6 +17,7 @@ const Card = ({ name, description, price, img }) => {
           existingCart[existingItemIndex].quantity += selectedQuantity;
       } else {
           const newItem = {
+              _id: id,
               name,
               description,
               price,

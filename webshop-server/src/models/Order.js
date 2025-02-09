@@ -2,9 +2,27 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
     items: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Item',
-        required: true
+        name: {
+            type: String,
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        description: {
+            type: String,
+            required: true
+        },
+        type: {
+            type: String,
+            enum: ['food', 'merch'],
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true
+        }
     }],
     created_date: {
         type: Date,

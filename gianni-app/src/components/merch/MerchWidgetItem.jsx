@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import AddMerchToCartBtn from '../buttons/AddMerchToCartBtn';
 import AmountCounter from '../AmountCounter';
 
-const MerchWidgetItem = ({ name, price, img }) => {
+const MerchWidgetItem = ({ name, price, img, id }) => {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
 
     const handleAddToCart = () => {
@@ -15,6 +15,7 @@ const MerchWidgetItem = ({ name, price, img }) => {
             existingCart[existingItemIndex].quantity += selectedQuantity;
         } else {
             const newItem = {
+                _id: id,
                 name,
                 description: "Merch item",
                 price: parseInt(price),
