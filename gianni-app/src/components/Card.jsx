@@ -3,26 +3,25 @@
 import React from 'react'
 import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter';
+import { useState } from 'react';
 
 const Card = ({ name, description, price, img }) => {
 
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+
   const handleAddToCart = () => {
       const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-      
-      // Check if item already exists in cart
       const existingItemIndex = existingCart.findIndex(item => item.name === name);
       
       if (existingItemIndex !== -1) {
-          // If item exists, increment its quantity
-          existingCart[existingItemIndex].quantity += 1;
+          existingCart[existingItemIndex].quantity += selectedQuantity;
       } else {
-          // If item doesn't exist, add it with quantity 1
           const newItem = {
               name,
               description,
               price,
               img,
-              quantity: 1
+              quantity: selectedQuantity
           };
           existingCart.push(newItem);
       }
@@ -30,7 +29,6 @@ const Card = ({ name, description, price, img }) => {
       localStorage.setItem('cart', JSON.stringify(existingCart));
       window.dispatchEvent(new Event('cartUpdated'));
   };
-
 
     return (
         <div className='hover:scale-[110%] w-[300px] h-[520px] flex flex-col items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden'>
@@ -48,7 +46,7 @@ const Card = ({ name, description, price, img }) => {
                 </p>
                 <div className='flex justify-between items-center w-full py-3'>
                     <p className='text-[22px] font-bold'>{price} Ft</p>
-                    <AmountCounter />
+                    <AmountCounter onQuantityChange={setSelectedQuantity} />
                 </div>
                 <PrimaryBtn 
                     text="Add to Cart" 
