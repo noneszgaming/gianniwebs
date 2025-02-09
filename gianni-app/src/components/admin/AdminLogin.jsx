@@ -25,12 +25,10 @@ const AdminLogin = () => {
             >
                 <Username
                     onChange={(e) => { setUsername(e.target.value) }}
-                    className={'border-light'}
                 />
 
                 <Password
                     onChange={(e) => { setPassword(e.target.value) }}
-                    className={'border-light'}
                 />
 
                 <div className='w-full flex items-center justify-evenly'>

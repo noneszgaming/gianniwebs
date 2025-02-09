@@ -11,7 +11,7 @@ const Username = ({ onChange, className, type }) => {
 
   return (
     <div className='w-full flex justify-between items-center gap-2'>
-        <div className={`w-full h-12 bg-light rounded-xl flex justify-start items-center px-3 relative border-[2px] ${className}`}>
+        <div className={`w-full h-12 bg-light rounded-xl flex justify-start items-center px-3 relative border-[2px] shadow-2xl shadow-black/60 ${isUsernameFocused ? 'border-accent' : 'border-light'}  ${className}`}>
             <h2 
                 className={`absolute font-semibold lg:text-xl duration-500 select-none 
                     ${isUsernameFocused ? ' text-accent' : ' text-slate-800 hover:cursor-text'}
