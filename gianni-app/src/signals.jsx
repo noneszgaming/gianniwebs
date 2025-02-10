@@ -5,6 +5,7 @@ const isHomeOpened = signal(true);
 const isCartOpened = signal(false);
 const isOrderDataPageOpened = signal(false);
 const isChoosePaymentPageOpened = signal(false);
+const isWebshopOpen = signal(true);
 
 
 export { 
@@ -12,4 +13,5 @@ export {
     isCartOpened,
     isOrderDataPageOpened,
     isChoosePaymentPageOpened,
+    isWebshopOpen,
 }

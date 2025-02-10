@@ -17,6 +17,7 @@ function App() {
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/home" element={<HomePage />} />
       </Routes>
     </div>
   )

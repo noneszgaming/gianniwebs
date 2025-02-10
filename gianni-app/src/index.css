@@ -7,6 +7,21 @@
   --color-light: #fefefe;
   --color-accent: #C40C0C;
   --color-card-bg: #750E21;
+  --color-neon-green: #20CC00;
+
+  --shadow-green: 0 0 30px rgba(32,204,0,1), 
+  0 0 60px rgba(32,204,0,1), 
+  0 0 90px rgba(32,204,0,1), 
+  0 0 120px rgba(32,204,0,0.8), 
+  0 0 150px rgba(32,204,0,0.8), 
+  0 0 180px rgba(32,204,0,0.8);
+
+  --shadow-red: 0 0 30px rgba(196,12,12,1), 
+  0 0 60px rgba(196,12,12,1), 
+  0 0 90px rgba(196,12,12,1), 
+  0 0 120px rgba(196,12,12,0.8), 
+  0 0 150px rgba(196,12,12,0.8), 
+  0 0 180px rgba(196,12,12,0.8);
 }  
 
 /* width */
