@@ -15,28 +15,53 @@ const AdminLogin = () => {
     const navigate = useNavigate();
     const [rememberMe, setRememberMe] = useState(false);
 
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:3001/api/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store the token in localStorage
+                localStorage.setItem('adminToken', data.token);
+                // Store admin data if needed
+                localStorage.setItem('adminData', JSON.stringify(data.admin));
+                // Navigate to admin home page
+                navigate('/admin/home');
+            } else {
+                setError(data.error);
+            }
+        } catch (err) {
+            setError('Connection error. Please try again.');
+        }
+    };
 
     return (
         <div className='w-full h-screen flex justify-center items-center font-poppins text-light selection:bg-accent'>
             <form
                 className='w-[80%] md:w-[26%] h-[50%] flex flex-col justify-center items-center gap-16 relative z-20'
-                action='POST'
-                onKeyDown={null}
+                onSubmit={handleLogin}
             >
                 <Username
-                    onChange={(e) => { setUsername(e.target.value) }}
+                    onChange={(e) => setUsername(e.target.value)}
                 />
-
                 <Password
-                    onChange={(e) => { setPassword(e.target.value) }}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
-
+                {error && <div className="text-red-500">{error}</div>}
                 <div className='w-full flex items-center justify-evenly'>
-                    <PrimaryButton text={'Login'} to={'/admin/home'} onClick={null} />
+                    <PrimaryButton text={'Login'} type="submit" />
                 </div>
             </form>
         </div>
-    )
-}
+    );
+};
 
 export default AdminLogin
