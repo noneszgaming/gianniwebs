@@ -34,7 +34,7 @@ const AdminLogin = () => {
                 // Store admin data if needed
                 localStorage.setItem('adminData', JSON.stringify(data.admin));
                 // Navigate to admin home page
-                navigate('/admin/home');
+                navigate('/admin/orders');
             } else {
                 setError(data.error);
             }

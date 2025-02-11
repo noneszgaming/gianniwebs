@@ -2,12 +2,12 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
 
-const NavBarBtn = ({ text, onClick }) => {
+const NavBarBtn = ({ text, onClick, className }) => {
     const [isHovered, setIsHovered] = useState(false)
   return (
     <div className='flex flex-col justify-center items-center relative'>
         <button 
-            className='w-fit h-fit flex justify-center items-center font-semibold text-lg text-black gap-2 select-none cursor-pointer relative'
+            className={`w-fit h-fit flex justify-center items-center font-semibold text-lg gap-2 select-none cursor-pointer relative  ${className}`}
             onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}

@@ -4,17 +4,24 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import NavBar from './components/NavBar.jsx'
+import AddItem from './components/admin/AddItem.jsx'
+import { isAddItemOpened } from './signals.jsx'
+import { useSignals } from '@preact/signals-react/runtime'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <div
-        className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'
-        style={{ zIndex: 1 }}
-      >
-        <NavBar type="admin"/>
-        <App />
-      </div>
-    </BrowserRouter>
-  </StrictMode>
-)
+const Root = () => {
+  useSignals();
+  
+  return (
+    <StrictMode>
+      <BrowserRouter>
+        <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
+          {isAddItemOpened.value && <AddItem />}
+          <NavBar type="admin"/>
+          <App />
+        </div>
+      </BrowserRouter>
+    </StrictMode>
+  );
+}
+
+createRoot(document.getElementById('root')).render(<Root />);

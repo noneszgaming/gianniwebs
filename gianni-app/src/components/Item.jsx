@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import RemoveFromCartBtn from './buttons/RemoveFromCartBtn';
+import DeleteBtn from './buttons/DeleteBtn';
 import AmountCounter from './AmountCounter';
+import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
+import { GoPencil } from "react-icons/go";
+import { IoCloseOutline } from "react-icons/io5";
 
 const CartItem = ({ name, description, price, count, img }) => {
   const handleRemove = () => {
@@ -30,12 +33,27 @@ const CartItem = ({ name, description, price, count, img }) => {
             </div>
         </div>
 
-        <div className='flex justify-center items-center gap-7'>
-            <RemoveFromCartBtn className={'self-end'} onClick={handleRemove} />
+        <div className='flex justify-center items-end gap-7'>
+
+            {location.pathname.startsWith('/admin/') && location.pathname !== '/admin' &&
+                <div className={`flex justify-center items-end gap-7`}>
+                    <MiniAdminItemBtn onClick={null} >
+                        <IoCloseOutline className='w-8 h-8 text-light' />
+                    </MiniAdminItemBtn>
+
+                    <MiniAdminItemBtn onClick={null} >
+                        <GoPencil className='w-6 h-6 text-light' />
+                    </MiniAdminItemBtn>
+                </div>
+            }
+
+            <DeleteBtn onClick={handleRemove} />
 
             <div className='flex flex-col justify-center items-end gap-3'>
                 <p className='text-[22px] font-bold'>{price} Ft</p>
-                <AmountCounter type='cartItem' name={name} />
+                {!(location.pathname.startsWith('/admin/') && location.pathname !== '/admin') && 
+                    <AmountCounter type='cartItem' name={name} />
+                }
             </div>
         </div>
     </div>

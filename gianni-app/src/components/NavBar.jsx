@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useSignals } from '@preact/signals-react/runtime'
 import { isWebshopOpen } from '../signals'
 import NavBarBtn from './admin/NavBarBtn'
+import OpenCloseToggle from './admin/OpenCloseToggle'
 
 const NavBar = ({ type }) => {
 
@@ -14,6 +15,9 @@ const NavBar = ({ type }) => {
 
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
+  const navigate = useNavigate();
+
+  const showAdminControls = location.pathname.startsWith('/admin/') && (location.pathname !== '/admin' || location.pathname !== '/admin/');
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -32,14 +36,26 @@ const NavBar = ({ type }) => {
 
   return (
     <div
-      className='w-full min-h-16 h-16 flex justify-between items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none'
-      style={{ zIndex: -1 }}
+      className={`w-full min-h-16 h-16 flex  items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none ${showAdminControls ? 'justify-between' : 'justify-end'}`}
+      style={{ zIndex: 1 }}
     >
-      <div className='h-full flex justify-center items-center gap-x-6'>
-        <p className='font-semibold text-neon-green'>ADMIN</p>
-        <NavBarBtn text="ORDERS"/>
-        <NavBarBtn text="EDIT MENU"/>
-      </div>
+      {showAdminControls && (
+        <div className='h-full flex justify-center items-center gap-x-6'>
+          <p className='font-semibold text-neon-green'>ADMIN</p>
+          <NavBarBtn 
+            text="ORDERS" 
+            onClick={() => navigate('/admin/orders')} 
+            className={location.pathname === '/admin/orders' ? 'text-accent' : 'text-black'}
+          />
+          <NavBarBtn 
+            text="EDIT MENU" 
+            onClick={() => navigate('/admin/edit')} 
+            className={location.pathname === '/admin/edit' ? 'text-accent' : 'text-black'} 
+          />
+
+          <OpenCloseToggle />
+        </div>
+      )}
 
       <div className='flex gap-x-18'>
         <div className='flex justify-center items-center font-semibold text-lg text-neon-green gap-2 select-none'>

@@ -3,7 +3,7 @@
 import React from 'react'
 import { HiOutlineTrash } from "react-icons/hi2";
 
-const RemoveFromCartBtn = ({ onClick, className }) => {
+const DeleteBtn = ({ onClick, className }) => {
 
   return (
     <button 
@@ -15,4 +15,4 @@ const RemoveFromCartBtn = ({ onClick, className }) => {
   )
 }
 
-export default RemoveFromCartBtn
+export default DeleteBtn

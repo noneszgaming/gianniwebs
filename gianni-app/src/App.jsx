@@ -5,6 +5,7 @@ import CartPage from './pages/CartPage'
 import OrderDataPage from './pages/OrderDataPage'
 import ChoosePaymentPage from './pages/ChoosePaymentPage'
 import AdminLogin from './components/admin/AdminLogin'
+import EditMenuPage from './components/admin/EditMenuPage'
 
 function App() {
   useSignals();
@@ -17,7 +18,8 @@ function App() {
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/home" element={<HomePage />} />
+        <Route path="/admin/orders" element={<HomePage />} />
+        <Route path="/admin/edit" element={<EditMenuPage />} />
       </Routes>
     </div>
   )
