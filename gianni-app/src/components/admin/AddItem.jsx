@@ -42,6 +42,13 @@ const AddItem = () => {
                     <option value="merch">Merch</option>
                 </select>
 
+                <input 
+                    type="file"
+                    accept="image/*"
+                    placeholder="Upload Image" 
+                    className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                />
+
                 <div className='w-[60%] flex justify-evenly items-center'>
                     <SecondaryBtn
                         text="Cancel"

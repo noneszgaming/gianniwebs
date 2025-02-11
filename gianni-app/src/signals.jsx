@@ -6,7 +6,7 @@ const isCartOpened = signal(false);
 const isOrderDataPageOpened = signal(false);
 const isChoosePaymentPageOpened = signal(false);
 const isWebshopOpen = signal(true);
-const isAddItemOpened = signal(true);
+const isAddItemOpened = signal(false);
 
 
 export { 
