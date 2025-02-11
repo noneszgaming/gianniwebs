@@ -6,6 +6,7 @@ import HomeBtn from './buttons/HomeBtn'
 import { useLocation } from 'react-router-dom'
 import { useSignals } from '@preact/signals-react/runtime'
 import { isWebshopOpen } from '../signals'
+import NavBarBtn from './admin/NavBarBtn'
 
 const NavBar = ({ type }) => {
 
@@ -34,8 +35,10 @@ const NavBar = ({ type }) => {
       className='w-full min-h-16 h-16 flex justify-between items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none'
       style={{ zIndex: -1 }}
     >
-      <div className='flex gap-x-6'>
+      <div className='h-full flex justify-center items-center gap-x-6'>
         <p className='font-semibold text-neon-green'>ADMIN</p>
+        <NavBarBtn text="ORDERS"/>
+        <NavBarBtn text="EDIT MENU"/>
       </div>
 
       <div className='flex gap-x-18'>
