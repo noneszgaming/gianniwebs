@@ -30,7 +30,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'cancelled'],
+        enum: ['pending', 'completed', 'cancelled','Paid'],
         default: 'pending'
     },
     customer: {
@@ -39,7 +39,8 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
     address: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Address',
         required: true
     }
 });
