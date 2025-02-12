@@ -10,6 +10,18 @@ const orderRoutes = require('./routes/orders');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.use(express.json({
+    limit: '100mb',
+    extended: true,
+    parameterLimit: 50000
+}));
+
+app.use(express.urlencoded({
+    limit: '100mb',
+    extended: true,
+    parameterLimit: 50000
+}));
+
 app.use(cors({
     origin: 'http://localhost:5173'
   }));
