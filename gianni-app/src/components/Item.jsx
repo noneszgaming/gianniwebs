@@ -5,9 +5,9 @@ import DeleteBtn from './buttons/DeleteBtn';
 import AmountCounter from './AmountCounter';
 import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
-import { IoCloseOutline } from "react-icons/io5";
+import AvailabilityToggle from './admin/AvailabilityToggle';
 
-const CartItem = ({ name, description, price, count, img }) => {
+const Item = ({ id, name, description, price, count, img, available, onUpdate }) => {
   const handleRemove = () => {
     const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
     const updatedCart = currentCart.filter(item => item.name !== name);
@@ -20,7 +20,7 @@ const CartItem = ({ name, description, price, count, img }) => {
         <div className='h-full flex justify-center items-center gap-4'>
             <img
                 className='aspect-square h-[80%] min-h-[80%] object-cover rounded-[26px] bg-amber-200'
-                src=""
+                src={img}
                 alt=""
             />
             <div className='flex flex-col justify-center items-start'>
@@ -37,9 +37,11 @@ const CartItem = ({ name, description, price, count, img }) => {
 
             {location.pathname.startsWith('/admin/') && location.pathname !== '/admin' &&
                 <div className={`flex justify-center items-end gap-7`}>
-                    <MiniAdminItemBtn onClick={null} >
-                        <IoCloseOutline className='w-8 h-8 text-light' />
-                    </MiniAdminItemBtn>
+                    <AvailabilityToggle
+                        itemId={id} 
+                        initialAvailability={available}
+                        onToggle={() => onUpdate()}
+                    />
 
                     <MiniAdminItemBtn onClick={null} >
                         <GoPencil className='w-6 h-6 text-light' />
@@ -60,4 +62,4 @@ const CartItem = ({ name, description, price, count, img }) => {
   )
 }
 
-export default CartItem
+export default Item

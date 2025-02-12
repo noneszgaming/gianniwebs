@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { FaLockOpen, FaLock } from "react-icons/fa";
 import { useSignal } from "@preact/signals-react";
