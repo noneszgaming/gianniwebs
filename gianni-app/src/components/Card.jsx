@@ -5,31 +5,36 @@ import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter';
 import { useState } from 'react';
 
+import { cartCount } from '../signals';
+
+
 const Card = ({ name, description, price, img, id }) => {
 
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   const handleAddToCart = () => {
-      const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existingItemIndex = existingCart.findIndex(item => item.name === name);
-      
-      if (existingItemIndex !== -1) {
-          existingCart[existingItemIndex].quantity += selectedQuantity;
-      } else {
-          const newItem = {
-              _id: id,
-              name,
-              description,
-              price,
-              img,
-              quantity: selectedQuantity
-          };
-          existingCart.push(newItem);
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(existingCart));
-      window.dispatchEvent(new Event('cartUpdated'));
-  };
+    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingItemIndex = existingCart.findIndex(item => item.name === name);
+    
+    if (existingItemIndex !== -1) {
+        existingCart[existingItemIndex].quantity += selectedQuantity;
+    } else {
+        const newItem = {
+            _id: id,
+            name,
+            description,
+            price,
+            img,
+            quantity: selectedQuantity
+        };
+        existingCart.push(newItem);
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(existingCart));
+    // Update cart count based on all items in cart
+    cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
+    window.dispatchEvent(new Event('cartUpdated'));
+};
 
     return (
         <div className='hover:scale-[110%] w-[300px] h-[520px] flex flex-col items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden'>

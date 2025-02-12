@@ -6,7 +6,7 @@ import AmountCounter from './AmountCounter';
 import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
-
+import { cartCount } from '../signals';
 const Item = ({ id, name, description, price, count, img, available, onUpdate }) => {
     
     const [isEditing, setIsEditing] = useState(false);
@@ -17,12 +17,16 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
       img
     });
 
-  const handleRemove = () => {
-    const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const updatedCart = currentCart.filter(item => item.name !== name);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('cartUpdated'));
-  };
+    const handleRemove = () => {
+      const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+      const updatedCart = currentCart.filter(item => item.name !== name);
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      
+      // Update cart count based on remaining items
+      cartCount.value = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+      
+      window.dispatchEvent(new Event('cartUpdated'));
+    };
 
   const handleDelete = async () => {
     try {

@@ -4,9 +4,13 @@ import React, { useState } from 'react'
 import AddMerchToCartBtn from '../buttons/AddMerchToCartBtn';
 import AmountCounter from '../AmountCounter';
 
+import { cartCount } from '../../signals';
+
 const MerchWidgetItem = ({ name, price, img, id }) => {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
 
+
+    // Inside handleAddToCart function, after localStorage update:
     const handleAddToCart = () => {
         const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
         const existingItemIndex = existingCart.findIndex(item => item.name === name);
@@ -26,6 +30,8 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
         }
         
         localStorage.setItem('cart', JSON.stringify(existingCart));
+        // Update cart count based on all items in cart
+        cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
