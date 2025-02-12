@@ -8,11 +8,31 @@ import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
 
 const Item = ({ id, name, description, price, count, img, available, onUpdate }) => {
+    
   const handleRemove = () => {
     const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
     const updatedCart = currentCart.filter(item => item.name !== name);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
     window.dispatchEvent(new Event('cartUpdated'));
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`http://localhost:3001/api/items/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // Call onUpdate to refresh the item list after successful deletion
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
   };
 
   return (
@@ -49,7 +69,10 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
                 </div>
             }
 
-            <DeleteBtn onClick={handleRemove} />
+            <DeleteBtn onClick={location.pathname.startsWith('/admin/') && location.pathname !== '/admin' 
+                ? handleDelete 
+                : handleRemove} 
+            />
 
             <div className='flex flex-col justify-center items-end gap-3'>
                 <p className='text-[22px] font-bold'>{price} Ft</p>
