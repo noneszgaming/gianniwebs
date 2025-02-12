@@ -6,10 +6,24 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
 import PrimaryBtn from './buttons/PrimaryBtn'
 
 import { useNavigate } from 'react-router-dom';
+import { useSignals } from '@preact/signals-react/runtime';
+import { isSuccessfulPaymentOpened } from '../signals';
+import FormElement from './FormElement';
+import CheckBox from './CheckBox';
 
 const TotalSummaryWidget = ({ totalPrice }) => {
 
+  useSignals();
+
     const navigate = useNavigate();
+    const [isCheckedInstantDelivery, setIsCheckedInstantDelivery] = useState(true);
+    const [isCheckedAcceptTerms, setIsCheckedAcceptTerms] = useState(false);
+    const [mobileNumber, setMobileNumber] = useState('');
+    const [isValidMobile, setIsValidMobile] = useState(false);
+    
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const defaultDate = tomorrow.toISOString().split('T')[0];
 
       const [cartTotal, setCartTotal] = useState(0);
       const [cartItems, setCartItems] = useState([]);
@@ -38,100 +52,180 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         setCartTotal(0);
         setCartItems([]);
         
-        // Navigate to success page or refresh current page
-        navigate('/success');
+        // Navigate to home page and opens successful payment modal
+        navigate('/');
+        isSuccessfulPaymentOpened.value = true;
       };
 
-  
+      const generateTimeOptions = () => {
+        const options = [];
+        for (let hour = 8; hour <= 20; hour++) {
+          options.push(`${hour.toString().padStart(2, '0')}:00`);
+          options.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+        return options;
+      };
+
+      const validateMobile = (number) => {
+        const digitsOnly = number.replace(/\D/g, '');
+        
+        // For numbers starting with + (international format)
+        if (number.startsWith('+')) {
+            return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+        }
+        
+        // For numbers without + prefix
+        return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+    };
+    
+
+    const handleMobileChange = (e) => {
+        const number = e.target.value;
+        setMobileNumber(number);
+        setIsValidMobile(validateMobile(number));
+    };
+
 
   return (
-    <div className='w-full h-[300px] flex flex-col justify-evenly items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4'>
+    <div className='w-full h-[fit] flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'>
         <h2 className='text-2xl font-bold text-center'>
             Total Summary
         </h2>
 
-        <div className='w-[80%] flex justify-between items-center py-3'>
+        <div className='w-[80%] flex justify-between items-center'>
             <p className='text-lg'>
                 Subtotal:
             </p>
             <p className='text-[30px] font-bold'>{totalPrice} Ft</p>
         </div>
-        <PayPalScriptProvider options={initialOptions}>
-          <PayPalButtons
-            className='w-[100%] h-[100%]'
-            createOrder={(data, actions) => {
-              return actions.order.create({
-                purchase_units: [
-                  {
-                    amount: {
-                      value: cartTotal.toString(),
-                      breakdown: {
-                        item_total: {
+        <FormElement 
+          label="Mobile" 
+          type="tel" 
+          width="w-[80%]" 
+          value={mobileNumber}
+          onChange={handleMobileChange}
+        />
+        <div className='flex flex-col justify-start items-center gap-8'>
+          <div className='flex flex-col justify-start items-start gap-3'>
+            <div className="flex items-center gap-2">
+              <CheckBox isChecked={isCheckedAcceptTerms} setIsChecked={setIsCheckedAcceptTerms} />
+              <label 
+                className="text-lg text-slate-950 select-none"
+                htmlFor="instantDelivery"
+              >
+                Accept <span className='text-accent cursor-pointer hover:border-b'>Terms & Conditions</span>
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckBox isChecked={isCheckedInstantDelivery} setIsChecked={setIsCheckedInstantDelivery} />
+              <label 
+                className="text-lg text-slate-950 cursor-pointer select-none"
+                htmlFor="instantDelivery"
+              >
+                Instant Delivery
+              </label>
+            </div>
+          </div>
+
+          {!isCheckedInstantDelivery && (
+            <div className="flex items-center gap-4">
+              <input 
+                type="date" 
+                min={defaultDate}
+                max={defaultDate}
+                defaultValue={defaultDate}
+                className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent"
+              />
+              <select className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent">
+                {generateTimeOptions().map((time) => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+        </div>
+
+        {isCheckedAcceptTerms && isValidMobile && 
+          <div className='w-[80%] h-fit'>
+            <PayPalScriptProvider className='h-[50px]' options={initialOptions}>
+              <PayPalButtons
+                className='w-[100%] h-[100%]'
+                createOrder={(data, actions) => {
+                  return actions.order.create({
+                    purchase_units: [
+                      {
+                        amount: {
                           value: cartTotal.toString(),
-                          currency_code: "HUF"
-                        }
+                          breakdown: {
+                            item_total: {
+                              value: cartTotal.toString(),
+                              currency_code: "HUF"
+                            }
+                          }
+                        },
+                        items: cartItems.map(item => ({
+                          name: item.name,
+                          unit_amount: {
+                            value: item.price.toString(),
+                            currency_code: "HUF"
+                          },
+                          quantity: item.quantity,
+                          description: item.description || ''
+                        }))
                       }
-                    },
-                    items: cartItems.map(item => ({
-                      name: item.name,
-                      unit_amount: {
-                        value: item.price.toString(),
-                        currency_code: "HUF"
+                    ],
+                    application_context: {
+                      shipping_preference: "GET_FROM_FILE"
+                    }
+                  });
+                }}
+                onApprove={(data, actions) => {
+                  return actions.order.capture().then((details) => {
+                    const orderData = {
+                      customer: {
+                        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
+                        email: details.payer.email_address,
+                        phone: details.payer.phone?.phone_number?.national_number || '+36201234567' // Default or get from form
                       },
-                      quantity: item.quantity,
-                      description: item.description || ''
-                    }))
-                  }
-                ],
-                application_context: {
-                  shipping_preference: "GET_FROM_FILE"
-                }
-              });
-            }}
-            onApprove={(data, actions) => {
-              return actions.order.capture().then((details) => {
-                const orderData = {
-                  customer: {
-                    name: details.payer.name.given_name + ' ' + details.payer.name.surname,
-                    email: details.payer.email_address,
-                    phone: details.payer.phone?.phone_number?.national_number || '+36201234567' // Default or get from form
-                  },
-                  address: {
-                    country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
-                    firstName: details.payer.name.given_name,
-                    lastName: details.payer.name.surname,
-                    city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
-                    addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
-                    addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
-                    zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
-                  },
-                  items: cartItems.map(item => ({
-                    _id: item._id,
-                    quantity: item.quantity
-                  }))
-                };
-            
-                // Send order to backend
-                fetch('http://localhost:3001/api/order', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(orderData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                  console.log('Order created:', data);
-                  handlePaymentSuccess(details);
-                })
-                .catch(error => {
-                  console.error('Error creating order:', error);
-                });
-              });
-            }}
-            
-          />
-        </PayPalScriptProvider>
+                      address: {
+                        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
+                        firstName: details.payer.name.given_name,
+                        lastName: details.payer.name.surname,
+                        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
+                        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
+                        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
+                        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
+                      },
+                      items: cartItems.map(item => ({
+                        _id: item._id,
+                        quantity: item.quantity
+                      }))
+                    };
+                
+                    // Send order to backend
+                    fetch('http://localhost:3001/api/order', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(orderData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      console.log('Order created:', data);
+                      handlePaymentSuccess(details);
+                    })
+                    .catch(error => {
+                      console.error('Error creating order:', error);
+                    });
+                  });
+                }}
+                
+              />
+            </PayPalScriptProvider>
+          </div>
+        }
 
     </div>
   )
