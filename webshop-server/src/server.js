@@ -1,14 +1,17 @@
 require('dotenv').config();
-
 const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
+const http = require('http'); // Add this
 const itemRoutes = require('./routes/items');
 const adminRoutes = require('./routes/admin');
 const orderRoutes = require('./routes/orders');
 const storeRoutes = require('./routes/store');
 
 const app = express();
+const server = http.createServer(app); // Create HTTP server
+const wsService = require('./services/websocket')(server); // Initialize WebSocket after server creation
+
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json({
@@ -25,23 +28,20 @@ app.use(express.urlencoded({
 
 app.use(cors({
     origin: 'http://localhost:5173'
-  }));
+}));
 
-// Middleware
-app.use(express.json()); // A HTTP kérések törzsének (body) feldolgozásához
-
-// Útvonalak regisztrálása
+// Routes registration
 app.use('/api', itemRoutes);
 app.use('/api', adminRoutes);
 app.use('/api', orderRoutes);
-app.use('/api', storeRoutes);
-// MongoDB kapcsolat
+app.use('/api', storeRoutes(wsService));
+
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {console.log('Connected to MongoDB');})
-    .catch(err => {console.error('Failed to connect to MongoDB', err);
-});
+    .catch(err => {console.error('Failed to connect to MongoDB', err);});
 
-// Szerver indítása
-app.listen(PORT, () => {
+// Start server
+server.listen(PORT, () => { // Use server.listen instead of app.listen
     console.log(`Server is running on port ${PORT}`);
 });
