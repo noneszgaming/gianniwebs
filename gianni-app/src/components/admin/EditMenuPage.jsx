@@ -36,6 +36,26 @@ const EditMenuPage = () => {
         fetchMerchItems();
       }, []);
 
+      const refreshData = () => {
+        fetchFoods();
+        fetchMerchItems();
+      };
+
+      const fetchFoods = async () => {
+        const response = await fetch('http://localhost:3001/api/food');
+        const data = await response.json();
+        setFoods(data);
+      };
+    
+      const fetchMerchItems = async () => {
+        try {
+          const response = await fetch('http://localhost:3001/api/merch');
+          const data = await response.json();
+          setMerches(data);
+        } catch (error) {
+          console.log('Error fetching merch items:', error);
+        }
+      };
 
     return (
         <div className='w-full h-fit grid grid-cols-3 md:grid-cols-4 justify-items-center gap-x-10 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
@@ -50,6 +70,7 @@ const EditMenuPage = () => {
                         available={food.available}
                         price={food.price}
                         img={food.img}
+                        onUpdate={refreshData}
                     />
                 ))}
                 <h2 className='text-3xl font-bold py-3 select-none'>Merches</h2>
@@ -62,6 +83,7 @@ const EditMenuPage = () => {
                         available={merch.available}
                         price={merch.price}
                         img={merch.img}
+                        onUpdate={refreshData}
                     />
                 ))}
             </div>

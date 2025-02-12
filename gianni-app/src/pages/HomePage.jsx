@@ -9,7 +9,8 @@ const HomePage = () => {
     const fetchFoods = async () => {
       const response = await fetch('http://localhost:3001/api/food');
       const data = await response.json();
-      setFoods(data);
+      const availableItems = data.filter(food => food.available === true);
+      setFoods(availableItems);
     };
 
     fetchFoods();

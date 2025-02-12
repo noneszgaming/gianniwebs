@@ -6,6 +6,8 @@ import MerchWidget from '../components/merch/MerchWidget';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
+
+    //TODO: Add a function to update the cart items from the backend
    
     useEffect(() => {
       const handleCartUpdate = () => {
