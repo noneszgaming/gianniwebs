@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Customer = require('../models/Customer');
 const Item = require('../models/Item');
 const Address = require('../models/Address');
+const auth = require('../middleware/auth');
 
 router.post('/order', async (req, res) => {
     try {
@@ -64,5 +65,27 @@ router.post('/order', async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
+router.get('/orders', auth, async (req, res) => {
+    try {
+        const orders = await Order.find({})
+            .populate('customer')
+            .populate('address')
+            .sort({ created_date: -1 }); // Most recent first
+
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching orders',
+            error: error.message
+        });
+    }
+});
+
 
 module.exports = router;
