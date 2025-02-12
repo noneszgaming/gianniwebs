@@ -10,7 +10,7 @@ const AddItem = () => {
 
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 2 }}>
-            <form className='w-[70%] h-[70%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
+            <form className='w-[70%] h-[70%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl select-none'>
                 <h2 className='font-semibold text-3xl'>Add Merch or Food</h2>
                 
                 <input 
@@ -35,7 +35,7 @@ const AddItem = () => {
                     <p className='w-[20%] text-2xl font-semibold'>Ft</p>
                 </div>
                 
-                <select className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none">
+                <select className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none cursor-pointer">
                     <option
                         className='bg-light '
                         value="food">Food</option>
@@ -46,7 +46,7 @@ const AddItem = () => {
                     type="file"
                     accept="image/*"
                     placeholder="Upload Image" 
-                    className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                    className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none cursor-pointer"
                 />
 
                 <div className='w-[60%] flex justify-evenly items-center'>

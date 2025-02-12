@@ -17,7 +17,7 @@ const NavBar = ({ type }) => {
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
-  const showAdminControls = location.pathname.startsWith('/admin/') && (location.pathname !== '/admin' || location.pathname !== '/admin/');
+  const showAdminControls = location.pathname.startsWith('/admin/') && location.pathname !== '/admin/';
 
   useEffect(() => {
     const handleStorageChange = () => {
