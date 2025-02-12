@@ -8,7 +8,7 @@ const isChoosePaymentPageOpened = signal(false);
 const isWebshopOpen = signal(true);
 const isAddItemOpened = signal(false);
 const isSuccessfulPaymentOpened = signal(false);
-
+const cartCount = signal(0);
 
 export { 
     isHomeOpened,
@@ -18,4 +18,5 @@ export {
     isWebshopOpen,
     isAddItemOpened,
     isSuccessfulPaymentOpened,
+    cartCount
 }

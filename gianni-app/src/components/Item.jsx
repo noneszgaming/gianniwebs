@@ -6,14 +6,19 @@ import AmountCounter from './AmountCounter';
 import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
 import { IoCloseOutline } from "react-icons/io5";
+import { cartCount } from '../signals';
 
 const CartItem = ({ name, description, price, count, img }) => {
-  const handleRemove = () => {
-    const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const updatedCart = currentCart.filter(item => item.name !== name);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event('cartUpdated'));
-  };
+    const handleRemove = () => {
+      const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+      const updatedCart = currentCart.filter(item => item.name !== name);
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      
+      // Update cart count based on remaining items
+      cartCount.value = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+      
+      window.dispatchEvent(new Event('cartUpdated'));
+    };
 
   return (
     <div className='w-full min-w-full h-48 flex justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl px-8 mb-10'>

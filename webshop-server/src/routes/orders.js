@@ -6,9 +6,9 @@ const Item = require('../models/Item');
 const Address = require('../models/Address');
 const auth = require('../middleware/auth');
 
-router.post('/order', async (req, res) => {
+router.post('/orders', async (req, res) => {
     try {
-        // Check if customer exists by email
+        // 1. Check if customer exists by email
         let customer = await Customer.findOne({ email: req.body.customer.email });
         
         // If customer doesn't exist, create new one
@@ -16,14 +16,14 @@ router.post('/order', async (req, res) => {
             customer = new Customer({
                 name: req.body.customer.name,
                 email: req.body.customer.email,
-               
                 phone: req.body.customer.phone
             });
             await customer.save();
         }
 
-        // Create new address for the order
-        const address = new Address({
+        // 2. Check if address exists for this customer
+        let address = await Address.findOne({
+            customer: customer._id,
             country: req.body.address.country,
             firstName: req.body.address.firstName,
             lastName: req.body.address.lastName,
@@ -32,9 +32,23 @@ router.post('/order', async (req, res) => {
             addressLine2: req.body.address.addressLine2,
             zipCode: req.body.address.zipCode
         });
-        await address.save();
 
-        // Transform cart items into order items with snapshots
+        // If address doesn't exist, create new one
+        if (!address) {
+            address = new Address({
+                customer: customer._id,
+                country: req.body.address.country,
+                firstName: req.body.address.firstName,
+                lastName: req.body.address.lastName,
+                city: req.body.address.city,
+                addressLine1: req.body.address.addressLine1,
+                addressLine2: req.body.address.addressLine2,
+                zipCode: req.body.address.zipCode
+            });
+            await address.save();
+        }
+
+        // 3. Create order with item snapshots and address reference
         const orderItems = await Promise.all(req.body.items.map(async (cartItem) => {
             const item = await Item.findById(cartItem._id);
             return {
@@ -46,7 +60,6 @@ router.post('/order', async (req, res) => {
             };
         }));
 
-        // Create order with item snapshots and new address reference
         const order = new Order({
             customer: customer._id,
             items: orderItems,
@@ -58,13 +71,15 @@ router.post('/order', async (req, res) => {
 
         const populatedOrder = await Order.findById(order._id)
             .populate('customer')
-            .populate('address');
+            .populate('address')
+            .exec();
 
         res.status(201).json(populatedOrder);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 });
+
 
 router.get('/orders', auth, async (req, res) => {
     try {
