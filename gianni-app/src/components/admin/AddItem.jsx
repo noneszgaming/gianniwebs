@@ -68,8 +68,6 @@ const AddItem = () => {
             }
         }
     };
-    
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -165,7 +163,7 @@ const AddItem = () => {
                         text="Cancel"
                         onClick={() => isAddItemOpened.value = false}
                     />
-                    <button type="submit" className="primary-btn">Add Item</button>
+                    <PrimaryBtn text="Add Item" type="submit" />
                 </div>
             </form>
         </div>
