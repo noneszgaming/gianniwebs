@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const itemRoutes = require('./routes/items');
 const adminRoutes = require('./routes/admin');
 const orderRoutes = require('./routes/orders');
+const storeRoutes = require('./routes/store');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,8 +32,9 @@ app.use(express.json()); // A HTTP kérések törzsének (body) feldolgozásáho
 
 // Útvonalak regisztrálása
 app.use('/api', itemRoutes);
-app.use('/api',adminRoutes);
-app.use('/api',orderRoutes);
+app.use('/api', adminRoutes);
+app.use('/api', orderRoutes);
+app.use('/api', storeRoutes);
 // MongoDB kapcsolat
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {console.log('Connected to MongoDB');})
