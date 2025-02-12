@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
@@ -10,29 +8,42 @@ import NavBarBtn from './admin/NavBarBtn'
 import OpenCloseToggle from './admin/OpenCloseToggle'
 
 const NavBar = ({ type }) => {
-
+  const [cartCount, setCartCount] = useState(0);
   useSignals();
 
   const location = useLocation();
-  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
   const showAdminControls = location.pathname.startsWith('/admin/') && location.pathname !== '/admin/';
 
   useEffect(() => {
-    const handleStorageChange = () => {
-        const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
-        const totalQuantity = currentCart.reduce((total, item) => total + item.quantity, 0);
-        setCartCount(totalQuantity);
+    // WebSocket connection for store state - no auth needed for receiving updates
+    const ws = new WebSocket('ws://localhost:3001/ws');
+    
+    ws.onopen = () => {
+        console.log('WebSocket Connected');
+        // Request initial state
+        ws.send(JSON.stringify({ type: 'GET_STORE_STATE' }));
     };
 
-    handleStorageChange();
-    window.addEventListener('cartUpdated', handleStorageChange);
-    
-    return () => {
-        window.removeEventListener('cartUpdated', handleStorageChange);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received WebSocket message:', data);
+      if (data.type === 'STORE_STATUS_UPDATE') {
+          // Handle both message formats
+          const state = data.state || (data.data && data.data.state);
+          isWebshopOpen.value = state === 'open';
+      }
+  };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
     };
-  }, []);
+
+    return () => {
+        ws.close();
+    };
+}, []);
 
   return (
     <div
