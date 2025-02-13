@@ -25,7 +25,7 @@ const AddItem = () => {
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     // Drastically reduced max width
-                    const MAX_WIDTH = 400;
+                    const MAX_WIDTH = 1000;
                     let width = img.width;
                     let height = img.height;
     
