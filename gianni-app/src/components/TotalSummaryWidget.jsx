@@ -183,10 +183,11 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                 onApprove={(data, actions) => {
                   return actions.order.capture().then((details) => {
                     const orderData = {
+                      paymentId: details.id,
                       customer: {
                         name: details.payer.name.given_name + ' ' + details.payer.name.surname,
                         email: details.payer.email_address,
-                        phone: details.payer.phone?.phone_number?.national_number || '+36201234567' // Default or get from form
+                        phone: mobileNumber 
                       },
                       address: {
                         country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
@@ -200,11 +201,15 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                       items: cartItems.map(item => ({
                         _id: item._id,
                         quantity: item.quantity
-                      }))
+                      })),
+                      termsAccepted: isCheckedAcceptTerms,
+                      isInstantDelivery: isCheckedInstantDelivery,
+                      deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
+                      deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null
                     };
-                
+                    console.log('Order data POST:', JSON.stringify(orderData));
                     // Send order to backend
-                    fetch('http://localhost:3001/api/order', {
+                    fetch('http://localhost:3001/api/orders', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

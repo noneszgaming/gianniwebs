@@ -16,8 +16,15 @@ const customerSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
-        unique: true,
         trim: true
+    },
+    termsAccepted: {
+        type: Boolean,
+        required: true
+    },
+    termsAcceptedDate: {
+        type: Date,
+        required: true
     }
 
 });

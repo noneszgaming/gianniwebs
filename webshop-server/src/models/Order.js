@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+    paymentId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     items: [{
         name: {
             type: String,
@@ -30,8 +35,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'cancelled','Paid'],
-        default: 'pending'
+        enum: ['pending', 'completed', 'cancelled','Paid']
+       
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
@@ -42,6 +47,20 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Address',
         required: true
+    },
+    isInstantDelivery: {
+        type: Boolean,
+        required: true
+    },
+    deliveryDate: {
+        type: Date,
+        required: true
+    },
+    deliveryTime: {
+        type: String,
+        required: function() {
+            return !this.isInstantDelivery;
+        }
     }
 });
 

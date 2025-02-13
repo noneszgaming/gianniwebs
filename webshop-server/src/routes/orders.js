@@ -6,34 +6,74 @@ const Item = require('../models/Item');
 const Address = require('../models/Address');
 const auth = require('../middleware/auth');
 
+const axios = require('axios'); // Add this for HTTP requests
+
+// Add PayPal configuration
+const PAYPAL_API = 'https://sandbox.paypal.com'; // Use sandbox URL for testing
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
+const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
+
+// Helper function to verify PayPal payment
+async function verifyPayPalPayment(paymentId) {
+    try {
+        // Get access token
+        const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
+        const tokenResponse = await axios.post(`${PAYPAL_API}/v1/oauth2/token`, 
+            'grant_type=client_credentials',
+            {
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        // Verify payment
+        const response = await axios.get(`${PAYPAL_API}/v2/checkout/orders/${paymentId}`, {
+            headers: {
+                'Authorization': `Bearer ${tokenResponse.data.access_token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data.status === 'COMPLETED';
+    } catch (error) {
+        console.error('PayPal verification error:', error);
+        return false;
+    }
+}
+
 router.post('/orders', async (req, res) => {
     try {
-        // 1. Check if customer exists by email
-        let customer = await Customer.findOne({ email: req.body.customer.email });
+        const isPaymentValid = await verifyPayPalPayment(req.body.paymentId);
         
-        // If customer doesn't exist, create new one
+        if (!isPaymentValid) {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment verification failed'
+            });
+        }
+        // Create/update customer
+        let customer = await Customer.findOne({ email: req.body.customer.email });
         if (!customer) {
             customer = new Customer({
                 name: req.body.customer.name,
                 email: req.body.customer.email,
-                phone: req.body.customer.phone
+                phone: req.body.customer.phone,
+                termsAccepted: req.body.termsAccepted,
+                termsAcceptedDate: new Date()
             });
             await customer.save();
         }
 
-        // 2. Check if address exists for this customer
+        // Create/update address
         let address = await Address.findOne({
             customer: customer._id,
             country: req.body.address.country,
-            firstName: req.body.address.firstName,
-            lastName: req.body.address.lastName,
             city: req.body.address.city,
-            addressLine1: req.body.address.addressLine1,
-            addressLine2: req.body.address.addressLine2,
-            zipCode: req.body.address.zipCode
+            addressLine1: req.body.address.addressLine1
         });
 
-        // If address doesn't exist, create new one
         if (!address) {
             address = new Address({
                 customer: customer._id,
@@ -48,37 +88,40 @@ router.post('/orders', async (req, res) => {
             await address.save();
         }
 
-        // 3. Create order with item snapshots and address reference
-        const orderItems = await Promise.all(req.body.items.map(async (cartItem) => {
-            const item = await Item.findById(cartItem._id);
+        // Fetch complete item details
+        const itemPromises = req.body.items.map(async (item) => {
+            const fullItem = await Item.findById(item._id);
             return {
-                name: item.name,
-                price: item.price,
-                description: item.description,
-                type: item.type,
-                quantity: cartItem.quantity
+                name: fullItem.name,
+                price: fullItem.price,
+                description: fullItem.description,
+                type: fullItem.type,
+                quantity: item.quantity
             };
-        }));
-
-        const order = new Order({
-            customer: customer._id,
-            items: orderItems,
-            status: 'pending',
-            created_date: new Date(),
-            address: address._id
         });
+        const completedItems = await Promise.all(itemPromises);
+
+        // Create order with all required fields
+        const order = new Order({
+            paymentId: req.body.paymentId,
+            items: completedItems,
+            customer: customer._id,
+            address: address._id,
+            isInstantDelivery: req.body.isInstantDelivery,
+            deliveryDate: req.body.isInstantDelivery ? new Date() : new Date(req.body.deliveryDate),
+            deliveryTime: req.body.isInstantDelivery ? null : req.body.deliveryTime,
+            status: 'Paid'
+        });
+
         await order.save();
+        res.status(201).json(order);
 
-        const populatedOrder = await Order.findById(order._id)
-            .populate('customer')
-            .populate('address')
-            .exec();
-
-        res.status(201).json(populatedOrder);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Order creation error:', error);
+        res.status(500).json({ error: error.message });
     }
 });
+
 
 
 router.get('/orders', auth, async (req, res) => {
