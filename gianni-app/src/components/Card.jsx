@@ -40,7 +40,7 @@ const Card = ({ name, description, price, img, id }) => {
         <div className='hover:scale-[110%] w-[300px] h-[520px] flex flex-col items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden'>
             <img 
                 className='w-full h-[60%] object-cover rounded-[26px] bg-amber-200'
-                src="" 
+                src={img} 
                 alt="" 
             />
             <div className='w-[90%] h-[40%] flex flex-col justify-center items-start'>

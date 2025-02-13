@@ -39,7 +39,7 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
         <div className='w-full min-w-full h-48 min-h-48 flex justify-start items-center gap-4 bg-light font-poppins rounded-[26px] px-4 mb-10'>
             <img
                 className='aspect-square h-[60%] min-h-[60%] object-cover rounded-[26px] bg-amber-200'
-                src=""
+                src={img}
                 alt=""
             />
             <div className='h-full w-full flex flex-col justify-center items-start gap-3'>

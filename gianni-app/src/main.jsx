@@ -17,7 +17,13 @@ const Root = () => {
       <BrowserRouter>
         <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
           {isAddItemOpened.value && <AddItem />}
-          {isSuccessfulPaymentOpened.value && <SuccessfulPopup title="Payment" text="Your payment was successful!" />}
+          {isSuccessfulPaymentOpened.value && 
+            <SuccessfulPopup 
+              title="Payment" 
+              text="Your payment was successful!" 
+              onClick={() => isSuccessfulPaymentOpened.value = false}
+            />
+          }
           <NavBar type="admin"/>
           <App />
         </div>

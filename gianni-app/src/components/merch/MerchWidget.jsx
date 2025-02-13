@@ -31,6 +31,7 @@ const MerchWidget = () => {
               key={item._id}
               name={item.name}
               price={item.price}
+              img={item.img}
             />
           ))}
         </div>
