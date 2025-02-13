@@ -1,10 +1,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+import { useSignals } from '@preact/signals-react/runtime';
 import React from 'react';
 import { IoCartOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
 const CartBtn = ({ itemCount }) => {
+
+  useSignals();
+
   const navigate = useNavigate();
 
   const handleClick = () => {

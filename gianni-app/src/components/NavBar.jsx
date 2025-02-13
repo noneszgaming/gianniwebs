@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useEffect } from 'react'
 import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
@@ -41,6 +43,18 @@ const NavBar = ({ type }) => {
     return () => ws.close();
   }, []);
 
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cartCount.value = cart.reduce((sum, item) => sum + item.quantity, 0);
+    };
+  
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, []);
 
   return (
     <div className={`w-full min-h-16 h-16 flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none ${showAdminControls ? 'justify-between' : 'justify-end'}`}
