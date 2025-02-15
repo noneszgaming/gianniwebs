@@ -6,6 +6,7 @@ const http = require('http'); // Add this
 const itemRoutes = require('./routes/items');
 const adminRoutes = require('./routes/admin');
 const orderRoutes = require('./routes/orders');
+const emailRoutes = require('./routes/email');
 const storeRoutes = require('./routes/store');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api', itemRoutes);
 app.use('/api', adminRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', storeRoutes(wsService));
+app.use('/api', emailRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
