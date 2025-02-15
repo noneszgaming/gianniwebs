@@ -14,24 +14,41 @@ const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 
 // Helper function to verify PayPal payment
+let paypalAccessToken = null;
+let tokenExpiryTime = null;
+
+async function getPayPalAccessToken() {
+    // Check if we have a valid token
+    if (paypalAccessToken && tokenExpiryTime && Date.now() < tokenExpiryTime) {
+        return paypalAccessToken;
+    }
+
+    // Get new token if none exists or expired
+    const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
+    const tokenResponse = await axios.post(`${PAYPAL_API}/v1/oauth2/token`,
+        'grant_type=client_credentials',
+        {
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }
+    );
+
+    // Store token and set expiry (typically 32000 seconds, setting to 30000 for safety)
+    paypalAccessToken = tokenResponse.data.access_token;
+    tokenExpiryTime = Date.now() + (30000 * 1000); // Convert seconds to milliseconds
+    
+    return paypalAccessToken;
+}
+
 async function verifyPayPalPayment(paymentId) {
     try {
-        // Get access token
-        const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
-        const tokenResponse = await axios.post(`${PAYPAL_API}/v1/oauth2/token`, 
-            'grant_type=client_credentials',
-            {
-                headers: {
-                    'Authorization': `Basic ${auth}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-        );
-
-        // Verify payment
+        const accessToken = await getPayPalAccessToken();
+        
         const response = await axios.get(`${PAYPAL_API}/v2/checkout/orders/${paymentId}`, {
             headers: {
-                'Authorization': `Bearer ${tokenResponse.data.access_token}`,
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -47,12 +64,7 @@ router.post('/orders', async (req, res) => {
     try {
         const isPaymentValid = await verifyPayPalPayment(req.body.paymentId);
         
-        if (!isPaymentValid) {
-            return res.status(400).json({
-                success: false,
-                message: 'Payment verification failed'
-            });
-        }
+        const orderStatus = isPaymentValid ? 'Paid' : 'pending';
         // Create/update customer
         let customer = await Customer.findOne({ email: req.body.customer.email });
         if (!customer) {
@@ -110,7 +122,7 @@ router.post('/orders', async (req, res) => {
             isInstantDelivery: req.body.isInstantDelivery,
             deliveryDate: req.body.isInstantDelivery ? new Date() : new Date(req.body.deliveryDate),
             deliveryTime: req.body.isInstantDelivery ? null : req.body.deliveryTime,
-            status: 'Paid'
+            status: orderStatus
         });
 
         await order.save();
