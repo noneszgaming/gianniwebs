@@ -71,6 +71,10 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
     setIsEditing(!isEditing);
   };
 
+  // Add a hidden file input ref
+  const fileInputRef = React.useRef(null);
+
+  // Modify the handleImageUpload function
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -82,17 +86,33 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
     }
   };
 
+  // Add click handler for the image
+  const handleImageClick = () => {
+    if (isEditing) {
+      fileInputRef.current.click();
+    }
+  };
+
+
   return (
     <div className='w-full min-w-full h-48 flex justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl px-8 mb-10'>
       <div className='h-full flex justify-center items-center gap-4'>
         {isEditing ? (
-          <input
-            className='aspect-square h-[80%] min-h-[80%] rounded-[26px] p-2 border-2 border-black'
-            value={editedItem.img}
-            onChange={(e) => setEditedItem({...editedItem, img: e.target.value})}
-            placeholder="Image URL"
-            type='image'
-          />
+          <>
+            <img
+              className='aspect-square h-[80%] min-h-[80%] object-cover rounded-[26px] bg-amber-200 cursor-pointer'
+              src={editedItem.img}
+              onClick={handleImageClick}
+              alt=""
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+            />
+          </>
         ) : (
           <img
             className='aspect-square h-[80%] min-h-[80%] object-cover rounded-[26px] bg-amber-200'
