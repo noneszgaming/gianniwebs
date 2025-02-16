@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FaChevronDown, FaChevronUp, FaSearch } from 'react-icons/fa';
+import { FaSearch, FaRedoAlt } from 'react-icons/fa';
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState('orderDate');
   const [sortDirection, setSortDirection] = useState('desc');
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,30 +54,49 @@ const OrderPage = () => {
     ...(expandedSections.address ? addressColumns : [])
   ];
 
-  // Fetch orders (keeping the same fetch logic)
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const token = localStorage.getItem('adminToken');
-        const response = await fetch('http://localhost:3001/api/orders', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          setOrders(data.orders);
-        } else {
-          console.error('Failed to fetch orders:', data.message);
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('http://localhost:3001/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      }
-    };
+      });
 
+      const data = await response.json();
+      if (response.ok) {
+        setOrders(data.orders);
+      } else {
+        console.error('Failed to fetch orders:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  // Fetch orders
+  useEffect(() => {
     fetchOrders();
   }, []);
+
+  const retryVerification = async (paymentId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`http://localhost:3001/api/orders/verify/${paymentId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        // Refresh orders after verification
+        fetchOrders();
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+    }
+  };
 
   const filteredOrders = orders.filter(order =>
     order.paymentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -152,7 +170,18 @@ const OrderPage = () => {
             {sortedOrders.map((order) => (
               <tr key={order.paymentId} className="hover:bg-gray-50">
                 <td className="px-6 py-4">{order.paymentId}</td>
-                <td className="px-6 py-4">{order.status}</td>
+                <td className="px-6 py-4 flex items-center gap-2">
+                  {order.status}
+                  {order.status === 'pending' && (
+                    <button 
+                      onClick={() => retryVerification(order.paymentId)}
+                      className="text-blue-500 hover:text-blue-700 transition-colors"
+                      title="Retry verification"
+                    >
+                      <FaRedoAlt className="w-4 h-4" />
+                    </button>
+                  )}
+                </td>
                 <td className="px-6 py-4">{new Date(order.created_date).toLocaleDateString()}</td>
                 <td className="px-6 py-4">{new Date(order.deliveryDate).toLocaleDateString()}</td>
                 <td className="px-6 py-4">{order.total_price} Ft</td>
@@ -161,7 +190,7 @@ const OrderPage = () => {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       {order.items.map((item, index) => (
-                        <div key={index} className="flex items-center">
+                        <div key={item.id || index} className="flex items-center">
                           <span className="text-gray-600">•</span>
                           <span className="ml-2">
                             {item.name} - {item.quantity}x - {item.price} Ft

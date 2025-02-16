@@ -162,3 +162,44 @@ router.get('/orders', auth, async (req, res) => {
 
 
 module.exports = router;
+
+router.post('/orders/verify/:paymentId', auth, async (req, res) => {
+    try {
+        const paymentId = req.params.paymentId;
+        const isPaymentValid = await verifyPayPalPayment(paymentId);
+
+        if (isPaymentValid) {
+            // Update order status to 'Paid' if payment is valid
+            const updatedOrder = await Order.findOneAndUpdate(
+                { paymentId: paymentId },
+                { status: 'Paid' },
+                { new: true }
+            ).populate('customer').populate('address');
+
+            if (!updatedOrder) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Order not found'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Payment verified successfully',
+                order: updatedOrder
+            });
+        }
+
+        res.status(400).json({
+            success: false,
+            message: 'Payment verification failed'
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying payment',
+            error: error.message
+        });
+    }
+});
