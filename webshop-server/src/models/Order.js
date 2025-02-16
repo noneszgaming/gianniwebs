@@ -29,6 +29,10 @@ const orderSchema = new mongoose.Schema({
             required: true
         }
     }],
+    total_price: {
+        type: Number,
+        required: true
+    },
     created_date: {
         type: Date,
         default: Date.now
@@ -36,7 +40,6 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['pending', 'completed', 'cancelled','Paid']
-       
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,

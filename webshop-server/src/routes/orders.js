@@ -113,10 +113,15 @@ router.post('/orders', async (req, res) => {
         });
         const completedItems = await Promise.all(itemPromises);
 
-        // Create order with all required fields
+        // Calculate total price
+        const total_price = completedItems.reduce((total, item) => {
+            return total + (Number(item.price) * Number(item.quantity));
+        }, 0);
+        // Create order with all required fields including total_price
         const order = new Order({
             paymentId: req.body.paymentId,
             items: completedItems,
+            total_price: total_price, // This will add the total_price to the response
             customer: customer._id,
             address: address._id,
             isInstantDelivery: req.body.isInstantDelivery,
@@ -127,13 +132,11 @@ router.post('/orders', async (req, res) => {
 
         await order.save();
         res.status(201).json(order);
-
     } catch (error) {
         console.error('Order creation error:', error);
         res.status(500).json({ error: error.message });
     }
 });
-
 
 
 router.get('/orders', auth, async (req, res) => {
