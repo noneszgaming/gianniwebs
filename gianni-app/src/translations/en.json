@@ -9,6 +9,7 @@
         "payment": "Payment",
         "sucPaymentDesc": "Your payment was successful!",
         "emptyCart": "Your cart is empty!",
+        "merches": "Merches",
         "primaryBtn": {
             "addToCart": "Add to Cart",
             "add": "ADD"

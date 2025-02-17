@@ -9,6 +9,7 @@
         "payment": "Zahlung",
         "sucPaymentDesc": "Ihre Zahlung war erfolgreich!",
         "emptyCart": "Ihr Warenkorb ist leer!",
+        "merches": "Merchandise",
         "primaryBtn": {
             "addToCart": "In den Warenkorb",
             "add": "HINZUFÜGEN"

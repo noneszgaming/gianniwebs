@@ -9,6 +9,7 @@
         "payment": "Fizetés",
         "sucPaymentDesc": "A fizetés sikeres volt!",
         "emptyCart": "A kosár üres!",
+        "merches": "Termékek",
         "primaryBtn": {
             "addToCart": "Kosárba",
             "add": "HOZZÁAD"
