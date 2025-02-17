@@ -105,7 +105,7 @@ const NavBar = ({ type }) => {
             {isLangHovered &&
               <div 
                 className='absolute -top-0 p-1 w-full h-fit rounded-full bg-slate-400 flex flex-col justify-center items-center gap-2'
-                style={{ zIndex: -10 }}
+                style={{ zIndex: 1 }}
               >
                 <LanguageChangeBtn type="eng"/>
                 <LanguageChangeBtn type="hu"/>
