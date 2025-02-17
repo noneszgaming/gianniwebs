@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React from 'react'
+import { useTranslation } from 'react-i18next';
 
 const AmountCounter = ({ className, type, name, onQuantityChange }) => {
+    const { t } = useTranslation();
   
     const getQuantityFromStorage = () => {
         if (type === "cartItem") {
@@ -44,7 +46,7 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
 
     return (
         <div className={`flex justify-center items-center gap-2 ${className}`}>
-            <p className='font-semibold text-[16px]'>Amount</p>
+            <p className='font-semibold text-[16px]'>{t('amount')}</p>
             <input
                 className='w-[60px] h-[30px] text-center focus:text-accent focus:caret-accent bg-zinc-200 rounded-lg outline-none'
                 type="number"

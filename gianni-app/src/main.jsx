@@ -1,3 +1,4 @@
+import './i18n.js';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -8,6 +9,7 @@ import AddItem from './components/admin/AddItem.jsx'
 import { isAddItemOpened, isSuccessfulPaymentOpened } from './signals.jsx'
 import { useSignals } from '@preact/signals-react/runtime'
 import SuccessfulPopup from './components/SuccessfulPopup.jsx'
+import { LanguageProvider } from './context/LanguageContext.jsx'
 
 const Root = () => {
   useSignals();
@@ -15,18 +17,20 @@ const Root = () => {
   return (
     <StrictMode>
       <BrowserRouter>
-        <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
-          {isAddItemOpened.value && <AddItem />}
-          {isSuccessfulPaymentOpened.value && 
-            <SuccessfulPopup 
-              title="Payment" 
-              text="Your payment was successful!" 
-              onClick={() => isSuccessfulPaymentOpened.value = false}
-            />
-          }
-          <NavBar type="admin"/>
-          <App />
-        </div>
+        <LanguageProvider>
+          <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
+            {isAddItemOpened.value && <AddItem />}
+            {isSuccessfulPaymentOpened.value && 
+              <SuccessfulPopup 
+                title="Payment" 
+                text="Your payment was successful!" 
+                onClick={() => isSuccessfulPaymentOpened.value = false}
+              />
+            }
+            <NavBar type="admin"/>
+            <App />
+          </div>
+        </LanguageProvider>
       </BrowserRouter>
     </StrictMode>
   );

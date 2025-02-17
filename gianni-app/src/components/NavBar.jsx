@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -8,12 +8,18 @@ import { useSignals } from '@preact/signals-react/runtime'
 import { isWebshopOpen, cartCount } from '../signals'
 import NavBarBtn from './admin/NavBarBtn'
 import OpenCloseToggle from './admin/OpenCloseToggle'
+import LanguageChangeBtn from './LanguageChangeBtn'
+import { LanguageContext } from '../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const NavBar = ({ type }) => {
   useSignals();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLangHovered, setIsLangHovered] = useState(false);
+  const { language } = useContext(LanguageContext);
   const showAdminControls = location.pathname.startsWith('/admin/') && location.pathname !== '/admin/';
+  const { t } = useTranslation();
 
   // Initialize cart from localStorage
   useEffect(() => {
@@ -76,10 +82,10 @@ const NavBar = ({ type }) => {
         </div>
       )}
 
-      <div className='flex gap-x-18'>
+      <div className='flex items-center gap-x-18'>
         <div className='flex justify-center items-center font-semibold text-lg text-neon-green gap-2 select-none'>
           <p className={`${isWebshopOpen.value ? "text-neon-green" : "text-red-600"}`}>
-            {isWebshopOpen.value ? "OPEN" : "CLOSED"}
+            {isWebshopOpen.value ? t('store_status.open') : t('store_status.closed')}
           </p>
           <span className={`w-[6px] aspect-square rounded-full relative z-10 ${
             isWebshopOpen.value
@@ -88,7 +94,26 @@ const NavBar = ({ type }) => {
           }`} />
         </div>
         {location.pathname !== '/' && <HomeBtn />}
-        <CartBtn itemCount={cartCount.value} />
+        <div className='flex items-center gap-x-4'>
+          <CartBtn itemCount={cartCount.value} />
+          <div 
+            className='flex justify-center relative p-1'
+            onMouseEnter={() => setIsLangHovered(true)}
+            onMouseLeave={() => setIsLangHovered(false)}
+          >
+            <LanguageChangeBtn type={language} />
+            {isLangHovered &&
+              <div 
+                className='absolute -top-0 p-1 w-full h-fit rounded-full bg-slate-400 flex flex-col justify-center items-center gap-2'
+                style={{ zIndex: -10 }}
+              >
+                <LanguageChangeBtn type="eng"/>
+                <LanguageChangeBtn type="hu"/>
+                <LanguageChangeBtn type="de"/>
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
   )

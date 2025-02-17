@@ -10,11 +10,13 @@ import { useSignals } from '@preact/signals-react/runtime';
 import { isSuccessfulPaymentOpened } from '../signals';
 import FormElement from './FormElement';
 import CheckBox from './CheckBox';
+import { useTranslation } from 'react-i18next';
 
 const TotalSummaryWidget = ({ totalPrice }) => {
 
   useSignals();
 
+  const { t } = useTranslation();
     const navigate = useNavigate();
     const [isCheckedInstantDelivery, setIsCheckedInstantDelivery] = useState(true);
     const [isCheckedAcceptTerms, setIsCheckedAcceptTerms] = useState(false);
@@ -87,19 +89,22 @@ const TotalSummaryWidget = ({ totalPrice }) => {
 
 
   return (
-    <div className='w-full h-[fit] flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'>
+    <div
+      className='w-full h-[fit] flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'
+      style={{zIndex: -1}}
+    >
         <h2 className='text-2xl font-bold text-center'>
-            Total Summary
+          {t('summary.title')}
         </h2>
 
         <div className='w-[80%] flex justify-between items-center'>
             <p className='text-lg'>
-                Subtotal:
+              {t('summary.subtotal')}:
             </p>
             <p className='text-[30px] font-bold'>{totalPrice} Ft</p>
         </div>
         <FormElement 
-          label="Mobile" 
+          label={t('summary.mobile')}
           type="tel" 
           width="w-[80%]" 
           value={mobileNumber}
@@ -113,7 +118,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                 className="text-lg text-slate-950 select-none"
                 htmlFor="instantDelivery"
               >
-                Accept <span className='text-accent cursor-pointer hover:border-b'>Terms & Conditions</span>
+                {t('summary.terms.accept')} <span className='text-accent cursor-pointer hover:border-b'>{t('summary.terms.termsAndConditions')}</span>
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -122,7 +127,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                 className="text-lg text-slate-950 cursor-pointer select-none"
                 htmlFor="instantDelivery"
               >
-                Instant Delivery
+                {t('summary.delivery.instant')}
               </label>
             </div>
           </div>

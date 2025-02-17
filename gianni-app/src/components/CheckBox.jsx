@@ -10,7 +10,7 @@ const CheckBox = ({ isChecked, setIsChecked}) => {
         onClick={() => {
           setIsChecked(!isChecked); 
         }}
-        className='w-6 h-6 flex justify-center items-center border-accent border-[1px] rounded-[8px] hover:cursor-pointer'
+        className='w-6 min-w-6 aspect-square flex justify-center items-center border-accent border-[1px] rounded-[8px] hover:cursor-pointer'
     >
         {isChecked && <FaCheck className='w-5 h-5 text-accent'/>}
     </div>

@@ -1,0 +1,31 @@
+{
+    "translation": {
+        "items": {
+            "pizza_margherita_name": "Margherita Pizza",
+            "pizza_margherita_desc": "Tomato sauce, mozzarella, basil"
+        },
+        "amount": "Amount",
+        "primaryBtn": {
+            "addToCart": "Add to Cart",
+            "add": "Add"
+        },
+        "store_status": {
+            "open": "OPEN",
+            "closed": "CLOSED"
+        },
+        "summary": {
+            "title": "Total Summary",
+            "subtotal": "Subtotal",
+            "mobile": "Mobile",
+            "terms": {
+                "accept": "Accept",
+                "termsAndConditions": "Terms & Conditions"
+            },
+            "delivery": {
+                "instant": "Instant Delivery",
+                "selectDate": "Select Date",
+                "selectTime": "Select Time"
+            }
+        }
+    }
+}

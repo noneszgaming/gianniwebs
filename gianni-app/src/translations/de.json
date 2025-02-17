@@ -1,0 +1,31 @@
+{
+    "translation": {
+        "items": {
+            "pizza_margherita_name": "Pizza Margherita",
+            "pizza_margherita_desc": "Tomatensauce, Mozzarella, Basilikum"
+        },
+        "amount": "Menge",
+        "primaryBtn": {
+            "addToCart": "In den Warenkorb",
+            "add": "Hinzufügen"
+        },
+        "store_status": {
+            "open": "GEÖFFNET",
+            "closed": "GESCHLOSSEN"
+        },
+        "summary": {
+            "title": "Gesamtzusammenfassung",
+            "subtotal": "Zwischensumme",
+            "mobile": "Mobilnummer",
+            "terms": {
+                "accept": "Akzeptieren",
+                "termsAndConditions": "AGB"
+            },
+            "delivery": {
+                "instant": "Sofortige Lieferung",
+                "selectDate": "Datum auswählen",
+                "selectTime": "Zeit auswählen"
+            }
+        }
+    }
+}

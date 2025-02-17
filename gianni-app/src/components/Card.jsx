@@ -4,11 +4,12 @@ import React from 'react'
 import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter';
 import { useState } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import { cartCount } from '../signals';
 
 
 const Card = ({ name, description, price, img, id }) => {
+    const { t } = useTranslation();
 
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
@@ -55,7 +56,7 @@ const Card = ({ name, description, price, img, id }) => {
                     <AmountCounter onQuantityChange={setSelectedQuantity} />
                 </div>
                 <PrimaryBtn 
-                    text="Add to Cart" 
+                    text={t("primaryBtn.addToCart")} 
                     className='w-[80%] text-lg self-center'
                     onClick={handleAddToCart}
                 />
