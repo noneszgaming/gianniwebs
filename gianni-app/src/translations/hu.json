@@ -5,9 +5,13 @@
             "pizza_margherita_desc": "Paradicsom szósz, mozzarella, bazsalikom"
         },
         "amount": "Mennyiség",
+        "successful": "Sikeres",
+        "payment": "Fizetés",
+        "sucPaymentDesc": "A fizetés sikeres volt!",
+        "emptyCart": "A kosár üres!",
         "primaryBtn": {
             "addToCart": "Kosárba",
-            "add": "Hozzáad"
+            "add": "HOZZÁAD"
         },
         "store_status": {
             "open": "NYITVA",
@@ -19,7 +23,7 @@
             "mobile": "Telefonszám",
             "terms": {
                 "accept": "Elfogadom az",
-                "termsAndConditions": "ÁSZF-et"
+                "termsAndConditions": "ÁSZF-eket"
             },
             "delivery": {
                 "instant": "Azonnali kiszállítás",

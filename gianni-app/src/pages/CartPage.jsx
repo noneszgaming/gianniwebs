@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react'
 import CartItem from '../components/Item';
 import TotalSummaryWidget from '../components/TotalSummaryWidget';
 import MerchWidget from '../components/merch/MerchWidget';
+import { useTranslation } from 'react-i18next';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
-
-    //TODO: Add a function to update the cart items from the backend
+    const { t } = useTranslation();
    
     useEffect(() => {
       const handleCartUpdate = () => {
@@ -32,7 +32,7 @@ const CartPage = () => {
             <div className="w-full col-span-3">
               {cartItems.length === 0 ? (
                     <div className="text-center text-2xl font-bold py-10">
-                        Your cart is empty!
+                        {t("emptyCart")}
                     </div>
                 ) : (
                     cartItems.map((item, index) => (

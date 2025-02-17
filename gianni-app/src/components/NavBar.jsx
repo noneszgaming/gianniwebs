@@ -64,7 +64,7 @@ const NavBar = ({ type }) => {
 
   return (
     <div className={`w-full min-h-16 h-16 flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none ${showAdminControls ? 'justify-between' : 'justify-end'}`}
-      style={{ zIndex: 1 }}>
+      style={{ zIndex: 3000 }}>
       {showAdminControls && (
         <div className='h-full flex justify-center items-center gap-x-6'>
           <p className='font-semibold text-neon-green'>ADMIN</p>
@@ -105,7 +105,7 @@ const NavBar = ({ type }) => {
             {isLangHovered &&
               <div 
                 className='absolute -top-0 p-1 w-full h-fit rounded-full bg-slate-400 flex flex-col justify-center items-center gap-2'
-                style={{ zIndex: 1 }}
+                style={{ zIndex: 3000 }}
               >
                 <LanguageChangeBtn type="eng"/>
                 <LanguageChangeBtn type="hu"/>

@@ -5,9 +5,13 @@
             "pizza_margherita_desc": "Tomato sauce, mozzarella, basil"
         },
         "amount": "Amount",
+        "successful": "Successful",
+        "payment": "Payment",
+        "sucPaymentDesc": "Your payment was successful!",
+        "emptyCart": "Your cart is empty!",
         "primaryBtn": {
             "addToCart": "Add to Cart",
-            "add": "Add"
+            "add": "ADD"
         },
         "store_status": {
             "open": "OPEN",

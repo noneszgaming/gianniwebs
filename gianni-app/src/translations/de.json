@@ -5,9 +5,13 @@
             "pizza_margherita_desc": "Tomatensauce, Mozzarella, Basilikum"
         },
         "amount": "Menge",
+        "successful": "Erfolgreich",
+        "payment": "Zahlung",
+        "sucPaymentDesc": "Ihre Zahlung war erfolgreich!",
+        "emptyCart": "Ihr Warenkorb ist leer!",
         "primaryBtn": {
             "addToCart": "In den Warenkorb",
-            "add": "Hinzufügen"
+            "add": "HINZUFÜGEN"
         },
         "store_status": {
             "open": "GEÖFFNET",

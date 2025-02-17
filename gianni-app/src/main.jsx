@@ -12,8 +12,9 @@ import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
 
 const Root = () => {
+
   useSignals();
-  
+
   return (
     <StrictMode>
       <BrowserRouter>
@@ -22,8 +23,8 @@ const Root = () => {
             {isAddItemOpened.value && <AddItem />}
             {isSuccessfulPaymentOpened.value && 
               <SuccessfulPopup 
-                title="Payment" 
-                text="Your payment was successful!" 
+                titleKey="payment" 
+                textKey="sucPaymentDesc"
                 onClick={() => isSuccessfulPaymentOpened.value = false}
               />
             }
