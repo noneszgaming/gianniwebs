@@ -14,7 +14,7 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const [rememberMe, setRememberMe] = useState(false);
-    const API_URL = `${import.meta.env.VITE_API_URL}/admin/login`;
+    const API_URL = `${import.meta.env.VITE_API_URL}/api/admin/login`;
 
 
 

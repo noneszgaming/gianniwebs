@@ -82,7 +82,7 @@ const OrderPage = () => {
   const retryVerification = async (paymentId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/orders/verify/${paymentId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/verify/${paymentId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

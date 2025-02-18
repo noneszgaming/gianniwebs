@@ -13,7 +13,7 @@ const OpenCloseToggle = () => {
             const token = localStorage.getItem('adminToken');
             console.log("Sending request to server with state:", newState ? 'open' : 'closed');
             
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/setState`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/setState`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
