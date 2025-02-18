@@ -9,7 +9,8 @@ const MerchWidget = () => {
   useEffect(() => {
     const fetchMerchItems = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/merch');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/merch`);
+
         const data = await response.json();
         setMerchItems(data);
       } catch (error) {

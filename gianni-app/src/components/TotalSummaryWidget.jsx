@@ -217,7 +217,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                     };
                 
                     // First create the order
-                    fetch('http://localhost:3001/api/orders', {
+                    fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                     .then(response => response.json())
                     .then(data => {
                       // Then send confirmation email
-                      return fetch('http://localhost:3001/api/send-order-email', {
+                      return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',

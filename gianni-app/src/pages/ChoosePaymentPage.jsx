@@ -80,13 +80,13 @@ const ChoosePaymentPage = () => {
                 console.log('Order data:', orderData);
                 console.log(JSON.stringify(orderData))
                 // Add the missing fetch call
-                fetch('http://localhost:3001/api/order', {
+                fetch(`${import.meta.env.VITE_API_URL}/api/order`, {
                   method: 'POST',
                   headers: {
-                    'Content-Type': 'application/json',
+                      'Content-Type': 'application/json',
                   },
                   body: JSON.stringify(orderData)
-                })
+              })
                 .then(response => response.json())
                 .then(data => {
                   console.log('Order created:', data);

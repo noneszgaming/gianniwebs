@@ -29,7 +29,8 @@ const NavBar = ({ type }) => {
   
   // WebSocket only for store status
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001/ws');
+    const wsUrl = `${import.meta.env.VITE_API_URL.replace('http', 'ws')}/ws`;
+    const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
       ws.send(JSON.stringify({ 

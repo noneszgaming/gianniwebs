@@ -14,7 +14,7 @@ const EditMenuPage = () => {
     
      useEffect(() => {
        const fetchFoods = async () => {
-         const response = await fetch('http://localhost:3001/api/food');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
          const data = await response.json();
          setFoods(data);
        };
@@ -25,7 +25,7 @@ const EditMenuPage = () => {
      useEffect(() => {
         const fetchMerchItems = async () => {
           try {
-            const response = await fetch('http://localhost:3001/api/merch');
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/merch`);
             const data = await response.json();
             setMerches(data);
           } catch (error) {
@@ -42,14 +42,14 @@ const EditMenuPage = () => {
       };
 
       const fetchFoods = async () => {
-        const response = await fetch('http://localhost:3001/api/food');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
         const data = await response.json();
         setFoods(data);
       };
     
       const fetchMerchItems = async () => {
         try {
-          const response = await fetch('http://localhost:3001/api/merch');
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/merch`);
           const data = await response.json();
           setMerches(data);
         } catch (error) {

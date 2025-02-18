@@ -13,7 +13,7 @@ const AvailabilityToggle = ({ itemId, initialAvailability, onToggle }) => {
         try {
             const token = localStorage.getItem('adminToken');
 
-            const response = await fetch(`http://localhost:3001/api/items/${itemId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items/${itemId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

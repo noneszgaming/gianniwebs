@@ -57,7 +57,7 @@ const OrderPage = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -82,7 +82,7 @@ const OrderPage = () => {
   const retryVerification = async (paymentId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`http://localhost:3001/api/orders/verify/${paymentId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/orders/verify/${paymentId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -7,6 +7,7 @@ import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
 import { cartCount } from '../signals';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 const Item = ({ id, name, description, price, count, img, available, onUpdate }) => {
     
     const [isEditing, setIsEditing] = useState(false);
@@ -31,7 +32,7 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`http://localhost:3001/api/items/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/items/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -52,7 +53,7 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
       // Apply changes
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await fetch(`http://localhost:3001/api/items/${id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/items/${id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

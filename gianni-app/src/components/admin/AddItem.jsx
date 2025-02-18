@@ -68,34 +68,32 @@ const AddItem = () => {
             }
         }
     };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+      const handleSubmit = async (e) => {
+          e.preventDefault();
         
-        try {
-            const token = localStorage.getItem('adminToken'); // Get JWT token from storage
+          try {
+              const token = localStorage.getItem('adminToken');
             
-            const response = await fetch('http://localhost:3001/api/items', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
+              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify(formData)
+              });
 
-            if (response.ok) {
-                alert('Item added successfully!');
-                isAddItemOpened.value = false;
-            } else {
-                throw new Error('Failed to add item');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to add item');
-        }
-    };
-
+              if (response.ok) {
+                  alert('Item added successfully!');
+                  isAddItemOpened.value = false;
+              } else {
+                  throw new Error('Failed to add item');
+              }
+          } catch (error) {
+              console.error('Error:', error);
+              alert('Failed to add item');
+          }
+      };
     const handleChange = (e) => {
         setFormData({
             ...formData,
