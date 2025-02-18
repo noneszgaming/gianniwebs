@@ -9,11 +9,14 @@ const HomePage = () => {
     const API_URL = 'http://91.214.112.140:3001/api/food';
 
     const fetchFoods = async () => {
-      const response = await fetch(API_URL);
-      return response.json();
-      setFoods(data);
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        setFoods(data); // Set the fetched data to foods state
+      } catch (error) {
+        console.error('Error fetching foods:', error);
+      }
     };
-
     fetchFoods();
   }, []);
 
