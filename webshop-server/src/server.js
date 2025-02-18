@@ -28,7 +28,7 @@ app.use(express.urlencoded({
 }));
 
 app.use(cors({
-    origin:  ['http://localhost:5173','http://localhost:3002',]
+    origin:  ['http://localhost:5173','http://localhost:3002','http://91.214.112.140:3001']
 }));
 
 // Routes registration
