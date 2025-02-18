@@ -14,11 +14,13 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const [rememberMe, setRememberMe] = useState(false);
+    const API_URL = 'http://91.214.112.140:3001/api/admin/login';
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3001/api/admin/login', {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
