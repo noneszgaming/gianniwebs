@@ -14,7 +14,7 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const [rememberMe, setRememberMe] = useState(false);
-    const API_URL = 'http://91.214.112.140:3001/api/admin/login';
+    const API_URL = `${process.env.REACT_APP_API_URL}/admin/login`;
 
 
     const handleLogin = async (e) => {
