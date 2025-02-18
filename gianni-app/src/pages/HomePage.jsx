@@ -11,6 +11,7 @@ const HomePage = () => {
     const fetchFoods = async () => {
       const response = await fetch(API_URL);
       return response.json();
+      setFoods(data);
     };
 
     fetchFoods();
