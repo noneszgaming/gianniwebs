@@ -6,11 +6,11 @@ const HomePage = () => {
   const [foods, setFoods] = useState([]);
 
   useEffect(() => {
+    const API_URL = 'http://91.214.112.140:3001/api/food';
+
     const fetchFoods = async () => {
-      const response = await fetch('http://localhost:3001/api/food');
-      const data = await response.json();
-      const availableItems = data.filter(food => food.available === true);
-      setFoods(availableItems);
+      const response = await fetch(API_URL);
+      return response.json();
     };
 
     fetchFoods();
