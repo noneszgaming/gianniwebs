@@ -11,6 +11,7 @@ import { isSuccessfulPaymentOpened } from '../signals';
 import FormElement from './FormElement';
 import CheckBox from './CheckBox';
 import { useTranslation } from 'react-i18next';
+import { isWebshopOpen } from '../signals';
 
 const TotalSummaryWidget = ({ totalPrice }) => {
 
@@ -150,106 +151,104 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           )}
 
         </div>
-
-        {isCheckedAcceptTerms && isValidMobile && 
-          <div className='w-[80%] h-fit'>
-            <PayPalScriptProvider className='h-[50px]' options={initialOptions}>
-              <PayPalButtons
-                className='w-[100%] h-[100%]'
-                createOrder={(data, actions) => {
-                  return actions.order.create({
-                    purchase_units: [
-                      {
-                        amount: {
-                          value: cartTotal.toString(),
-                          breakdown: {
-                            item_total: {
-                              value: cartTotal.toString(),
-                              currency_code: "HUF"
+          {isCheckedAcceptTerms && isValidMobile && isWebshopOpen.value ? (
+            <div className='w-[80%] h-fit'>
+              <PayPalScriptProvider className='h-[50px]' options={initialOptions}>
+                <PayPalButtons
+                  className='w-[100%] h-[100%]'
+                  createOrder={(data, actions) => {
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            value: cartTotal.toString(),
+                            breakdown: {
+                              item_total: {
+                                value: cartTotal.toString(),
+                                currency_code: "HUF"
+                              }
                             }
-                          }
+                          },
+                          items: cartItems.map(item => ({
+                            name: item.name,
+                            unit_amount: {
+                              value: item.price.toString(),
+                              currency_code: "HUF"
+                            },
+                            quantity: item.quantity,
+                            description: item.description || ''
+                          }))
+                        }
+                      ],
+                      application_context: {
+                        shipping_preference: "GET_FROM_FILE"
+                      }
+                    });
+                  }}
+                  onApprove={(data, actions) => {
+                    return actions.order.capture().then((details) => {
+                      const orderData = {
+                        paymentId: details.id,
+                        customer: {
+                          name: details.payer.name.given_name + ' ' + details.payer.name.surname,
+                          email: details.payer.email_address,
+                          phone: mobileNumber
+                        },
+                        address: {
+                          country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
+                          firstName: details.payer.name.given_name,
+                          lastName: details.payer.name.surname,
+                          city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
+                          addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
+                          addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
+                          zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
                         },
                         items: cartItems.map(item => ({
-                          name: item.name,
-                          unit_amount: {
-                            value: item.price.toString(),
-                            currency_code: "HUF"
-                          },
+                          _id: item._id,
                           quantity: item.quantity,
-                          description: item.description || ''
-                        }))
-                      }
-                    ],
-                    application_context: {
-                      shipping_preference: "GET_FROM_FILE"
-                    }
-                  });
-                }}
-                onApprove={(data, actions) => {
-                  return actions.order.capture().then((details) => {
-                    const orderData = {
-                      paymentId: details.id,
-                      customer: {
-                        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
-                        email: details.payer.email_address,
-                        phone: mobileNumber
-                      },
-                      address: {
-                        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
-                        firstName: details.payer.name.given_name,
-                        lastName: details.payer.name.surname,
-                        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
-                        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
-                        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
-                        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
-                      },
-                      items: cartItems.map(item => ({
-                        _id: item._id,
-                        quantity: item.quantity,
-                        name: item.name,
-                        price: item.price
-                      })),
-                      termsAccepted: isCheckedAcceptTerms,
-                      isInstantDelivery: isCheckedInstantDelivery,
-                      deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
-                      deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null,
-                      total: cartTotal
-                    };
+                          name: item.name,
+                          price: item.price
+                        })),
+                        termsAccepted: isCheckedAcceptTerms,
+                        isInstantDelivery: isCheckedInstantDelivery,
+                        deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
+                        deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null,
+                        total: cartTotal
+                      };
                 
-                    // First create the order
-                    fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify(orderData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                      // Then send confirmation email
-                      return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
+                      // First create the order
+                      fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(orderData)
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                        // Then send confirmation email
+                        return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(orderData)
+                        });
+                      })
+                      .then(() => {
+                        console.log('Order created and email sent');
+                        handlePaymentSuccess(details);
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
                       });
-                    })
-                    .then(() => {
-                      console.log('Order created and email sent');
-                      handlePaymentSuccess(details);
-                    })
-                    .catch(error => {
-                      console.error('Error:', error);
                     });
-                  });
-                }}
+                  }}
                 
-              />
-            </PayPalScriptProvider>
-          </div>
-        }
-
+                />
+              </PayPalScriptProvider>
+            </div>
+          ):(<div></div>)}
     </div>
   )
 }
