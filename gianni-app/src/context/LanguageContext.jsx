@@ -5,21 +5,14 @@ import i18n from 'i18next';
 export const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-    const availableLanguages = ['eng', 'de', 'hu'];
+    const availableLanguages = ['en', 'de', 'hu'];
 
     const [language, setLanguage] = useState(() => {
         const savedLanguage = localStorage.getItem('preferredLanguage');
         if (savedLanguage && availableLanguages.includes(savedLanguage)) return savedLanguage;
 
         const browserLang = navigator.language.split('-')[0];
-        const languageMap = {
-            'en': 'en',
-            'de': 'de',
-            'hu': 'hu'
-        };
-
-        const mappedLanguage = languageMap[browserLang];
-        return availableLanguages.includes(mappedLanguage) ? mappedLanguage : 'en';
+        return availableLanguages.includes(browserLang) ? browserLang : 'en';
     });
 
     useEffect(() => {
