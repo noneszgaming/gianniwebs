@@ -6,11 +6,11 @@ const HomePage = () => {
   const [foods, setFoods] = useState([]);
 
   useEffect(() => {
-    const API_URL = 'http://91.214.112.140:3001/api/food';
+
 
     const fetchFoods = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
         const data = await response.json();
         setFoods(data); // Set the fetched data to foods state
       } catch (error) {
