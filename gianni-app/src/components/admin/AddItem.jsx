@@ -6,10 +6,20 @@ import SecondaryBtn from '../buttons/SecondaryBtn';
 import { isAddItemOpened } from '../../signals';
 
 const AddItem = () => {
+
     useSignals();
+
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
+        name: {
+            en: '',
+            hu: '',
+            de: ''
+        },
+        description: {
+            en: '',
+            hu: '',
+            de: ''
+        },
         price: '',
         type: 'food',
         img: ''
@@ -94,50 +104,105 @@ const AddItem = () => {
               alert('Failed to add item');
           }
       };
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+
+      const handleChange = (e) => {
+        const [field, lang] = e.target.name.split('_');
+        if (lang) {
+            setFormData({
+                ...formData,
+                [field]: {
+                    ...formData[field],
+                    [lang]: e.target.value
+                }
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [e.target.name]: e.target.value
+            });
+        }
     };
 
     return (
-        <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 2 }}>
-            <form onSubmit={handleSubmit} className='w-[70%] h-[70%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
+        <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
+            <form onSubmit={handleSubmit} className='w-[70%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
                 <h2 className='font-semibold text-3xl'>Add Merch or Food</h2>
                 
-                <input 
+                {/* English Name */}
+                <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="name_en"
+                    value={formData.name.en}
                     onChange={handleChange}
-                    placeholder="Name" 
+                    placeholder="Name (English)"
                     className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                 />
                 
-                <input 
+                {/* Hungarian Name */}
+                <input
                     type="text"
-                    name="description"
-                    value={formData.description}
+                    name="name_hu"
+                    value={formData.name.hu}
                     onChange={handleChange}
-                    placeholder="Description" 
+                    placeholder="Name (Hungarian)"
                     className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                 />
                 
+                {/* German Name */}
+                <input
+                    type="text"
+                    name="name_de"
+                    value={formData.name.de}
+                    onChange={handleChange}
+                    placeholder="Name (German)"
+                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                />
+                
+                {/* English Description */}
+                <input
+                    type="text"
+                    name="description_en"
+                    value={formData.description.en}
+                    onChange={handleChange}
+                    placeholder="Description (English)"
+                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                />
+                
+                {/* Hungarian Description */}
+                <input
+                    type="text"
+                    name="description_hu"
+                    value={formData.description.hu}
+                    onChange={handleChange}
+                    placeholder="Description (Hungarian)"
+                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                />
+                
+                {/* German Description */}
+                <input
+                    type="text"
+                    name="description_de"
+                    value={formData.description.de}
+                    onChange={handleChange}
+                    placeholder="Description (German)"
+                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                />
+
+                {/* Rest of the form remains unchanged */}
                 <div className='w-[60%] flex justify-evenly items-center gap-4'>
-                    <input 
+                    <input
                         type="number"
                         name="price"
                         value={formData.price}
                         onChange={handleChange}
                         min={0}
-                        placeholder="Price" 
+                        placeholder="Price"
                         className="w-full p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
                     <p className='w-[20%] text-2xl font-semibold'>Ft</p>
                 </div>
-                
-                <select 
+
+                <select
                     name="type"
                     value={formData.type}
                     onChange={handleChange}
@@ -147,13 +212,13 @@ const AddItem = () => {
                     <option value="merch">Merch</option>
                 </select>
 
-                <input 
-                type="file"
-                name="img"
-                accept="image/*"
-                onChange={handleImageChange}
-                placeholder="Upload Image" 
-                className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                <input
+                    type="file"
+                    name="img"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    placeholder="Upload Image"
+                    className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
                 />
 
                 <div className='w-[60%] flex justify-evenly items-center'>

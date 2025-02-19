@@ -36,7 +36,7 @@ const CartPage = () => {
             </div>
 
             {/* Cart Items container */}
-            <div className="w-full lg:order-1 order-2 col-span-2 lg:col-span-3">
+            <div className="w-full flex flex-col items-center lg:order-1 order-2 col-span-2 lg:col-span-3">
                 <h1 className="text-3xl text-center font-bold mb-6">{t("cart")}</h1>
                 {cartItems.length === 0 ? (
                     <div className="text-center text-2xl font-bold py-10">

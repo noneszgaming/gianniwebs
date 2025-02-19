@@ -96,7 +96,7 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
 
 
   return (
-    <div className='w-full min-w-full md:h-48 flex md:flex-row flex-col justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl md:px-8 mb-10'>
+    <div className='w-[80%] md:w-full md:min-w-full md:h-48 flex md:flex-row flex-col justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl md:px-8 mb-10 pb-[8%] md:pb-[0]'>
       <div className='h-full flex md:flex-row flex-col justify-center items-center gap-4'>
         {isEditing ? (
           <>
@@ -116,12 +116,12 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
           </>
         ) : (
           <img
-            className='aspect-square h-[80%] min-h-[80%] object-cover rounded-[26px] bg-amber-200'
+            className='aspect-square md:w-[150px] md:min-w-[150px] w-full object-cover rounded-[26px] bg-amber-200'
             src={img}
             alt=""
           />
         )}
-        <div className='flex flex-col justify-center items-start'>
+        <div className='w-full md:w-fit flex flex-col justify-center items-center md:items-start gap-3'>
           {isEditing ? (
             <>
               <input
