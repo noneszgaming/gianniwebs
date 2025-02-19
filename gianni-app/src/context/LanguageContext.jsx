@@ -13,13 +13,13 @@ export const LanguageProvider = ({ children }) => {
 
         const browserLang = navigator.language.split('-')[0];
         const languageMap = {
-            'en': 'eng',
+            'en': 'en',
             'de': 'de',
             'hu': 'hu'
         };
 
         const mappedLanguage = languageMap[browserLang];
-        return availableLanguages.includes(mappedLanguage) ? mappedLanguage : 'eng';
+        return availableLanguages.includes(mappedLanguage) ? mappedLanguage : 'en';
     });
 
     useEffect(() => {
