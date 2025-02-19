@@ -1,24 +1,24 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Card from '../components/Card'
+import { LanguageContext } from '../context/LanguageContext'
 
 const HomePage = () => {
   const [foods, setFoods] = useState([]);
+  const { language } = useContext(LanguageContext);
 
   useEffect(() => {
-
-
     const fetchFoods = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food/${language}`);
         const data = await response.json();
-        setFoods(data); // Set the fetched data to foods state
+        setFoods(data);
       } catch (error) {
         console.error('Error fetching foods:', error);
       }
     };
     fetchFoods();
-  }, []);
+  }, [language]);
 
   return (
     <div 

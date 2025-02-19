@@ -108,7 +108,7 @@ const NavBar = ({ type }) => {
                 className='absolute -top-0 p-1 w-full h-fit rounded-full bg-slate-400 flex flex-col justify-center items-center gap-2'
                 style={{ zIndex: 3000 }}
               >
-                <LanguageChangeBtn type="eng"/>
+                <LanguageChangeBtn type="en"/>
                 <LanguageChangeBtn type="hu"/>
                 <LanguageChangeBtn type="de"/>
               </div>
