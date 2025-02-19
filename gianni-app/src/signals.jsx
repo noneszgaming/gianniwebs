@@ -7,6 +7,7 @@ const isOrderDataPageOpened = signal(false);
 const isChoosePaymentPageOpened = signal(false);
 const isWebshopOpen = signal(true);
 const isAddItemOpened = signal(false);
+const isUpdateItemOpened = signal(false);
 const isSuccessfulPaymentOpened = signal(false);
 const cartCount = signal(0);
 
@@ -17,6 +18,7 @@ export {
     isChoosePaymentPageOpened,
     isWebshopOpen,
     isAddItemOpened,
+    isUpdateItemOpened,
     isSuccessfulPaymentOpened,
     cartCount
 }

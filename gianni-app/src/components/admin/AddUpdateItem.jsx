@@ -1,14 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { useSignal, useSignals } from '@preact/signals-react/runtime'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PrimaryBtn from '../buttons/PrimaryBtn';
 import SecondaryBtn from '../buttons/SecondaryBtn';
-import { isAddItemOpened } from '../../signals';
+import { isAddItemOpened, isUpdateItemOpened } from '../../signals';
 
-const AddItem = () => {
-
+const AddUpdateItem = () => {
     useSignals();
-
     const [formData, setFormData] = useState({
         name: {
             en: '',
@@ -25,6 +23,29 @@ const AddItem = () => {
         img: ''
     });
 
+    useEffect(() => {
+        if (isUpdateItemOpened.value) {
+            const editingItem = JSON.parse(localStorage.getItem('editingItem'));
+            if (editingItem) {
+                setFormData({
+                    name: {
+                        en: editingItem.name.en,
+                        hu: editingItem.name.hu,
+                        de: editingItem.name.de
+                    },
+                    description: {
+                        en: editingItem.description.en,
+                        hu: editingItem.description.hu,
+                        de: editingItem.description.de
+                    },
+                    price: editingItem.price,
+                    type: editingItem.type,
+                    img: editingItem.img
+                });
+            }
+        }
+    }, [isUpdateItemOpened.value]);
+    
     const compressImage = (file) => {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -34,34 +55,29 @@ const AddItem = () => {
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    // Drastically reduced max width
                     const MAX_WIDTH = 1000;
                     let width = img.width;
                     let height = img.height;
-    
-                    // Calculate new dimensions
+
                     if (width > MAX_WIDTH) {
                         height = Math.round((height * MAX_WIDTH) / width);
                         width = MAX_WIDTH;
                     }
-    
+
                     canvas.width = width;
                     canvas.height = height;
                     
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Maximum compression with lowest quality
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.3);
-                    
-                    // Remove the data:image/jpeg;base64, prefix to reduce size further
                     const base64Clean = compressedBase64.split(',')[1];
                     resolve(base64Clean);
                 };
             };
         });
     };
-    
+
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -69,7 +85,6 @@ const AddItem = () => {
                 const compressedBase64 = await compressImage(file);
                 setFormData({
                     ...formData,
-                    // Add the prefix back when storing in state
                     img: `data:image/jpeg;base64,${compressedBase64}`
                 });
             } catch (error) {
@@ -78,34 +93,43 @@ const AddItem = () => {
             }
         }
     };
-      const handleSubmit = async (e) => {
-          e.preventDefault();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         
-          try {
-              const token = localStorage.getItem('adminToken');
+        try {
+            const token = localStorage.getItem('adminToken');
+            const editingItem = JSON.parse(localStorage.getItem('editingItem'));
             
-              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify(formData)
-              });
+            const url = isUpdateItemOpened.value 
+                ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
+                : `${import.meta.env.VITE_API_URL}/api/items`;
 
-              if (response.ok) {
-                  alert('Item added successfully!');
-                  isAddItemOpened.value = false;
-              } else {
-                  throw new Error('Failed to add item');
-              }
-          } catch (error) {
-              console.error('Error:', error);
-              alert('Failed to add item');
-          }
-      };
+            const response = await fetch(url, {
+                method: isUpdateItemOpened.value ? 'PATCH' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
 
-      const handleChange = (e) => {
+            if (response.ok) {
+                alert(isUpdateItemOpened.value ? 'Item updated successfully!' : 'Item added successfully!');
+                isUpdateItemOpened.value = false;
+                isAddItemOpened.value = false;
+                localStorage.removeItem('editingItem');
+                window.location.reload();
+            } else {
+                throw new Error(isUpdateItemOpened.value ? 'Failed to update item' : 'Failed to add item');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(isUpdateItemOpened.value ? 'Failed to update item' : 'Failed to add item');
+        }
+    };
+
+    const handleChange = (e) => {
         const [field, lang] = e.target.name.split('_');
         if (lang) {
             setFormData({
@@ -123,10 +147,21 @@ const AddItem = () => {
         }
     };
 
+    const handleClose = () => {
+        if (isUpdateItemOpened.value) {
+            isUpdateItemOpened.value = false;
+            localStorage.removeItem('editingItem');
+        } else {
+            isAddItemOpened.value = false;
+        }
+    };
+
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
             <form onSubmit={handleSubmit} className='w-[70%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
-                <h2 className='font-semibold text-3xl'>Add Merch or Food</h2>
+                <h2 className='font-semibold text-3xl'>
+                    {isUpdateItemOpened.value ? 'Update Item' : 'Add Merch or Food'}
+                </h2>
                 
                 {/* English Name */}
                 <input
@@ -188,7 +223,6 @@ const AddItem = () => {
                     className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                 />
 
-                {/* Rest of the form remains unchanged */}
                 <div className='w-[60%] flex justify-evenly items-center gap-4'>
                     <input
                         type="number"
@@ -224,13 +258,13 @@ const AddItem = () => {
                 <div className='w-[60%] flex justify-evenly items-center'>
                     <SecondaryBtn
                         text="Cancel"
-                        onClick={() => isAddItemOpened.value = false}
+                        onClick={handleClose}
                     />
-                    <PrimaryBtn text="Add Item" type="submit" />
+                    <PrimaryBtn text={isUpdateItemOpened.value ? "Update Item" : "Add Item"} type="submit" />
                 </div>
             </form>
         </div>
     )
 }
 
-export default AddItem
+export default AddUpdateItem;

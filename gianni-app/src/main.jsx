@@ -5,8 +5,8 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import NavBar from './components/NavBar.jsx'
-import AddItem from './components/admin/AddItem.jsx'
-import { isAddItemOpened, isSuccessfulPaymentOpened } from './signals.jsx'
+import AddUpdateItem from './components/admin/AddUpdateItem.jsx'
+import { isAddItemOpened, isSuccessfulPaymentOpened, isUpdateItemOpened } from './signals.jsx'
 import { useSignals } from '@preact/signals-react/runtime'
 import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
@@ -20,7 +20,8 @@ const Root = () => {
       <BrowserRouter>
         <LanguageProvider>
           <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
-            {isAddItemOpened.value && <AddItem />}
+            {isAddItemOpened.value && <AddUpdateItem />}
+            {isUpdateItemOpened.value && <AddUpdateItem />}
             {isSuccessfulPaymentOpened.value && 
               <SuccessfulPopup 
                 titleKey="payment" 

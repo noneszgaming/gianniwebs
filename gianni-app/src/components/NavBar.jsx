@@ -11,6 +11,7 @@ import OpenCloseToggle from './admin/OpenCloseToggle'
 import LanguageChangeBtn from './LanguageChangeBtn'
 import { LanguageContext } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import logo from '../assets/logo.png'
 
 const NavBar = ({ type }) => {
   useSignals();
@@ -64,8 +65,11 @@ const NavBar = ({ type }) => {
   }, []);
 
   return (
-    <div className={`w-full min-h-16 h-16 flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none ${showAdminControls ? 'justify-between' : 'justify-end'}`}
-      style={{ zIndex: 3000 }}>
+    <div 
+      className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none`}
+      style={{ zIndex: 3000 }}
+    >
+      <img className='w-fit h-[80%]' src={logo} alt="" />
       {showAdminControls && (
         <div className='h-full flex justify-center items-center gap-x-6'>
           <p className='font-semibold text-neon-green'>ADMIN</p>
