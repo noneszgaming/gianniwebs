@@ -97,7 +97,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           {t('summary.title')}
         </h2>
 
-        <div className='w-[80%] flex justify-between items-center'>
+        <div className='md:w-[80%] w-full flex justify-between items-center'>
             <p className='text-lg'>
               {t('summary.subtotal')}:
             </p>
@@ -106,7 +106,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         <FormElement 
           label={t('summary.mobile')}
           type="tel" 
-          width="w-[80%]" 
+          width="md:w-[80%] w-full" 
           value={mobileNumber}
           onChange={handleMobileChange}
         />

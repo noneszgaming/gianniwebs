@@ -96,12 +96,12 @@ const Item = ({ id, name, description, price, count, img, available, onUpdate })
 
 
   return (
-    <div className='w-full min-w-full h-48 flex justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl px-8 mb-10'>
-      <div className='h-full flex justify-center items-center gap-4'>
+    <div className='w-full min-w-full md:h-48 flex md:flex-row flex-col justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl md:px-8 mb-10'>
+      <div className='h-full flex md:flex-row flex-col justify-center items-center gap-4'>
         {isEditing ? (
           <>
             <img
-              className='aspect-square h-[80%] min-h-[80%] object-cover rounded-[26px] bg-amber-200 cursor-pointer'
+              className='aspect-square md:h-[80%] md:min-h-[80%] h-full min-h-full object-cover rounded-[26px] bg-amber-200 cursor-pointer'
               src={editedItem.img}
               onClick={handleImageClick}
               alt=""
