@@ -5,6 +5,7 @@
             "pizza_margherita_desc": "Paradicsom szósz, mozzarella, bazsalikom"
         },
         "amount": "Mennyiség",
+        "cart": "Kosár",
         "successful": "Sikeres",
         "payment": "Fizetés",
         "sucPaymentDesc": "A fizetés sikeres volt!",

@@ -15,7 +15,7 @@ const CartPage = () => {
           setCartItems(items);
       };
 
-      handleCartUpdate(); // Initial load
+      handleCartUpdate();
       window.addEventListener('cartUpdated', handleCartUpdate);
       
       return () => {
@@ -28,9 +28,17 @@ const CartPage = () => {
     };
 
     return (
-        <div className='w-full h-fit grid grid-cols-3 md:grid-cols-4 justify-items-center gap-x-10 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
-            <div className="w-full col-span-3">
-              {cartItems.length === 0 ? (
+        <div className='w-full h-fit grid grid-cols-1 lg:grid-cols-4 gap-x-10 gap-y-14 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
+            {/* TotalSummary and MerchWidget container - appears first on md screens */}
+            <div className="w-full lg:order-2 order-1 col-span-2 lg:col-span-1 flex flex-col gap-10 md:mt-15">
+                <TotalSummaryWidget totalPrice={calculateTotal()} />
+                <MerchWidget />
+            </div>
+
+            {/* Cart Items container */}
+            <div className="w-full lg:order-1 order-2 col-span-2 lg:col-span-3">
+                <h1 className="text-3xl text-center font-bold mb-6">{t("cart")}</h1>
+                {cartItems.length === 0 ? (
                     <div className="text-center text-2xl font-bold py-10">
                         {t("emptyCart")}
                     </div>
@@ -46,12 +54,9 @@ const CartPage = () => {
                     ))
                 )}
             </div>
-            <div className="w-full flex flex-col gap-10">
-                <TotalSummaryWidget totalPrice={calculateTotal()} />
-                <MerchWidget />
-            </div>
         </div>
     )
 }
 
 export default CartPage
+

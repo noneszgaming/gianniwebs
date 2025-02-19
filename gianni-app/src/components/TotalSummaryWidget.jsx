@@ -90,7 +90,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
 
   return (
     <div
-      className='w-full h-fit flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'
+      className='w-full min-w-full h-fit flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'
       style={{ zIndex: 1 }}
     >
         <h2 className='text-2xl font-bold text-center'>
