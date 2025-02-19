@@ -22,7 +22,7 @@ const MerchWidget = () => {
   }, []);
 
   return (
-    <div className='w-full h-[550px] flex flex-col justify-start items-center bg-slate-600 font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 pt-8 gap-2'>
+    <div className='w-full min-w-full h-[550px] flex flex-col justify-start items-center bg-slate-600 font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 pt-8 gap-2'>
         <h2 className='text-2xl font-bold text-center text-light'>
             {t("merches")}
         </h2>

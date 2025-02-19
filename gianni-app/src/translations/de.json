@@ -5,6 +5,7 @@
             "pizza_margherita_desc": "Tomatensauce, Mozzarella, Basilikum"
         },
         "amount": "Menge",
+        "cart": "Warenkorb",
         "successful": "Erfolgreich",
         "payment": "Zahlung",
         "sucPaymentDesc": "Ihre Zahlung war erfolgreich!",

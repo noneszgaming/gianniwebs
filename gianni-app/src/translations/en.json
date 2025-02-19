@@ -5,6 +5,7 @@
             "pizza_margherita_desc": "Tomato sauce, mozzarella, basil"
         },
         "amount": "Amount",
+        "cart": "Cart",
         "successful": "Successful",
         "payment": "Payment",
         "sucPaymentDesc": "Your payment was successful!",
