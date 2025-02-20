@@ -98,7 +98,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           {t('summary.title')}
         </h2>
 
-        <div className='md:w-[80%] w-full flex justify-between items-center'>
+        <div className='md:w-[80%] w-full flex flex-col justify-between items-center'>
             <p className='text-lg'>
               {t('summary.subtotal')}:
             </p>
