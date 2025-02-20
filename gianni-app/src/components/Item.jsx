@@ -44,14 +44,14 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         const itemData = {
             id,
             name: {
-                en: name,
-                hu: name,
-                de: name
+                en: name.en,
+                hu: name.hu,
+                de: name.de
             },
             description: {
-                en: description,
-                hu: description,
-                de: description
+                en: description.en,
+                hu: description.hu,
+                de: description.de
             },
             price,
             type,

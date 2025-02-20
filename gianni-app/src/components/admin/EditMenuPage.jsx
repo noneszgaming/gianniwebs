@@ -39,11 +39,12 @@ const EditMenuPage = () => {
                     <Item
                         key={food._id}
                         id={food._id}
-                        name={food.name.en} // Using English name, adjust as needed
-                        description={food.description.en} // Using English description
+                        name={food.name}
+                        description={food.description}
                         available={food.available}
                         price={food.price}
                         img={food.img}
+                        type={food.type}
                         onUpdate={fetchItems}
                     />
                 ))}
@@ -52,11 +53,12 @@ const EditMenuPage = () => {
                     <Item
                         key={merch._id}
                         id={merch._id}
-                        name={merch.name.en} // Using English name, adjust as needed
-                        description={merch.description.en} // Using English description
+                        name={merch.name}
+                        description={merch.description}
                         available={merch.available}
                         price={merch.price}
                         img={merch.img}
+                        type={merch.type}
                         onUpdate={fetchItems}
                     />
                 ))}
