@@ -10,7 +10,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchFoods = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food/${language}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
         const data = await response.json();
         setFoods(data);
       } catch (error) {
@@ -18,7 +18,7 @@ const HomePage = () => {
       }
     };
     fetchFoods();
-  }, [language]);
+  }, []);
 
   return (
     <div 
@@ -27,8 +27,8 @@ const HomePage = () => {
     >
       {foods.map((food) => (
         <Card
-          key={food._id}
-          id={food._id}
+          key={food.id}
+          id={food.id}
           name={food.name}
           description={food.description}
           price={food.price}

@@ -97,40 +97,54 @@ router.delete('/items/:id', auth, async (req, res) => {
 });
 
 // Összes étel lekérése (food) - No auth required
-router.get('/food/:lang', async (req, res) => {
+router.get('/food', async (req, res) => {
     try {
-        const lang = req.params.lang || 'hu';
         const foodItems = await Item.find({ type: 'food' });
-        const localizedFoodItems = foodItems.map(item => ({
+        const foodItemsWithAllLangs = foodItems.map(item => ({
             id: item._id,
-            name: item.name[lang],
+            name: {
+                hu: item.name.hu,
+                en: item.name.en,
+                de: item.name.de
+            },
             price: item.price,
-            description: item.description[lang],
+            description: {
+                hu: item.description.hu,
+                en: item.description.en,
+                de: item.description.de
+            },
             available: item.available,
             img: item.img,
             type: item.type
         }));
-        res.status(200).send(localizedFoodItems);
+        res.status(200).send(foodItemsWithAllLangs);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
 // Összes merch lekérése (merch) - No auth required
-router.get('/merch/:lang', async (req, res) => {
+router.get('/merch', async (req, res) => {
     try {
-        const lang = req.params.lang || 'hu';
         const merchItems = await Item.find({ type: 'merch' });
-        const localizedMerchItems = merchItems.map(item => ({
+        const merchItemsWithAllLangs = merchItems.map(item => ({
             id: item._id,
-            name: item.name[lang],
+            name: {
+                hu: item.name.hu,
+                en: item.name.en,
+                de: item.name.de
+            },
             price: item.price,
-            description: item.description[lang],
+            description: {
+                hu: item.description.hu,
+                en: item.description.en,
+                de: item.description.de
+            },
             available: item.available,
             img: item.img,
             type: item.type
         }));
-        res.status(200).send(localizedMerchItems);
+        res.status(200).send(merchItemsWithAllLangs);
     } catch (error) {
         res.status(500).send(error);
     }
