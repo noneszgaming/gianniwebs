@@ -170,13 +170,13 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                             }
                           },
                           items: cartItems.map(item => ({
-                            name: item.name,
+                            name: item.name.hu,
                             unit_amount: {
                               value: item.price.toString(),
                               currency_code: "HUF"
                             },
                             quantity: item.quantity,
-                            description: item.description || ''
+                            description: item.description.hu || ''
                           }))
                         }
                       ],
@@ -204,10 +204,8 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                           zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
                         },
                         items: cartItems.map(item => ({
-                          _id: item._id,
-                          quantity: item.quantity,
-                          name: item.name,
-                          price: item.price
+                            _id: item.id,  // Assuming each cart item has an _id field
+                            quantity: item.quantity
                         })),
                         termsAccepted: isCheckedAcceptTerms,
                         isInstantDelivery: isCheckedInstantDelivery,
@@ -215,7 +213,8 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                         deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null,
                         total: cartTotal
                       };
-                
+                      console.log('Sending order data to backend:', orderData);
+
                       // First create the order
                       fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                         method: 'POST',
@@ -244,13 +243,20 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                       });
                     });
                   }}
-                
-                />
-              </PayPalScriptProvider>
-            </div>
-          ):(<div></div>)}
-    </div>
-  )
-}
 
+
+
+
+
+
+
+
+
+                                  />
+                                </PayPalScriptProvider>
+                              </div>
+                            ):(<div></div>)}
+                      </div>
+                    )
+                  }
 export default TotalSummaryWidget
