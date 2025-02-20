@@ -5,7 +5,7 @@ import React from 'react';
 import { IoCartOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
-const CartBtn = ({ itemCount }) => {
+const CartBtn = ({ itemCount, className }) => {
 
   useSignals();
 
@@ -17,7 +17,7 @@ const CartBtn = ({ itemCount }) => {
 
   return (
     <button 
-      className='relative w-10 h-10 flex justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible select-none'
+      className={`relative w-10 h-10 justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible select-none ${className}`}
       onClick={handleClick}
     >
       {itemCount > 0 &&

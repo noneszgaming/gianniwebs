@@ -5,13 +5,16 @@ import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSignals } from '@preact/signals-react/runtime'
-import { isWebshopOpen, cartCount } from '../signals'
+import { isWebshopOpen, cartCount, isSidePanelOpened } from '../signals'
 import NavBarBtn from './admin/NavBarBtn'
 import OpenCloseToggle from './admin/OpenCloseToggle'
 import LanguageChangeBtn from './LanguageChangeBtn'
 import { LanguageContext } from '../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.png'
+import icon from '/mini_logo.png'
+import SidePanelBtn from './buttons/SidePanelBtn'
+import SidePanel from './SidePanel'
 
 const NavBar = ({ type }) => {
   useSignals();
@@ -69,7 +72,8 @@ const NavBar = ({ type }) => {
       className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none`}
       style={{ zIndex: 3000 }}
     >
-      <img className='w-fit h-[80%]' src={logo} alt="" />
+      <img className='w-fit h-[80%] hidden md:block' src={logo} alt="" />
+      <img className='w-fit h-[80%] md:hidden' src={icon} alt="" />
       {showAdminControls && (
         <div className='h-full flex justify-center items-center gap-x-6'>
           <p className='font-semibold text-neon-green'>ADMIN</p>
@@ -98,9 +102,14 @@ const NavBar = ({ type }) => {
               : "bg-red-600 shadow-[0_0_5px_rgba(240,43,43,1),0_0_10px_rgba(240,43,43,1),0_0_15px_rgba(240,43,43,1),0_0_20px_rgba(240,43,43,1),0_0_25px_rgba(240,43,43,1)] transition-all animate-pulse"
           }`} />
         </div>
-        {location.pathname !== '/' && <HomeBtn />}
+        {location.pathname !== '/' && 
+          <HomeBtn className={"md:flex hidden"} />
+        }
         <div className='flex items-center gap-x-4'>
-          <CartBtn itemCount={cartCount.value} />
+          <CartBtn 
+            itemCount={cartCount.value} 
+            className={"md:flex hidden"} 
+          />
           <div 
             className='flex justify-center relative p-1'
             onMouseEnter={() => setIsLangHovered(true)}
@@ -118,6 +127,7 @@ const NavBar = ({ type }) => {
               </div>
             }
           </div>
+          <SidePanelBtn />
         </div>
       </div>
     </div>

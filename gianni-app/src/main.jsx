@@ -6,10 +6,11 @@ import './index.css'
 import App from './App.jsx'
 import NavBar from './components/NavBar.jsx'
 import AddUpdateItem from './components/admin/AddUpdateItem.jsx'
-import { isAddItemOpened, isSuccessfulPaymentOpened, isUpdateItemOpened } from './signals.jsx'
+import { isAddItemOpened, isSidePanelOpened, isSuccessfulPaymentOpened, isUpdateItemOpened } from './signals.jsx'
 import { useSignals } from '@preact/signals-react/runtime'
 import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
+import SidePanel from './components/SidePanel.jsx';
 
 const Root = () => {
 
@@ -22,6 +23,7 @@ const Root = () => {
           <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
             {isAddItemOpened.value && <AddUpdateItem />}
             {isUpdateItemOpened.value && <AddUpdateItem />}
+            {isSidePanelOpened.value && <SidePanel />}
             {isSuccessfulPaymentOpened.value && 
               <SuccessfulPopup 
                 titleKey="payment" 
