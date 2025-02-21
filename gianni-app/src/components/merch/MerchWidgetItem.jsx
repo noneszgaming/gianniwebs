@@ -1,27 +1,35 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import AddMerchToCartBtn from '../buttons/AddMerchToCartBtn';
 import AmountCounter from '../AmountCounter';
 
 import { cartCount } from '../../signals';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const MerchWidgetItem = ({ name, price, img, id }) => {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+    const { language } = useContext(LanguageContext);
 
-
-    // Inside handleAddToCart function, after localStorage update:
     const handleAddToCart = () => {
         const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItemIndex = existingCart.findIndex(item => item.name === name);
+        const existingItemIndex = existingCart.findIndex(item => item.id === id);
         
         if (existingItemIndex !== -1) {
             existingCart[existingItemIndex].quantity += selectedQuantity;
         } else {
             const newItem = {
-                _id: id,
-                name,
-                description: "Merch item",
+                id,
+                name: {
+                    hu: name.hu,
+                    en: name.en,
+                    de: name.de
+                },
+                description: {
+                    hu: "Merch termék",
+                    en: "Merch item",
+                    de: "Merch Artikel"
+                },
                 price: parseInt(price),
                 img,
                 quantity: parseInt(selectedQuantity)
@@ -30,7 +38,6 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
         }
         
         localStorage.setItem('cart', JSON.stringify(existingCart));
-        // Update cart count based on all items in cart
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };
@@ -44,7 +51,7 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
             />
             <div className='h-full w-full flex flex-col justify-center items-start gap-3'>
                 <h2 className='text-xl font-bold text-center'>
-                    {name}
+                    {name[language]}
                 </h2>
                 <AmountCounter onQuantityChange={setSelectedQuantity} />
                 <div className='w-full flex justify-between items-center gap-2'>
@@ -53,7 +60,7 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default MerchWidgetItem;

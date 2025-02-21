@@ -1,12 +1,10 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import MerchWidgetItem from './MerchWidgetItem'
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 
 const MerchWidget = () => {
   const [merchItems, setMerchItems] = useState([]);
   const { t } = useTranslation();
-  const { language } = useContext(LanguageContext);
 
   useEffect(() => {
     const fetchMerchItems = async () => {
@@ -35,7 +33,7 @@ const MerchWidget = () => {
             <MerchWidgetItem
               key={item._id}
               id={item._id}
-              name={item.name[language]}
+              name={item.name}
               price={item.price}
               img={item.img}
             />
