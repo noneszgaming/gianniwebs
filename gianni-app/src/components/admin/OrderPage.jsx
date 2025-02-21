@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
@@ -12,7 +14,7 @@ const columns = [
         {params.value}
         {params.value === 'pending' && (
           <FaRedoAlt 
-            className="w-4 h-4 cursor-pointer text-blue-500 hover:text-blue-700" 
+            className="w-4 h-4 cursor-pointer text-accent hover:text-dark-accent" 
             onClick={() => retryVerification(params.row.paymentId)}
           />
         )}
@@ -101,19 +103,21 @@ const OrderPage = () => {
   };
 
   return (
-    <Paper sx={{ height: 600, width: '100%', p: 2 }}>
-      <DataGrid
-        rows={orders}
-        columns={columns}
-        getRowId={(row) => row.paymentId}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[10, 25, 50]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        sx={{ border: 0 }}
-      />
-    </Paper>
+    <div className='flex items-center justify-center w-full h-full'>
+      <Paper sx={{ height: 600, width: '100%', p: 2 }}>
+        <DataGrid
+          rows={orders}
+          columns={columns}
+          getRowId={(row) => row.paymentId}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[10, 25, 50]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          sx={{ border: 0 }}
+        />
+      </Paper>
+    </div>
   );
 };
 

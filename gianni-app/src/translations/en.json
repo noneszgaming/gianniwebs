@@ -1,9 +1,5 @@
 {
     "translation": {
-        "items": {
-            "pizza_margherita_name": "Margherita Pizza",
-            "pizza_margherita_desc": "Tomato sauce, mozzarella, basil"
-        },
         "amount": "Amount",
         "cart": "Cart",
         "successful": "Successful",

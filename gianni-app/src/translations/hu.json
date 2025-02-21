@@ -1,9 +1,5 @@
 {
     "translation": {
-        "items": {
-            "pizza_margherita_name": "Margherita Pizza",
-            "pizza_margherita_desc": "Paradicsom szósz, mozzarella, bazsalikom"
-        },
         "amount": "Mennyiség",
         "cart": "Kosár",
         "successful": "Sikeres",

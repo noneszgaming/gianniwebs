@@ -7,6 +7,7 @@ import ChoosePaymentPage from './pages/ChoosePaymentPage'
 import AdminLogin from './components/admin/AdminLogin'
 import EditMenuPage from './components/admin/EditMenuPage'
 import OrderPage from './components/admin/OrderPage'
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   useSignals();
@@ -19,11 +20,18 @@ function App() {
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/orders" element={<OrderPage />} />
-        <Route path="/admin/edit" element={<EditMenuPage />} />
+        <Route path="/admin/orders" element={
+          <ProtectedRoute>
+            <OrderPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/edit" element={
+          <ProtectedRoute>
+            <EditMenuPage />
+          </ProtectedRoute>
+        } />
       </Routes>
     </div>
   )
 }
-
 export default App

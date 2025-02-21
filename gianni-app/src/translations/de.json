@@ -1,9 +1,5 @@
 {
     "translation": {
-        "items": {
-            "pizza_margherita_name": "Pizza Margherita",
-            "pizza_margherita_desc": "Tomatensauce, Mozzarella, Basilikum"
-        },
         "amount": "Menge",
         "cart": "Warenkorb",
         "successful": "Erfolgreich",
