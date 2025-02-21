@@ -161,6 +161,9 @@ const AddUpdateItem = () => {
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
             {isWebshopOpen.value ? (
                 <div className='w-[70%] h-[90%] flex flex-col justify-evenly items-center gap-6 bg-slate-200 rounded-3xl'>
+                    <h2 className='font-semibold text-[70px] text-dark-accent text-center'>
+                        Ooops!
+                    </h2>
                     <h2 className='font-semibold text-3xl text-center'>
                         Items can only be edited when the store is closed!
                     </h2>
