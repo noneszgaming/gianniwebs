@@ -11,16 +11,18 @@ const MerchWidget = () => {
   useEffect(() => {
     const fetchMerchItems = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/merch/${language}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/merch`);
         const data = await response.json();
-        setMerchItems(data);
+        // Filter merch items by type
+        const merchOnly = data.filter(item => item.type === 'merch');
+        setMerchItems(merchOnly);
       } catch (error) {
         console.log('Error fetching merch items:', error);
       }
     };
 
     fetchMerchItems();
-  }, [language]);
+  }, []);
 
   return (
     <div className='w-full min-w-full h-[550px] flex flex-col justify-start items-center bg-slate-600 font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 pt-8 gap-2'>
@@ -31,9 +33,9 @@ const MerchWidget = () => {
         <div className='w-full flex flex-col justify-start items-center px-4 overflow-auto mb-6'>
           {merchItems.map((item) => (
             <MerchWidgetItem
-              id={item._id}
               key={item._id}
-              name={item.name}
+              id={item._id}
+              name={item.name[language]}
               price={item.price}
               img={item.img}
             />
