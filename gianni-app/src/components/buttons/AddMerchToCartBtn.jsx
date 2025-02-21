@@ -13,7 +13,7 @@ const AddMerchToCart = ({ onClick }) => {
 
   return (
     <button 
-      className='relative fit h-10 flex justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible select-none'
+      className='relative fit h-10 flex justify-center items-center bg-accent hover:bg-dark-accent duration-500 rounded-[8px] cursor-pointer overflow-visible select-none'
       onClick={onClick}
     >
       <IoIosAdd className='w-8 h-8 text-light'/>

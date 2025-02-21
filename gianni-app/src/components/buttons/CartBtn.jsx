@@ -17,12 +17,12 @@ const CartBtn = ({ itemCount, className }) => {
 
   return (
     <button 
-      className={`relative w-10 h-10 justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible select-none ${className}`}
+      className={`relative w-10 h-10 justify-center items-center bg-accent hover:bg-dark-accent duration-500 rounded-[8px] cursor-pointer overflow-visible select-none ${className}`}
       onClick={handleClick}
     >
       {itemCount > 0 &&
         <div 
-          className='absolute -left-[90%] w-fit min-w-10 h-8 bg-red-400 rounded-l-[6px] flex justify-center items-center text-xs text-light' 
+          className='absolute -left-[90%] w-fit min-w-10 h-8 bg-light-accent rounded-l-[6px] flex justify-center items-center text-xs text-light' 
           style={{ zIndex: -1 }}
         >
           <p className='text-light text-[18px]'>{itemCount}</p>

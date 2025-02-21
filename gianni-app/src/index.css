@@ -5,8 +5,10 @@
 
   --color-dark: #08072c;
   --color-light: #fefefe;
-  /* --color-accent: #796950; */
-  --color-accent: #C40C0C;
+  --color-light-accent: #c5ab82;
+  --color-accent: #796950;
+  --color-dark-accent: #973c00;
+  /* --color-accent: #C40C0C; */
   --color-card-bg: #750E21;
   --color-neon-green: #20CC00;
 
@@ -44,6 +46,6 @@ background: rgba(0, 0, 0, 0) !important;
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #ec4848;
+  background: #c5ab82;
   transition: background-color 500ms ease;
 }

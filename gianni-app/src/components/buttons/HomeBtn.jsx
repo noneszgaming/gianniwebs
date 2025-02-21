@@ -13,7 +13,7 @@ const HomeBtn = ({ className }) => {
 
   return (
     <button 
-      className={`relative w-10 h-10 justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible ${className}`}
+      className={`relative w-10 h-10 justify-center items-center bg-accent hover:bg-amber-800 duration-500 rounded-[8px] cursor-pointer overflow-visible ${className}`}
       onClick={handleClick}
     >
       <IoHomeOutline className='w-[24px] h-[24px] text-light'/>

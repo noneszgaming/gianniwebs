@@ -8,7 +8,7 @@ const MiniAdminItemBtn = ({ children, onClick }) => {
 
   return (
     <button 
-      className='relative w-10 h-10 flex justify-center items-center bg-accent hover:bg-red-600 duration-500 rounded-[8px] cursor-pointer overflow-visible'
+      className='relative w-10 h-10 flex justify-center items-center bg-accent hover:bg-dark-accent duration-500 rounded-[8px] cursor-pointer overflow-visible'
       onClick={onClick}
     >
       {children}

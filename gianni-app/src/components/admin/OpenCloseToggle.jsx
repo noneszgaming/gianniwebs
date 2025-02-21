@@ -38,7 +38,7 @@ const OpenCloseToggle = () => {
 
     return (
         <div
-            className="relative w-16 h-8 flex items-center bg-gray-200 cursor-pointer rounded-full p-2 border-2 border-red-500 dark:hover:shadow-lg hover:shadow-lg hover:shadow-red-400 duration-500"
+            className="relative w-16 h-8 flex items-center bg-gray-200 cursor-pointer rounded-full p-2 border-2 border-accent dark:hover:shadow-lg hover:shadow-lg hover:shadow-light-accent duration-500"
             onClick={toggleStoreState}
             role="button"
             tabIndex={0}

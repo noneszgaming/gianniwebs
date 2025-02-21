@@ -58,7 +58,7 @@ const AdminLogin = () => {
                 <Password
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                {error && <div className="text-red-500">{error}</div>}
+                {error && <div className="text-accent">{error}</div>}
                 <div className='w-full flex items-center justify-evenly'>
                     <PrimaryButton text={'Login'} type="submit" />
                 </div>
