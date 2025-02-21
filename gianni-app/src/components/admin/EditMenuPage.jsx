@@ -2,24 +2,23 @@
 import React, { useEffect, useState } from 'react'
 import Item from '../Item';
 import PrimaryBtn from '../buttons/PrimaryBtn';
-import { isAddItemOpened } from '../../signals';
+import { isAddItemOpened, isWebshopOpen } from '../../signals';
 import { useSignals } from '@preact/signals-react/runtime';
 
 const EditMenuPage = () => {
     useSignals();
     const [foods, setFoods] = useState([]);
     const [merches, setMerches] = useState([]);
-    
+
     const fetchItems = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/items', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}` // Add your auth token
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             const data = await response.json();
             
-            // Split items by type
             setFoods(data.filter(item => item.type === 'food'));
             setMerches(data.filter(item => item.type === 'merch'));
         } catch (error) {
@@ -64,15 +63,15 @@ const EditMenuPage = () => {
                 ))}
             </div>
             <div className="w-full flex flex-col gap-10 mt-15">
-                <PrimaryBtn 
-                    text="ADD" 
+                <PrimaryBtn
+                    text="ADD"
                     onClick={() => {
                         isAddItemOpened.value = true;
-                        console.log('Modal opened:', isAddItemOpened.value);
-                    }} 
+                    }}
                 />
             </div>
         </div>
-    )
-}
+    );
+};
+
 export default EditMenuPage

@@ -6,7 +6,7 @@ import AmountCounter from './AmountCounter';
 import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
-import { cartCount, isUpdateItemOpened } from '../signals';
+import { cartCount, isUpdateItemOpened, isWebshopOpen } from '../signals';
 import { LanguageContext } from '../context/LanguageContext';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
@@ -68,7 +68,6 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         localStorage.setItem('editingItem', JSON.stringify(itemData));
         isUpdateItemOpened.value = true;
     };
-  
 
     return (
         <div className='w-[80%] md:w-full md:min-w-full md:h-48 flex md:flex-row flex-col justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl md:px-8 mb-10 pb-[8%] md:pb-[0]'>
@@ -78,7 +77,6 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     src={img}
                     alt=""
                 />
-                
                 <div className='w-full md:w-fit flex flex-col justify-center items-center md:items-start gap-3'>
                     <h2 className='text-2xl font-bold text-center'>
                         {typeof name === 'object' ? name[language] : name}
@@ -97,7 +95,6 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                             initialAvailability={available}
                             onToggle={() => onUpdate()}
                         />
-
                         <MiniAdminItemBtn onClick={handleEdit}>
                             <GoPencil className="w-6 h-6 text-light" />
                         </MiniAdminItemBtn>
@@ -106,7 +103,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
 
                 <DeleteBtn
                     onClick={location.pathname.startsWith('/admin/') && location.pathname !== '/admin'
-                        ? handleDelete
+                        ? (isWebshopOpen.value ? null : handleDelete)
                         : handleRemove}
                 />
 
@@ -120,4 +117,5 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         </div>
     );
 };
+
 export default Item

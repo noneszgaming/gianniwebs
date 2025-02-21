@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-unused-vars */
 import { useSignal, useSignals } from '@preact/signals-react/runtime'
 import React, { useState, useEffect } from 'react'
 import PrimaryBtn from '../buttons/PrimaryBtn';
 import SecondaryBtn from '../buttons/SecondaryBtn';
-import { isAddItemOpened, isUpdateItemOpened } from '../../signals';
+import { isAddItemOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
 
 const AddUpdateItem = () => {
     useSignals();
@@ -45,7 +46,7 @@ const AddUpdateItem = () => {
             }
         }
     }, [isUpdateItemOpened.value]);
-    
+
     const compressImage = (file) => {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -101,7 +102,7 @@ const AddUpdateItem = () => {
             const token = localStorage.getItem('adminToken');
             const editingItem = JSON.parse(localStorage.getItem('editingItem'));
             
-            const url = isUpdateItemOpened.value 
+            const url = isUpdateItemOpened.value
                 ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
                 : `${import.meta.env.VITE_API_URL}/api/items`;
 
@@ -158,113 +159,120 @@ const AddUpdateItem = () => {
 
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
-            <form onSubmit={handleSubmit} className='w-[70%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
-                <h2 className='font-semibold text-3xl'>
-                    {isUpdateItemOpened.value ? 'Update Item' : 'Add Merch or Food'}
-                </h2>
-                
-                {/* English Name */}
-                <input
-                    type="text"
-                    name="name_en"
-                    value={formData.name.en}
-                    onChange={handleChange}
-                    placeholder="Name (English)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-                
-                {/* Hungarian Name */}
-                <input
-                    type="text"
-                    name="name_hu"
-                    value={formData.name.hu}
-                    onChange={handleChange}
-                    placeholder="Name (Hungarian)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-                
-                {/* German Name */}
-                <input
-                    type="text"
-                    name="name_de"
-                    value={formData.name.de}
-                    onChange={handleChange}
-                    placeholder="Name (German)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-                
-                {/* English Description */}
-                <input
-                    type="text"
-                    name="description_en"
-                    value={formData.description.en}
-                    onChange={handleChange}
-                    placeholder="Description (English)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-                
-                {/* Hungarian Description */}
-                <input
-                    type="text"
-                    name="description_hu"
-                    value={formData.description.hu}
-                    onChange={handleChange}
-                    placeholder="Description (Hungarian)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-                
-                {/* German Description */}
-                <input
-                    type="text"
-                    name="description_de"
-                    value={formData.description.de}
-                    onChange={handleChange}
-                    placeholder="Description (German)"
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                />
-
-                <div className='w-[60%] flex justify-evenly items-center gap-4'>
-                    <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        min={0}
-                        placeholder="Price"
-                        className="w-full p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                    />
-                    <p className='w-[20%] text-2xl font-semibold'>Ft</p>
-                </div>
-
-                <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                >
-                    <option value="food">Food</option>
-                    <option value="merch">Merch</option>
-                </select>
-
-                <input
-                    type="file"
-                    name="img"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    placeholder="Upload Image"
-                    className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
-                />
-
-                <div className='w-[60%] flex justify-evenly items-center'>
+            {isWebshopOpen.value ? (
+                <div className='w-[70%] h-[90%] flex flex-col justify-evenly items-center gap-6 bg-slate-200 rounded-3xl'>
+                    <h2 className='font-semibold text-3xl text-center'>
+                        Items can only be edited when the store is closed!
+                    </h2>
                     <SecondaryBtn
                         text="Cancel"
                         onClick={handleClose}
                     />
-                    <PrimaryBtn text={isUpdateItemOpened.value ? "Update Item" : "Add Item"} type="submit" />
                 </div>
-            </form>
+            ) : (
+                <form onSubmit={handleSubmit} className='w-[70%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
+                    <h2 className='font-semibold text-3xl'>
+                        {isUpdateItemOpened.value ? 'Update Item' : 'Add Merch or Food'}
+                    </h2>
+                    
+                    <input
+                        type="text"
+                        name="name_en"
+                        value={formData.name.en}
+                        onChange={handleChange}
+                        placeholder="Name (English)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+                    
+                    <input
+                        type="text"
+                        name="name_hu"
+                        value={formData.name.hu}
+                        onChange={handleChange}
+                        placeholder="Name (Hungarian)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+                    
+                    <input
+                        type="text"
+                        name="name_de"
+                        value={formData.name.de}
+                        onChange={handleChange}
+                        placeholder="Name (German)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+                    
+                    <input
+                        type="text"
+                        name="description_en"
+                        value={formData.description.en}
+                        onChange={handleChange}
+                        placeholder="Description (English)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+                    
+                    <input
+                        type="text"
+                        name="description_hu"
+                        value={formData.description.hu}
+                        onChange={handleChange}
+                        placeholder="Description (Hungarian)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+                    
+                    <input
+                        type="text"
+                        name="description_de"
+                        value={formData.description.de}
+                        onChange={handleChange}
+                        placeholder="Description (German)"
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    />
+
+                    <div className='w-[60%] flex justify-evenly items-center gap-4'>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleChange}
+                            min={0}
+                            placeholder="Price"
+                            className="w-full p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        />
+                        <p className='w-[20%] text-2xl font-semibold'>Ft</p>
+                    </div>
+
+                    <select
+                        name="type"
+                        value={formData.type}
+                        onChange={handleChange}
+                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                    >
+                        <option value="food">Food</option>
+                        <option value="merch">Merch</option>
+                    </select>
+
+                    <input
+                        type="file"
+                        name="img"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        placeholder="Upload Image"
+                        className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                    />
+
+                    <div className='w-[60%] flex justify-evenly items-center'>
+                        <SecondaryBtn
+                            text="Cancel"
+                            onClick={handleClose}
+                        />
+                        <PrimaryBtn text={isUpdateItemOpened.value ? "Update Item" : "Add Item"} type="submit" />
+                    </div>
+                </form>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default AddUpdateItem;
+
