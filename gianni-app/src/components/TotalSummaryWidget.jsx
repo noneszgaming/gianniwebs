@@ -253,10 +253,10 @@ const TotalSummaryWidget = ({ totalPrice }) => {
 
 
                                   />
-                                </PayPalScriptProvider>
-                              </div>
-                            ):(<div></div>)}
-                      </div>
-                    )
-                  }
+              </PayPalScriptProvider>
+            </div>
+          ):(<></>)}
+    </div>
+  )
+}
 export default TotalSummaryWidget
