@@ -18,30 +18,22 @@ let paypalAccessToken = null;
 let tokenExpiryTime = null;
 
 async function getPayPalAccessToken() {
-    // Check if we have a valid token
-    if (paypalAccessToken && tokenExpiryTime && Date.now() < tokenExpiryTime) {
-        return paypalAccessToken;
-    }
-
-    // Get new token if none exists or expired
     const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
-    const tokenResponse = await axios.post(`${PAYPAL_API}/v1/oauth2/token`,
-        'grant_type=client_credentials',
-        {
-            headers: {
-                'Authorization': `Basic ${auth}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        }
-    );
+    const tokenResponse = await axios({
+        method: 'post',
+        url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+        headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: 'grant_type=client_credentials'
+    });
 
-    // Store token and set expiry (typically 32000 seconds, setting to 30000 for safety)
     paypalAccessToken = tokenResponse.data.access_token;
-    tokenExpiryTime = Date.now() + (30000 * 1000); // Convert seconds to milliseconds
+    tokenExpiryTime = Date.now() + (30000 * 1000);
     
     return paypalAccessToken;
 }
-
 async function verifyPayPalPayment(paymentId) {
     try {
         const accessToken = await getPayPalAccessToken();
