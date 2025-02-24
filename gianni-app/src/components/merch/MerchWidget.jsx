@@ -31,8 +31,8 @@ const MerchWidget = () => {
         <div className='w-full flex flex-col justify-start items-center px-4 overflow-auto mb-6'>
           {merchItems.map((item) => (
             <MerchWidgetItem
-              key={item._id}
-              id={item._id}
+              key={item.id}
+              id={item.id}
               name={item.name}
               price={item.price}
               img={item.img}
