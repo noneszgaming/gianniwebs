@@ -10,6 +10,7 @@ const isAddItemOpened = signal(false);
 const isUpdateItemOpened = signal(false);
 const isSuccessfulPaymentOpened = signal(false);
 const isSidePanelOpened = signal(false);
+const isAddAllergeneOpened = signal(false);
 const cartCount = signal(0);
 
 export { 
@@ -22,5 +23,6 @@ export {
     isUpdateItemOpened,
     isSuccessfulPaymentOpened,
     isSidePanelOpened,
+    isAddAllergeneOpened,
     cartCount
 }

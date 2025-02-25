@@ -31,6 +31,8 @@
         },
         "allergens": {
             "title": "Allergének",
+            "placeholder": "Allergén",
+            "no-allergens": "Nincs allergén megadva",
             "gluten": "Glutén",
             "lactose": "Laktóz",
             "nuts": "Diófélék",

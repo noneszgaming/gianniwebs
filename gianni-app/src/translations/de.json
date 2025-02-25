@@ -31,6 +31,7 @@
         },
         "allergens": {
             "title": "Allergene",
+            "no-allergens": "There are no allergenes",
             "gluten": "Gluten",
             "lactose": "Laktose",
             "nuts": "Nüsse",
