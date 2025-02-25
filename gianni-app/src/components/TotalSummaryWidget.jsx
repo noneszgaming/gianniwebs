@@ -23,6 +23,8 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     const [isCheckedAcceptTerms, setIsCheckedAcceptTerms] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [isValidMobile, setIsValidMobile] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
     
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -186,6 +188,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                     });
                   }}
                   onApprove={(data, actions) => {
+                    setIsProcessingPayment(true);
                     return actions.order.capture().then((details) => {
                       const orderData = {
                         paymentId: details.id,
@@ -240,6 +243,8 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                       })
                       .catch(error => {
                         console.error('Error:', error);
+                      }).finally(() => {
+                        setIsProcessingPayment(false);
                       });
                     });
                   }}
@@ -256,6 +261,12 @@ const TotalSummaryWidget = ({ totalPrice }) => {
               </PayPalScriptProvider>
             </div>
           ):(<></>)}
+          {isProcessingPayment && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-accent"></div>
+  </div>
+)}
+
     </div>
   )
 }

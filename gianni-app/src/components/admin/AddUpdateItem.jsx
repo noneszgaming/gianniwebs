@@ -173,37 +173,42 @@ const AddUpdateItem = () => {
                     />
                 </div>
             ) : (
-                <form onSubmit={handleSubmit} className='w-[70%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'>
+                <form 
+                    onSubmit={handleSubmit} 
+                    className='w-[80%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'
+                >
                     <h2 className='font-semibold text-3xl'>
                         {isUpdateItemOpened.value ? 'Update Item' : 'Add Merch or Food'}
                     </h2>
                     
-                    <input
-                        type="text"
-                        name="name_en"
-                        value={formData.name.en}
-                        onChange={handleChange}
-                        placeholder="Name (English)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                    />
-                    
-                    <input
-                        type="text"
-                        name="name_hu"
-                        value={formData.name.hu}
-                        onChange={handleChange}
-                        placeholder="Name (Hungarian)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                    />
-                    
-                    <input
-                        type="text"
-                        name="name_de"
-                        value={formData.name.de}
-                        onChange={handleChange}
-                        placeholder="Name (German)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                    />
+                    <div className='w-[80%] flex gap-2'>
+                        <input
+                            type="text"
+                            name="name_en"
+                            value={formData.name.en}
+                            onChange={handleChange}
+                            placeholder="Name (English)"
+                            className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        />
+                        
+                        <input
+                            type="text"
+                            name="name_hu"
+                            value={formData.name.hu}
+                            onChange={handleChange}
+                            placeholder="Name (Hungarian)"
+                            className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        />
+                        
+                        <input
+                            type="text"
+                            name="name_de"
+                            value={formData.name.de}
+                            onChange={handleChange}
+                            placeholder="Name (German)"
+                            className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        />
+                    </div>
                     
                     <input
                         type="text"
@@ -211,7 +216,7 @@ const AddUpdateItem = () => {
                         value={formData.description.en}
                         onChange={handleChange}
                         placeholder="Description (English)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
                     
                     <input
@@ -220,7 +225,7 @@ const AddUpdateItem = () => {
                         value={formData.description.hu}
                         onChange={handleChange}
                         placeholder="Description (Hungarian)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
                     
                     <input
@@ -229,10 +234,10 @@ const AddUpdateItem = () => {
                         value={formData.description.de}
                         onChange={handleChange}
                         placeholder="Description (German)"
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
 
-                    <div className='w-[60%] flex justify-evenly items-center gap-4'>
+                    <div className='w-[80%] flex justify-evenly items-center gap-4'>
                         <input
                             type="number"
                             name="price"
@@ -249,7 +254,7 @@ const AddUpdateItem = () => {
                         name="type"
                         value={formData.type}
                         onChange={handleChange}
-                        className="w-[60%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     >
                         <option value="food">Food</option>
                         <option value="merch">Merch</option>
@@ -261,7 +266,7 @@ const AddUpdateItem = () => {
                         accept="image/*"
                         onChange={handleImageChange}
                         placeholder="Upload Image"
-                        className="w-[60%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                        className="w-[80%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
                     />
 
                     <div className='w-[60%] flex justify-evenly items-center'>
