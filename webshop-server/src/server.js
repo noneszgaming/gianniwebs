@@ -7,7 +7,10 @@ const itemRoutes = require('./routes/items');
 const adminRoutes = require('./routes/admin');
 const orderRoutes = require('./routes/orders');
 const emailRoutes = require('./routes/email');
+const boxesRoutes = require('./routes/boxes');
+const userRoutes = require('./routes/users');
 const storeRoutes = require('./routes/store');
+const specialTypesRoutes = require('./routes/specialTypes');
 
 const app = express();
 const server = http.createServer(app); // Create HTTP server
@@ -41,6 +44,9 @@ app.use('/api', adminRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', storeRoutes(wsService));
 app.use('/api', emailRoutes);
+app.use('/api', boxesRoutes);
+app.use('/api', userRoutes);
+app.use('/api', specialTypesRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)

@@ -10,6 +10,12 @@ const storeSchema = new mongoose.Schema({
     lastUpdated: {
         type: Date,
         default: Date.now
+    },
+    type: {
+        type: String,
+        enum:['public', 'airbnb'],
+        required: true,
+        default: 'public'
     }
 });
 
