@@ -28,6 +28,13 @@
                 "selectDate": "Dátum választása",
                 "selectTime": "Időpont választása"
             }
-        }
+        },
+        "allergens": {
+            "title": "Allergének",
+            "gluten": "Glutén",
+            "lactose": "Laktóz",
+            "nuts": "Diófélék",
+            "eggs": "Tojás"
+          }
     }
 }

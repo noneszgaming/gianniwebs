@@ -28,6 +28,13 @@
                 "selectDate": "Select Date",
                 "selectTime": "Select Time"
             }
+        },
+        "allergens": {
+            "title": "Allergens",
+            "gluten": "Gluten",
+            "lactose": "Lactose",
+            "nuts": "Nuts",
+            "eggs": "Eggs"
         }
     }
 }

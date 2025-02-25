@@ -4,15 +4,23 @@ import React, { useState, useContext } from 'react'
 import { LanguageContext } from '../context/LanguageContext'
 import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter';
-
+import CheckBox from './CheckBox'
 import { useTranslation } from 'react-i18next';
 import { cartCount } from '../signals';
+import { IoIosArrowDown } from "react-icons/io";
 
 
 const Card = ({ name, description, price, img, id }) => {
     const { t } = useTranslation();
     const { language } = useContext(LanguageContext);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [allergens, setAllergens] = useState({
+        gluten: false,
+        lactose: false,
+        nuts: false,
+        eggs: false,
+    });
 
     const handleAddToCart = () => {
         const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -35,7 +43,10 @@ const Card = ({ name, description, price, img, id }) => {
                 },
                 price,
                 img,
-                quantity: selectedQuantity
+                quantity: selectedQuantity,
+                allergens: Object.entries(allergens)
+                .filter(([_, value]) => value)
+                .map(([key]) => key)
             };
             existingCart.push(newItem);
         }
@@ -45,10 +56,12 @@ const Card = ({ name, description, price, img, id }) => {
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
+    const selectedAllergensCount = Object.values(allergens).filter(Boolean).length;
+
     return (
-        <div className='hover:scale-[110%] w-[300px] h-[520px] flex flex-col items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden'>
+        <div className='hover:scale-[110%] w-[300px] h-[560px] flex flex-col gap-4 items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-y-visible'>
             <img 
-                className='w-full h-[60%] object-cover rounded-[26px] bg-amber-200'
+                className='w-full aspect-square object-cover rounded-[26px] bg-amber-200'
                 src={img} 
                 alt="" 
             />
@@ -63,6 +76,35 @@ const Card = ({ name, description, price, img, id }) => {
                     <p className='text-[22px] font-bold'>{price} Ft</p>
                     <AmountCounter onQuantityChange={setSelectedQuantity} />
                 </div>
+
+                <div className='w-full mb-4 relative select-none'>
+                    <div 
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className='w-full p-2 border border-accent rounded-lg flex justify-between items-center cursor-pointer'
+                    >
+                        <span>
+                            {selectedAllergensCount 
+                                ? `${t("allergens.title")} (${selectedAllergensCount})` 
+                                : t("allergens.title")}
+                        </span>
+                        <IoIosArrowDown className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                    
+                    {isDropdownOpen && (
+                        <div className='absolute top-full left-0 w-full bg-white border border-accent rounded-lg mt-1 p-2 z-10'>
+                            {Object.entries(allergens).map(([key, value]) => (
+                                <div key={key} className='flex items-center gap-2 py-1'>
+                                    <CheckBox
+                                        isChecked={value}
+                                        setIsChecked={(newValue) => setAllergens(prev => ({...prev, [key]: newValue}))}
+                                    />
+                                    <span>{t(`allergens.${key}`)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 <PrimaryBtn 
                     text={t("primaryBtn.addToCart")} 
                     className='w-[80%] text-lg self-center'
