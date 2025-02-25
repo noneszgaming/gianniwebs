@@ -8,6 +8,7 @@ import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
 import { cartCount, isUpdateItemOpened, isWebshopOpen } from '../signals';
 import { LanguageContext } from '../context/LanguageContext';
+import AllergenDropDown from './AllergenDropDown';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 
@@ -84,6 +85,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     <p className='text-md'>
                         {typeof description === 'object' ? description[language] : description}
                     </p>
+                    <AllergenDropDown />
                 </div>
             </div>
 
