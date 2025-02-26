@@ -7,6 +7,7 @@ import { MdSubdirectoryArrowLeft } from "react-icons/md";
 import { IoIosAdd } from "react-icons/io";
 import { useTranslation } from 'react-i18next';
 import { useSignals } from '@preact/signals-react/runtime';
+import DeleteBtn from '../buttons/DeleteBtn';
 
 const EditMenuPage = () => {
     useSignals();
@@ -178,14 +179,11 @@ const EditMenuPage = () => {
                             <h2 className={`text-md text-dark self-center`}>{t("allergens.no-allergens")}</h2>
                         ) : (
                             allergenes.map((allergene) => (
-                                <div key={allergene.id} className="w-full flex justify-between items-center p-2 border-b border-dark">
+                                <div key={allergene.id} className="w-full flex justify-between items-center p-2">
                                     <span>{allergene.name[i18n.language]}</span>
-                                    <button
+                                    <DeleteBtn 
                                         onClick={() => deleteAllergene(allergene.id)}
-                                        className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
+                                    />
                                 </div>
                             ))
                         )}

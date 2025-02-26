@@ -15,6 +15,7 @@ const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 const Item = ({ id, name, description, price, count, img, available, type, onUpdate }) => {
 
     const { language } = useContext(LanguageContext)
+    const isAdminItemPage = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
     
     const handleRemove = () => {
         const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -85,12 +86,13 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     <p className='text-md'>
                         {typeof description === 'object' ? description[language] : description}
                     </p>
-                    <AllergenDropDown />
+                    {/* TODO: fix the "type === 'food' condition doesnt working" bug */}
+                    {(!isAdminItemPage && type === 'food') && <AllergenDropDown />}
                 </div>
             </div>
 
             <div className='flex justify-center items-end gap-7'>
-                {location.pathname.startsWith('/admin/') && location.pathname !== '/admin' && (
+                {isAdminItemPage && (
                     <div className={`flex justify-center items-end gap-7`}>
                         <AvailabilityToggle
                             itemId={id}
@@ -104,14 +106,14 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                 )}
 
                 <DeleteBtn
-                    onClick={location.pathname.startsWith('/admin/') && location.pathname !== '/admin'
+                    onClick={isAdminItemPage
                         ? (isWebshopOpen.value ? null : handleDelete)
                         : handleRemove}
                 />
 
                 <div className='flex flex-col justify-center items-end gap-3'>
                     <p className='text-[22px] font-bold'>{price} Ft</p>
-                    {!(location.pathname.startsWith('/admin/') && location.pathname !== '/admin') && (
+                    {!isAdminItemPage && (
                         <AmountCounter type='cartItem' name={name.en} />
                     )}
                 </div>
