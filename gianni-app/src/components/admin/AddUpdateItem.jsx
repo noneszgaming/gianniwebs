@@ -8,7 +8,11 @@ import { isAddBoxOpened, isAddItemOpened, isUpdateItemOpened, isWebshopOpen } fr
 import FoodDropDown from './FoodDropDown';
 
 const AddUpdateItem = () => {
+
     useSignals();
+
+    const [selectedFoods, setSelectedFoods] = useState([]);
+
     const [formData, setFormData] = useState({
         name: {
             en: '',
@@ -124,9 +128,6 @@ const AddUpdateItem = () => {
         }
     };
 
-    // Add the following state for selected foods
-    const [selectedFoods, setSelectedFoods] = useState([]);
-
     // Add this handler to receive selected foods from the FoodDropDown component
     const handleFoodsSelected = (selectedIds) => {
         setSelectedFoods(selectedIds);
@@ -140,20 +141,28 @@ const AddUpdateItem = () => {
             const token = localStorage.getItem('adminToken');
             const editingItem = JSON.parse(localStorage.getItem('editingItem'));
             
-            // Create the payload based on the form type
+            // Alapértelmezett payload
             const payload = { ...formData };
             
-            // If adding a box, include the selected food items
+            // Ha box-ot adunk hozzá, akkor állítsuk be a megfelelő elemeket
             if (isAddBoxOpened.value) {
-                // Create a boxes endpoint payload
-                payload.items = selectedFoods; // Include the selected food item IDs
+                console.log("Selected food IDs:", selectedFoods); // Debug log
+                
+                // Győződjünk meg róla, hogy az items tömb a MongoDB által elvárt formátumban van
+                payload.items = selectedFoods;
+                
+                // Ha van speciális típus (pl. allergének), azt is beállíthatjuk
+                // payload.specialTypes = [...]; // ha van ilyen adat
             }
             
             const url = isUpdateItemOpened.value
                 ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
                 : isAddBoxOpened.value
-                    ? `${import.meta.env.VITE_API_URL}/api/boxes` // Use boxes endpoint for box creation
+                    ? `${import.meta.env.VITE_API_URL}/api/boxes` // Box létrehozás végpont
                     : `${import.meta.env.VITE_API_URL}/api/items`;
+
+            console.log("Sending payload:", payload); // Debug log
+            console.log("To URL:", url); // Debug log
 
             const response = await fetch(url, {
                 method: isUpdateItemOpened.value ? 'PATCH' : 'POST',
@@ -163,6 +172,18 @@ const AddUpdateItem = () => {
                 },
                 body: JSON.stringify(payload)
             });
+
+            // Check the raw response for debugging
+            const responseText = await response.text();
+            console.log("Server response:", responseText);
+            
+            // Try to parse the response as JSON for normal handling
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Error parsing response as JSON:", e);
+            }
 
             if (response.ok) {
                 alert(
@@ -176,20 +197,13 @@ const AddUpdateItem = () => {
                 localStorage.removeItem('editingItem');
                 window.location.reload();
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Operation failed');
+                throw new Error(responseData?.error || 'Operation failed');
             }
         } catch (error) {
             console.error('Error:', error);
             alert(error.message || 'Operation failed');
         }
     };
-
-    // Update the FoodDropDown JSX to pass the handler
-    {isAddBoxOpened.value && 
-        <FoodDropDown onFoodsSelected={handleFoodsSelected} />
-    }
-
 
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
@@ -310,7 +324,7 @@ const AddUpdateItem = () => {
                     }
 
                     {(isAddBoxOpened.value) &&
-                        <FoodDropDown />
+                        <FoodDropDown onFoodsSelected={handleFoodsSelected} />
                     }
 
                     <div className='w-[60%] flex justify-evenly items-center'>

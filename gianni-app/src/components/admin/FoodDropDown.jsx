@@ -30,20 +30,21 @@ const FoodDropDown = ({ onFoodsSelected }) => {
                 console.log('Foods data:', data);
                 
                 if (Array.isArray(data)) {
-                    // Filter for only food items that are available
+                    // Csak az elérhető ételeket szűrjük ki
                     const availableFoods = data
                         .filter(item => item.type === 'food' && item.available)
                         .map(food => ({
                             ...food,
-                            uniqueId: food._id || `food-${Math.random().toString(36).substr(2, 9)}`
+                            uniqueId: food._id  // Használjuk az eredeti _id-t uniqueId-ként
                         }));
                     
+                    console.log('Available foods:', availableFoods);
                     setFoods(availableFoods);
                     
-                    // Initialize the selected state
+                    // Inicializáljuk a kiválasztási állapotot
                     const initialState = {};
                     availableFoods.forEach(food => {
-                        initialState[food.uniqueId] = false;
+                        initialState[food._id] = false;  // Használjuk az _id-t a kiválasztási állapot kulcsaként
                     });
                     setSelectedFoodItems(initialState);
                 } else {
@@ -58,20 +59,23 @@ const FoodDropDown = ({ onFoodsSelected }) => {
         
         fetchFoods();
     }, []);
-
-    // Update parent component whenever selection changes
-    useEffect(() => {
-        // Extract the IDs of selected food items
-        const selectedIds = Object.entries(selectedFoodItems)
-            .filter(([_, isSelected]) => isSelected)
-            .map(([id]) => id);
+      // Update parent component whenever selection changes
+      useEffect(() => {
+          // Extract the IDs of selected food items - ensure we're passing the MongoDB _id, not uniqueId
+          const selectedIds = Object.entries(selectedFoodItems)
+              .filter(([_, isSelected]) => isSelected)
+              .map(([id]) => {
+                  // Find the original food item to get its MongoDB _id
+                  const foodItem = foods.find(food => food.uniqueId === id || food._id === id);
+                  return foodItem?._id; // Return the MongoDB _id
+              })
+              .filter(id => id); // Filter out any undefined values
         
-        // Call the callback with selected IDs if provided
-        if (onFoodsSelected) {
-            onFoodsSelected(selectedIds);
-        }
-    }, [selectedFoodItems, onFoodsSelected]);
-
+          // Call the callback with selected IDs if provided
+          if (onFoodsSelected) {
+              onFoodsSelected(selectedIds);
+          }
+      }, [selectedFoodItems, onFoodsSelected, foods]);
     const selectedFoodItemsCount = Object.values(selectedFoodItems).filter(Boolean).length;
 
     return (
