@@ -3,21 +3,31 @@ import React, { useState, useEffect, useContext } from 'react'
 import Card from '../components/Card'
 import BoxCard from '../components/BoxCard';
 
+
 const HomePage = () => {
   const [foods, setFoods] = useState([]);
+  const [boxes, setBoxes] = useState([]);
 
   useEffect(() => {
-    const fetchFoods = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
-        const data = await response.json();
-        const availableFoods = data.filter(food => food.available);
+        // Fetch foods
+        const foodResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/food`);
+        const foodData = await foodResponse.json();
+        const availableFoods = foodData.filter(food => food.available);
         setFoods(availableFoods);
+
+        // Fetch boxes
+        const boxResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/public/boxes');
+        const boxData = await boxResponse.json();
+        const availableBoxes = boxData.filter(box => box.available);
+        console.log(availableBoxes);
+        setBoxes(availableBoxes);
       } catch (error) {
-        console.error('Error fetching foods:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchFoods();
+    fetchData();
   }, []);
   
   return (
@@ -28,6 +38,17 @@ const HomePage = () => {
       <BoxCard 
         name="Box" description="Finom Box" price="5000" img={[]} id="lel123456789" 
       />
+          {boxes.map((box) => (
+        <BoxCard
+          key={box.id}
+          id={box.id}
+          name={box.name} // Using Hungarian name as default
+          description={box.description} // Using Hungarian description as default
+          price={box.price}
+          img={box.img}
+          items={box.items}
+        />
+      ))}
       {foods.map((food) => (
         <Card
           key={food.id}
