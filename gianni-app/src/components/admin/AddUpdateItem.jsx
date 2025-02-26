@@ -4,7 +4,8 @@ import { useSignal, useSignals } from '@preact/signals-react/runtime'
 import React, { useState, useEffect } from 'react'
 import PrimaryBtn from '../buttons/PrimaryBtn';
 import SecondaryBtn from '../buttons/SecondaryBtn';
-import { isAddItemOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
+import { isAddBoxOpened, isAddItemOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
+import FoodDropDown from './FoodDropDown';
 
 const AddUpdateItem = () => {
     useSignals();
@@ -154,6 +155,7 @@ const AddUpdateItem = () => {
             localStorage.removeItem('editingItem');
         } else {
             isAddItemOpened.value = false;
+            isAddBoxOpened.value = false;
         }
     };
 
@@ -178,7 +180,9 @@ const AddUpdateItem = () => {
                     className='w-[80%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'
                 >
                     <h2 className='font-semibold text-3xl'>
-                        {isUpdateItemOpened.value ? 'Update Item' : 'Add Merch or Food'}
+                        {isAddItemOpened.value && 'Add Merch or Food'}
+                        {isUpdateItemOpened.value && 'Update Item'}
+                        {isAddBoxOpened.value && 'Add Box'}
                     </h2>
                     
                     <div className='w-[80%] flex gap-2'>
@@ -250,31 +254,46 @@ const AddUpdateItem = () => {
                         <p className='w-[20%] text-2xl font-semibold'>Ft</p>
                     </div>
 
-                    <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
-                    >
-                        <option value="food">Food</option>
-                        <option value="merch">Merch</option>
-                    </select>
+                    {(isAddItemOpened.value || isUpdateItemOpened.value) &&
+                        <select
+                            name="type"
+                            value={formData.type}
+                            onChange={handleChange}
+                            className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
+                        >
+                            <option value="food">Food</option>
+                            <option value="merch">Merch</option>
+                        </select>
+                    }
 
-                    <input
-                        type="file"
-                        name="img"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        placeholder="Upload Image"
-                        className="w-[80%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
-                    />
+                    {(isAddItemOpened.value || isUpdateItemOpened.value) &&
+                        <input
+                            type="file"
+                            name="img"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            placeholder="Upload Image"
+                            className="w-[80%] p-2 rounded-lg border-2 text-accent border-gray-300 focus:border-accent outline-none"
+                        />
+                    }
+
+                    {(isAddBoxOpened.value) &&
+                        <FoodDropDown />
+                    }
 
                     <div className='w-[60%] flex justify-evenly items-center'>
                         <SecondaryBtn
                             text="Cancel"
                             onClick={handleClose}
                         />
-                        <PrimaryBtn text={isUpdateItemOpened.value ? "Update Item" : "Add Item"} type="submit" />
+                        <PrimaryBtn 
+                            text= {
+                                (isAddItemOpened.value && 'Add Merch or Food') || 
+                                (isUpdateItemOpened.value && 'Update Item') || 
+                                (isAddBoxOpened.value && 'Add Box')
+                            }
+                            type="submit" 
+                        />
                     </div>
                 </form>
             )}
