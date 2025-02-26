@@ -8,6 +8,7 @@ const isChoosePaymentPageOpened = signal(false);
 const isWebshopOpen = signal(true);
 const isAddItemOpened = signal(false);
 const isUpdateItemOpened = signal(false);
+const isUpdateBoxOpened = signal(false);
 const isSuccessfulPaymentOpened = signal(false);
 const isSidePanelOpened = signal(false);
 const isAddAllergeneOpened = signal(false);
@@ -22,6 +23,7 @@ export {
     isWebshopOpen,
     isAddItemOpened,
     isUpdateItemOpened,
+    isUpdateBoxOpened,
     isSuccessfulPaymentOpened,
     isSidePanelOpened,
     isAddAllergeneOpened,
