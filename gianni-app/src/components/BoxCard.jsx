@@ -1,0 +1,97 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
+import React, { useState, useContext } from 'react'
+import { LanguageContext } from '../context/LanguageContext'
+import PrimaryBtn from './buttons/PrimaryBtn'
+import AmountCounter from './AmountCounter';
+import { useTranslation } from 'react-i18next';
+import { cartCount } from '../signals';
+import AllergenDropDown from './AllergenDropDown';
+import BoxCardItem from './BoxCardItem';
+
+
+const BoxCard = ({ name, description, price, img, id }) => {
+    const { t } = useTranslation();
+    const { language } = useContext(LanguageContext);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
+
+    const handleAddToCart = () => {
+        const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItemIndex = existingCart.findIndex(item => item.id === id);
+        
+        if (existingItemIndex !== -1) {
+            existingCart[existingItemIndex].quantity += selectedQuantity;
+        } else {
+            const newItem = {
+                id,
+                name: {
+                    hu: name.hu,
+                    en: name.en,
+                    de: name.de
+                },
+                description: {
+                    hu: description.hu,
+                    en: description.en,
+                    de: description.de
+                },
+                price,
+                img,
+                quantity: selectedQuantity,
+            };
+            existingCart.push(newItem);
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(existingCart));
+        cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
+        window.dispatchEvent(new Event('cartUpdated'));
+    };
+
+    return (
+        <div className='hover:scale-[110%] w-[300px] min-h-[560px] h-fit flex flex-col gap-4 items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-y-visible pb-5'>
+            <img 
+                className='w-full aspect-square object-cover rounded-[26px] bg-amber-200'
+                src={img} 
+                alt="" 
+            />
+            <div className='w-[90%] h-[40%] flex flex-col justify-center items-start'>
+                <h2 className='text-2xl font-bold text-center'>
+                    Meat Box
+                    {/* {name[language]} */}
+                </h2>
+                <p className='text-sm'>
+                    You got only four of them!
+                    {/* {description[language]} */}
+                </p>
+                <div className='flex justify-between items-center w-full py-3'>
+                    <p className='text-[22px] font-bold'>{price} Ft</p>
+                    <AmountCounter onQuantityChange={setSelectedQuantity} />
+                </div>
+
+                <div className='w-full h-fit grid grid-cols-2 gap-2 pb-2'>
+                    <div className='flex flex-col gap-2'>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                        <BoxCardItem name="Soup"/>
+                    </div>
+                </div>
+
+                <AllergenDropDown />
+
+                <PrimaryBtn 
+                    text={t("primaryBtn.addToCart")} 
+                    className='w-[80%] text-lg self-center'
+                    onClick={handleAddToCart}
+                />
+            </div>
+        </div>
+    )
+}
+export default BoxCard
+
