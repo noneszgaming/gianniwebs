@@ -96,41 +96,6 @@ const AddUpdateItem = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        try {
-            const token = localStorage.getItem('adminToken');
-            const editingItem = JSON.parse(localStorage.getItem('editingItem'));
-            
-            const url = isUpdateItemOpened.value
-                ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
-                : `${import.meta.env.VITE_API_URL}/api/items`;
-
-            const response = await fetch(url, {
-                method: isUpdateItemOpened.value ? 'PATCH' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (response.ok) {
-                alert(isUpdateItemOpened.value ? 'Item updated successfully!' : 'Item added successfully!');
-                isUpdateItemOpened.value = false;
-                isAddItemOpened.value = false;
-                localStorage.removeItem('editingItem');
-                window.location.reload();
-            } else {
-                throw new Error(isUpdateItemOpened.value ? 'Failed to update item' : 'Failed to add item');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert(isUpdateItemOpened.value ? 'Failed to update item' : 'Failed to add item');
-        }
-    };
-
     const handleChange = (e) => {
         const [field, lang] = e.target.name.split('_');
         if (lang) {
@@ -158,6 +123,73 @@ const AddUpdateItem = () => {
             isAddBoxOpened.value = false;
         }
     };
+
+    // Add the following state for selected foods
+    const [selectedFoods, setSelectedFoods] = useState([]);
+
+    // Add this handler to receive selected foods from the FoodDropDown component
+    const handleFoodsSelected = (selectedIds) => {
+        setSelectedFoods(selectedIds);
+    };
+
+    // Modify the handleSubmit function to include selected foods when adding a box
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const token = localStorage.getItem('adminToken');
+            const editingItem = JSON.parse(localStorage.getItem('editingItem'));
+            
+            // Create the payload based on the form type
+            const payload = { ...formData };
+            
+            // If adding a box, include the selected food items
+            if (isAddBoxOpened.value) {
+                // Create a boxes endpoint payload
+                payload.items = selectedFoods; // Include the selected food item IDs
+            }
+            
+            const url = isUpdateItemOpened.value
+                ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
+                : isAddBoxOpened.value
+                    ? `${import.meta.env.VITE_API_URL}/api/boxes` // Use boxes endpoint for box creation
+                    : `${import.meta.env.VITE_API_URL}/api/items`;
+
+            const response = await fetch(url, {
+                method: isUpdateItemOpened.value ? 'PATCH' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert(
+                    isUpdateItemOpened.value ? 'Item updated successfully!' : 
+                    isAddBoxOpened.value ? 'Box added successfully!' : 
+                    'Item added successfully!'
+                );
+                isUpdateItemOpened.value = false;
+                isAddItemOpened.value = false;
+                isAddBoxOpened.value = false;
+                localStorage.removeItem('editingItem');
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Operation failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message || 'Operation failed');
+        }
+    };
+
+    // Update the FoodDropDown JSX to pass the handler
+    {isAddBoxOpened.value && 
+        <FoodDropDown onFoodsSelected={handleFoodsSelected} />
+    }
+
 
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
