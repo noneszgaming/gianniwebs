@@ -18,7 +18,7 @@ const HomePage = () => {
         setFoods(availableFoods);
 
         // Fetch boxes
-        const boxResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/public/boxes');
+        const boxResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/public/boxes`);
         const boxData = await boxResponse.json();
         const availableBoxes = boxData.filter(box => box.available);
         console.log(availableBoxes);
