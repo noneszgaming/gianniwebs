@@ -8,6 +8,7 @@ import AdminLogin from './components/admin/AdminLogin'
 import EditMenuPage from './components/admin/EditMenuPage'
 import OrderPage from './components/admin/OrderPage'
 import ProtectedRoute from './components/ProtectedRoute';
+import UserProtectedRoute from './components/UserProtectedRoute';
 
 import UserLogin from './pages/UserLogin';
 
@@ -22,7 +23,13 @@ function App() {
       <Routes>
         <Route path="/login" element={<UserLogin />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/airbnb" element={<HomePage />} />
+      
+        <Route path="/airbnb" element={
+          <UserProtectedRoute>
+          <HomePage />
+          </UserProtectedRoute>
+          } />
+    
         <Route path="/cart" element={<CartPage />} />
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
