@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import Item from '../Item';
 import PrimaryBtn from '../buttons/PrimaryBtn';
-import { isAddAllergeneOpened, isAddItemOpened, isWebshopOpen } from '../../signals';
+import { isAddAllergeneOpened, isAddBoxOpened, isAddItemOpened, isWebshopOpen } from '../../signals';
 import { MdSubdirectoryArrowLeft } from "react-icons/md";
 import { IoIosAdd } from "react-icons/io";
 import { useTranslation } from 'react-i18next';
@@ -88,7 +88,6 @@ const EditMenuPage = () => {
         }
     };
 
-
     useEffect(() => {
         fetchItems();
         fetchAllergenes();
@@ -97,6 +96,7 @@ const EditMenuPage = () => {
     return (
         <div className='w-full h-fit grid grid-cols-3 md:grid-cols-4 justify-items-center gap-x-10 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
             <div className="w-full col-span-3">
+                <h2 className='text-3xl font-bold py-3 select-none'>Boxes</h2>
                 <h2 className='text-3xl font-bold py-3 select-none'>Foods</h2>
                 {foods.map((food) => (
                     <Item
@@ -131,6 +131,12 @@ const EditMenuPage = () => {
                     text="ADD ITEM"
                     onClick={() => {
                         isAddItemOpened.value = true;
+                    }}
+                />
+                <PrimaryBtn
+                    text="ADD BOX"
+                    onClick={() => {
+                        isAddBoxOpened.value = true;
                     }}
                 />
                 <div className='bg-light w-full h-fit flex flex-col justify-center items-center gap-4 rounded-[30px] px-4 pt-2 pb-4 shadow-black/50 shadow-2xl'>
