@@ -4,19 +4,22 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const auth = require('../middleware/auth');
+const userAuth = require('../middleware/userAuth');
+const user = require('../models/user');
 
 router.post('/user/login', async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.username });
         
-        if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+        if (!user || req.body.password !== user.password) {
             return res.status(401).send({ error: 'Invalid login credentials' });
         }
+
 
         // Check if subscription is expired
         const currentDate = new Date();
         if (currentDate > user.end_date) {
-            return res.status(401).send({ error: 'Subscription expired' });
+            return res.status(401).send({ error: 'User expired' });
         }
        
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
@@ -26,14 +29,14 @@ router.post('/user/login', async (req, res) => {
     }
 });
 
-router.get('/user/verify', auth, async (req, res) => {
+router.get('/user/verify', userAuth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         
         // Check if subscription is expired
         const currentDate = new Date();
         if (currentDate > user.end_date) {
-            return res.status(401).send({ error: 'Subscription expired' });
+            return res.status(401).send({ error: 'User expired' });
         }
 
         res.status(200).send({ verified: true });
@@ -42,4 +45,73 @@ router.get('/user/verify', auth, async (req, res) => {
     }
 });
 
+router.post('/user/create', auth, async (req, res) => {
+    try {
+        const randomUsername = Math.floor(10000 + Math.random() * 90000).toString();
+        const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+ 
+
+        const user = new User({
+            username: randomUsername,
+            password: randomPassword,
+
+            end_date: new Date(req.body.end_date),
+            created_at: new Date()
+        });
+
+        await user.save();
+
+        res.status(201).send({
+            message: 'User created successfully',
+            credentials: {
+                username: randomUsername,
+                password: randomPassword,
+                end_date: req.body.end_date
+            }
+        });
+
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+});
+
+router.get('/users/all', auth, async (req, res) => {
+    try {
+        const users = await User.find({});
+        
+        const formattedUsers = users.map(user => ({
+            id: user._id,
+            username: user.username,
+            password: user.password,
+            end_date: user.end_date,
+        }));
+
+        res.status(200).send(formattedUsers);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+router.delete('/user/:id', auth, async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        
+        if (!user) {
+            return res.status(404).send({ error: 'User not found' });
+        }
+
+        res.status(200).send({ 
+            message: 'User deleted successfully',
+            deletedUser: {
+                username: user.username,
+                end_date: user.end_date
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+
 module.exports = router;
+

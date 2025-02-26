@@ -15,12 +15,9 @@ const EditMenuPage = () => {
     const [merches, setMerches] = useState([]);
     const { t, i18n } = useTranslation();
     const [allergenes, setAllergenes] = useState([]);
-
-    const [allergeneInput, setAllergeneInput] = useState({
-        hu: '',
-        en: '',
-        de: ''
-    });
+    const [users, setUsers] = useState([]);
+    const [isAddUserOpened, setIsAddUserOpened] = useState(false);
+    const [endDate, setEndDate] = useState('');
 
 
     const handleAllergeneSubmit = async () => {
@@ -46,6 +43,60 @@ const EditMenuPage = () => {
             console.error('Error submitting allergene:', error);
         }
     };
+    const handleUserSubmit = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                },
+                body: JSON.stringify({
+                    end_date: endDate
+                })
+            });
+    
+            if (response.ok) {
+                setEndDate('');
+                setIsAddUserOpened(false);
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Error creating user:', error);
+        }
+    };
+    const deleteUser = async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+    
+            if (response.ok) {
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+    
+    
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/all`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+    
 
     const fetchItems = async () => {
         try {
@@ -91,6 +142,7 @@ const EditMenuPage = () => {
     useEffect(() => {
         fetchItems();
         fetchAllergenes();
+        fetchUsers();
     }, []);
 
     return (
@@ -195,6 +247,51 @@ const EditMenuPage = () => {
                         )}
                     </div>
                 </div>
+                <div className='bg-light w-full h-fit flex flex-col justify-center items-center gap-4 rounded-[30px] px-4 pt-2 pb-4 shadow-black/50 shadow-2xl'>
+    <div className='w-full h-fit flex justify-center items-center gap-2'>
+        <h2 className='text-xl font-bold text-dark self-center'>Users</h2>
+        <button
+            className='w-8 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
+            onClick={() => setIsAddUserOpened(!isAddUserOpened)}
+        >
+            <IoIosAdd className={`w-8 h-8 text-light transition-transform duration-500 ${isAddUserOpened ? 'rotate-45' : ''}`} />
+        </button>
+    </div>
+    {isAddUserOpened && (
+        <div className='w-full h-fit flex flex-col gap-2'>
+            <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
+            />
+            <button
+                onClick={handleUserSubmit}
+                className='w-10 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
+            >
+                <MdSubdirectoryArrowLeft className='w-6 h-6 text-light' />
+            </button>
+        </div>
+    )}
+    <div className='w-full h-fit flex flex-col justify-items-center items-start gap-2'>
+        {users.length === 0 ? (
+            <h2 className='text-md text-dark self-center'>No users found</h2>
+        ) : (
+            users.map((user) => (
+                <div key={user.id} className="w-full flex justify-between items-center p-2">
+                    <div className="flex flex-col">
+                        <span>Username: {user.username}</span>
+                        <span>Password: {user.password}</span>
+                        <span>Expires: {new Date(user.end_date).toLocaleDateString()}</span>
+
+                    </div>
+                    <DeleteBtn onClick={() => deleteUser(user.id)} />
+                </div>
+            ))
+        )}
+    </div>
+</div>
+
             </div>
         </div>
     );

@@ -9,13 +9,20 @@ import EditMenuPage from './components/admin/EditMenuPage'
 import OrderPage from './components/admin/OrderPage'
 import ProtectedRoute from './components/ProtectedRoute';
 
+import UserLogin from './pages/UserLogin';
+
+// A Route komponensben:
+
+
 function App() {
   useSignals();
 
   return (
     <div className='w-full h-full flex justify-center px-[2%] overflow-y-auto'>
       <Routes>
+        <Route path="/login" element={<UserLogin />} />
         <Route path="/" element={<HomePage />} />
+        <Route path="/airbnb" element={<HomePage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/order" element={<OrderDataPage />} />
         <Route path="/payment" element={<ChoosePaymentPage />} />
