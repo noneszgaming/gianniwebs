@@ -2,6 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
 const Admin = require('../models/Admin');
+const Box = require('../models/Box');
+const SpecialType = require('../models/SpecialType');
 const bcrypt = require('bcryptjs');
 
 mongoose.connect(process.env.MONGODB_URI).then(() => {
@@ -186,13 +188,132 @@ const defaultAdmin = {
     password: bcrypt.hashSync('admin123', 8)
 };
 
+const seedSpecialTypes = [
+    {
+        name: {
+            hu: 'Laktózmentes',
+            en: 'Lactose-Free',
+            de: 'Laktosefrei'
+        }
+    },
+    {
+        name: {
+            hu: 'Gluténmentes',
+            en: 'Gluten-Free',
+            de: 'Glutenfrei'
+        }
+    },
+    {
+        name: {
+            hu: 'Vegetáriánus',
+            en: 'Vegetarian',
+            de: 'Vegetarisch'
+        }
+    },
+    {
+        name: {
+            hu: 'Vegán',
+            en: 'Vegan',
+            de: 'Vegan'
+        }
+    },
+    {
+        name: {
+            hu: 'Mogyorómentes',
+            en: 'Nut-Free',
+            de: 'Nussfrei'
+        }
+    },
+    {
+        name: {
+            hu: 'Diabetikus',
+            en: 'Diabetic',
+            de: 'Diabetiker'
+        }
+    },
+    {
+        name: {
+            hu: 'Tojásmentes',
+            en: 'Egg-Free',
+            de: 'Eifrei'
+        }
+    },
+    {
+        name: {
+            hu: 'Csípős',
+            en: 'Spicy',
+            de: 'Scharf'
+        }
+    }
+];
+const seedBoxes = [
+    {
+        name: {
+            hu: 'Kezdő Csomag',
+            en: 'Starter Pack',
+            de: 'Starter-Paket'
+        },
+        price: 5000,
+        description: {
+            hu: 'Alapvető merchandise termékek',
+            en: 'Essential merchandise items',
+            de: 'Grundlegende Merchandise-Artikel'
+        },
+        available: true,
+        img: generateRandomBase64Image(),
+        specialTypes: ['Limited Edition'],
+        items: [] // Will be populated after items are created
+    },
+    {
+        name: {
+            hu: 'Gamer Csomag',
+            en: 'Gamer Pack',
+            de: 'Gamer-Paket'
+        },
+        price: 8000,
+        description: {
+            hu: 'Gamer kellékek',
+            en: 'Gaming accessories',
+            de: 'Gaming-Zubehör'
+        },
+        available: true,
+        img: generateRandomBase64Image(),
+        specialTypes: ['Premium'],
+        items: [] // Will be populated after items are created
+    }
+];
+
+// Update the seedDatabase function to include the new models
 const seedDatabase = async () => {
     try {
-        await Item.deleteMany({}); // Clear existing items
-        await Admin.deleteMany({}); // Clear existing admins
-        await Item.insertMany(seedItems);
+        // Clear existing data
+        await Item.deleteMany({});
+        await Admin.deleteMany({});
+        await Box.deleteMany({});
+        await SpecialType.deleteMany({});
+
+        // Insert new data
+        const items = await Item.insertMany(seedItems);
         await Admin.create(defaultAdmin);
-        console.log('Database seeded successfully with 20 items and default admin.');
+        const specialTypes = await SpecialType.insertMany(seedSpecialTypes);
+
+        // Assign random items to boxes
+        const modifiedBoxes = seedBoxes.map(box => {
+            const randomItems = items
+                .filter(item => item.type === 'food')
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3)
+                .map(item => item._id);
+            return {...box, items: randomItems};
+        });
+
+        await Box.insertMany(modifiedBoxes);
+
+        console.log('Database seeded successfully with:');
+        console.log('- 20 items');
+        console.log('- 3 special types');
+        console.log('- 2 boxes');
+        console.log('- Default admin');
         console.log('Admin credentials - Username: admin, Password: admin123');
     } catch (error) {
         console.error('Error seeding database:', error);
