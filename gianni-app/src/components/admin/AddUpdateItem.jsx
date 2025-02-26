@@ -378,7 +378,10 @@ const AddUpdateItem = () => {
                     }
 
                     {(isAddBoxOpened.value || isUpdateBoxOpened.value) &&
-                        <FoodDropDown onFoodsSelected={handleFoodsSelected} />
+                        <FoodDropDown 
+                            onFoodsSelected={handleFoodsSelected} 
+                            initialSelectedIds={selectedFoods}
+                        />
                     }
 
                     <div className='w-[60%] flex justify-evenly items-center'>
