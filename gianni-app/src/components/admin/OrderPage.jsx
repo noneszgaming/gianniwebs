@@ -6,6 +6,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { IconButton } from '@mui/material';
 import { FaRedoAlt } from 'react-icons/fa';
+import zIndex from '@mui/material/styles/zIndex';
   const columns = [
     { field: 'paymentId', headerName: 'Payment ID', width: 200 },
     { field: 'status', headerName: 'Status', width: 130 },
@@ -196,7 +197,10 @@ const OrderPage = () => {
   }, []);
 
   return (
-    <div className='flex items-center justify-center w-full h-full'>
+    <div 
+      className='flex items-center justify-center w-full h-full'
+      style={{ zIndex: 4000 }}
+    >
       <Paper sx={{ height: 600, width: '100%', p: 2 }}>
         <DataGrid
           rows={orders}
