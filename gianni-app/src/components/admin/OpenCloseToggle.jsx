@@ -2,34 +2,49 @@
 import { useContext, useEffect, useState } from "react";
 import { FaLockOpen, FaLock } from "react-icons/fa";
 import { useSignal } from "@preact/signals-react";
-import { isWebshopOpen } from "../../signals";
 
-const OpenCloseToggle = () => {
-    useSignal();
+const OpenCloseToggle = ({ storeType }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        const ws = new WebSocket(`${import.meta.env.VITE_API_URL.replace('http', 'ws')}/ws`);
+        
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                type: 'GET_STORE_STATE',
+                clientId: Date.now().toString(),
+                storeType: storeType
+            }));
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'STORE_STATUS_UPDATE' && data.storeType === storeType) {
+                setIsOpen(data.state === 'open');
+            }
+        };
+
+        return () => ws.close();
+    }, [storeType]);
 
     const toggleStoreState = async () => {
-        const newState = !isWebshopOpen.value;
+        const newState = !isOpen;
         try {
             const token = localStorage.getItem('adminToken');
-            console.log("Sending request to server with state:", newState ? 'open' : 'closed');
-            
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/setState`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ state: newState ? 'open' : 'closed' })
+                body: JSON.stringify({ 
+                    state: newState ? 'open' : 'closed',
+                    type: storeType 
+                })
             });
 
-            const data = await response.json();
-            console.log("Server response:", data);
-
             if (response.ok) {
-                isWebshopOpen.value = newState;
-                console.log("New store state:", isWebshopOpen.value);
-            } else {
-                console.error('Server error:', data);
+                setIsOpen(newState);
             }
         } catch (error) {
             console.error('Network error:', error);
@@ -45,8 +60,8 @@ const OpenCloseToggle = () => {
         >
             <FaLockOpen className="text-green-500 w-4"/>
             <span
-                className={`absolute  w-6 h-6 rounded-full shadow-md transform duration-700 ${isWebshopOpen.value ? "bg-green-500" : "bg-accent"}`}
-                style={{ transition: 'all 0.3s ease', left: isWebshopOpen.value ? "2px" : "calc(100% - 2px - 24px)" }}
+                className={`absolute w-6 h-6 rounded-full shadow-md transform duration-700 ${isOpen ? "bg-green-500" : "bg-accent"}`}
+                style={{ transition: 'all 0.3s ease', left: isOpen ? "2px" : "calc(100% - 2px - 24px)" }}
             />
             <FaLock className="ml-auto text-red-600 w-3"/>
         </div>

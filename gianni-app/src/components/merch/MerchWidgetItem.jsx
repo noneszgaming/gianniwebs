@@ -12,7 +12,10 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
     const { language } = useContext(LanguageContext);
 
     const handleAddToCart = () => {
-        const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const isAirbnb = window.location.pathname.includes('/airbnb');
+        const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+        
+        const existingCart = JSON.parse(localStorage.getItem(cartKey)) || [];
         const existingItemIndex = existingCart.findIndex(item => item.id === id);
         
         if (existingItemIndex !== -1) {
@@ -37,7 +40,7 @@ const MerchWidgetItem = ({ name, price, img, id }) => {
             existingCart.push(newItem);
         }
         
-        localStorage.setItem('cart', JSON.stringify(existingCart));
+        localStorage.setItem(cartKey, JSON.stringify(existingCart));
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };

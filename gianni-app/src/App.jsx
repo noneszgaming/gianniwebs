@@ -29,6 +29,11 @@ function App() {
           <HomePage />
           </UserProtectedRoute>
           } />
+        <Route path="/airbnb/cart" element={
+          <UserProtectedRoute>
+          <CartPage />
+          </UserProtectedRoute>
+          } />
     
         <Route path="/cart" element={<CartPage />} />
         <Route path="/order" element={<OrderDataPage />} />

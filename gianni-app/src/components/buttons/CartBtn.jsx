@@ -5,14 +5,11 @@ import React from 'react';
 import { IoCartOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
-const CartBtn = ({ itemCount, className }) => {
-
-  useSignals();
-
+const CartBtn = ({ itemCount, className, route }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/cart');
+    navigate(route);
   };
 
   return (
@@ -32,7 +29,6 @@ const CartBtn = ({ itemCount, className }) => {
     </button>
   )
 }
-
 export default CartBtn
 
 

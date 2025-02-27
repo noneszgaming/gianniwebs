@@ -5,7 +5,7 @@ import { LanguageContext } from '../context/LanguageContext'
 import PrimaryBtn from './buttons/PrimaryBtn'
 import AmountCounter from './AmountCounter'
 import { useTranslation } from 'react-i18next'
-import { cartCount } from '../signals'
+import { cartCount, storeType } from '../signals'
 import AllergenDropDown from './AllergenDropDown'
 import BoxCardItem from './BoxCardItem'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
@@ -55,9 +55,20 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
     }, [images.length]);
 
     const handleAddToCart = () => {
-        const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItemIndex = existingCart.findIndex(item => item.id === id);
-      
+        const cartKey = `cart_${storeType.value}`;
+        const existingCart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        
+        // Compare both id and items array (if exists)
+        const existingItemIndex = existingCart.findIndex(item => {
+            const idMatch = item.id === id;
+            // If both have items arrays, compare them
+            if (items && item.items) {
+                const itemsMatch = JSON.stringify(item.items) === JSON.stringify(items);
+                return idMatch && itemsMatch;
+            }
+            return idMatch;
+        });
+
         if (existingItemIndex !== -1) {
             existingCart[existingItemIndex].quantity += selectedQuantity;
         } else {
@@ -72,8 +83,8 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
             };
             existingCart.push(newItem);
         }
-      
-        localStorage.setItem('cart', JSON.stringify(existingCart));
+
+        localStorage.setItem(cartKey, JSON.stringify(existingCart));
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };

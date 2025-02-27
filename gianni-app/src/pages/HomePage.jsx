@@ -41,8 +41,8 @@ const HomePage = () => {
       {isAirbnbPath ? (
         boxes.map((box) => (
           <BoxCard
-            key={box._id}
-            id={box._id}
+            key={box.id}
+            id={box.id}
             name={box.name}
             description={box.description}
             price={box.price}
@@ -53,8 +53,8 @@ const HomePage = () => {
       ) : (
         foods.map((food) => (
           <Card
-            key={food._id}
-            id={food._id}
+            key={food.id}
+            id={food.id}
             name={food.name}
             description={food.description}
             price={food.price}

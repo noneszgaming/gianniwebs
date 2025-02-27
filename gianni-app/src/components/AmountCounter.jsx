@@ -8,7 +8,10 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
   
     const getQuantityFromStorage = () => {
         if (type === "cartItem") {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const isAirbnb = window.location.pathname.includes('/airbnb');
+            const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+            
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
             const item = cart.find(item => 
                 (item.name?.en || item.name) === name
             );
@@ -24,25 +27,27 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
         }
         value = Math.min(Math.max(parseInt(value) || 0, 0), 100);
         e.target.value = value;
-    
+
         if (type === "cartItem") {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const isAirbnb = window.location.pathname.includes('/airbnb');
+            const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+            
+            const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
             const itemIndex = cart.findIndex(item => 
                 (item.name?.en || item.name) === name
             );
             
             if (itemIndex !== -1) {
                 cart[itemIndex].quantity = parseInt(value);
-                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem(cartKey, JSON.stringify(cart));
                 window.dispatchEvent(new Event('cartUpdated'));
             }
         }
-    
+
         if (onQuantityChange) {
             onQuantityChange(value);
         }
-    }    
-
+    }
     const handleKeyDown = (e) => {
         if (e.key === '-' || e.key === '.' || e.key === 'e') {
             e.preventDefault();

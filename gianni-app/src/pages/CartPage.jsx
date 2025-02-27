@@ -6,16 +6,18 @@ import MerchWidget from '../components/merch/MerchWidget'
 import { useTranslation } from 'react-i18next'
 
 const CartPage = () => {
-    const [cartItems, setCartItems] = useState([])
-    const { t } = useTranslation()
-   
+    const [cartItems, setCartItems] = useState([]);
+    const { t } = useTranslation();
     const calculateTotal = () => {
-        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
-    }
-
+        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    };
     useEffect(() => {
         const handleCartUpdate = () => {
-            const items = JSON.parse(localStorage.getItem('cart')) || []
+            // Determine cart type from URL
+            const isAirbnb = window.location.pathname.includes('/airbnb');
+            const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+            
+            const items = JSON.parse(localStorage.getItem(cartKey)) || [];
             const transformedItems = items.map(item => ({
                 ...item,
                 name: item.name?.en ? item.name : {
@@ -28,14 +30,14 @@ const CartPage = () => {
                     hu: item.description,
                     de: item.description
                 }
-            }))
-            setCartItems(transformedItems)
-        }
+            }));
+            setCartItems(transformedItems);
+        };
 
-        handleCartUpdate()
-        window.addEventListener('cartUpdated', handleCartUpdate)
-        return () => window.removeEventListener('cartUpdated', handleCartUpdate)
-    }, [])
+        handleCartUpdate();
+        window.addEventListener('cartUpdated', handleCartUpdate);
+        return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+    }, []);
 
     return (
         <div className='w-full h-fit grid grid-cols-1 lg:grid-cols-4 gap-x-10 gap-y-14 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
@@ -54,7 +56,7 @@ const CartPage = () => {
                     cartItems.map((item, index) => (
                         <CartItem
                             key={index}
-                            id={item._id}
+                            id={item.id}
                             name={item.name}
                             description={item.description}
                             price={item.price}

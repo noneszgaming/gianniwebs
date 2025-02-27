@@ -6,6 +6,11 @@ const orderSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    order_type: {
+        type: String,
+        enum: ['public', 'airbnb'],
+        required: true
+    },
     items: [{
         name: {
             type: String,
@@ -21,13 +26,17 @@ const orderSchema = new mongoose.Schema({
         },
         type: {
             type: String,
-            enum: ['food', 'merch'],
+            enum: ['food', 'merch', 'box'],
             required: true
         },
         quantity: {
             type: Number,
             required: true
-        }
+        },
+        specialTypes: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SpecialType'
+        }]
     }],
     total_price: {
         type: Number,
@@ -39,7 +48,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'cancelled','Paid']
+        enum: ['pending', 'completed', 'cancelled', 'Paid']
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,6 +72,15 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: function() {
             return !this.isInstantDelivery;
+        }
+    },
+    orderValidation: {
+        type: Boolean,
+        default: function() {
+            if (this.order_type === 'airbnb') {
+                return this.items.every(item => ['box', 'merch'].includes(item.type));
+            }
+            return this.items.every(item => ['food', 'merch'].includes(item.type));
         }
     }
 });

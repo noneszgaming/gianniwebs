@@ -4,11 +4,11 @@ import React from 'react'
 import { IoHomeOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
-const HomeBtn = ({ className }) => {
+const HomeBtn = ({ className, route }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/');
+    navigate(route);
   };
 
   return (

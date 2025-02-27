@@ -4,6 +4,9 @@ const Order = require('../models/Order');
 const Customer = require('../models/Customer');
 const Item = require('../models/Item');
 const Address = require('../models/Address');
+const SpecialType = require('../models/SpecialType');
+const Box = require('../models/Box');
+
 const auth = require('../middleware/auth');
 
 const axios = require('axios'); // Add this for HTTP requests
@@ -55,9 +58,9 @@ async function verifyPayPalPayment(paymentId) {
 router.post('/orders', async (req, res) => {
     try {
         const isPaymentValid = await verifyPayPalPayment(req.body.paymentId);
-        
         const orderStatus = isPaymentValid ? 'Paid' : 'pending';
-        // Create/update customer
+
+        // Existing customer logic
         let customer = await Customer.findOne({ email: req.body.customer.email });
         if (!customer) {
             customer = new Customer({
@@ -70,7 +73,7 @@ router.post('/orders', async (req, res) => {
             await customer.save();
         }
 
-        // Create/update address
+        // Existing address logic
         let address = await Address.findOne({
             customer: customer._id,
             country: req.body.address.country,
@@ -91,29 +94,48 @@ router.post('/orders', async (req, res) => {
             });
             await address.save();
         }
-
-        // Fetch complete item details
-        const itemPromises = req.body.items.map(async (item) => {
-            const fullItem = await Item.findById(item._id);
-            return {
-                name: fullItem.name,
-                price: fullItem.price,
-                description: fullItem.description,
-                type: fullItem.type,
-                quantity: item.quantity
-            };
-        });
+          // Enhanced item processing with special types
+          const itemPromises = req.body.items.map(async (item) => {
+              const fullItem = await Item.findById(item._id);
+              if (!fullItem) {
+                  // Try finding it as a box if item lookup fails
+                  const boxItem = await Box.findById(item._id);
+                  if (!boxItem) {
+                      throw new Error(`Item or Box with ID ${item._id} not found`);
+                  }
+                  return {
+                      name: boxItem.name,
+                      price: boxItem.price,
+                      description: boxItem.description,
+                      type: 'box',
+                      quantity: item.quantity
+                  };
+              }
+            
+              const specialTypes = item.specialTypes ? 
+                  await SpecialType.find({ _id: { $in: item.specialTypes }}) : 
+                  [];
+            
+              return {
+                  name: fullItem.name,
+                  price: fullItem.price,
+                  description: fullItem.description,
+                  type: fullItem.type,
+                  quantity: item.quantity,
+                  specialTypes: specialTypes.map(st => st._id)
+              };
+          });
         const completedItems = await Promise.all(itemPromises);
 
-        // Calculate total price
         const total_price = completedItems.reduce((total, item) => {
             return total + (Number(item.price) * Number(item.quantity));
         }, 0);
-        // Create order with all required fields including total_price
+
         const order = new Order({
             paymentId: req.body.paymentId,
+            order_type: req.body.order_type,
             items: completedItems,
-            total_price: total_price, // This will add the total_price to the response
+            total_price: total_price,
             customer: customer._id,
             address: address._id,
             isInstantDelivery: req.body.isInstantDelivery,
@@ -130,13 +152,13 @@ router.post('/orders', async (req, res) => {
     }
 });
 
-
 router.get('/orders', auth, async (req, res) => {
     try {
         const orders = await Order.find({})
             .populate('customer')
             .populate('address')
-            .sort({ created_date: -1 }); // Most recent first
+            .populate('items.specialTypes')
+            .sort({ created_date: -1 });
 
         res.status(200).json({
             success: true,

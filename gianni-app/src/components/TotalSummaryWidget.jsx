@@ -5,7 +5,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
 
 import PrimaryBtn from './buttons/PrimaryBtn'
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSignals } from '@preact/signals-react/runtime';
 import { isSuccessfulPaymentOpened } from '../signals';
 import FormElement from './FormElement';
@@ -14,6 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { isWebshopOpen } from '../signals';
 
 const TotalSummaryWidget = ({ totalPrice }) => {
+  const location = useLocation();
+  const orderType = location.pathname.includes('/airbnb') ? 'airbnb' : 'public';
 
   useSignals();
 
@@ -90,7 +92,48 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         setIsValidMobile(validateMobile(number));
     };
 
+  const createOrderData = (details) => {
+    const baseOrderData = {
+      paymentId: details.id,
+      order_type: orderType,
+      customer: {
+        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
+        email: details.payer.email_address,
+        phone: mobileNumber
+      },
+      address: {
+        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
+        firstName: details.payer.name.given_name,
+        lastName: details.payer.name.surname,
+        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
+        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
+        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
+        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
+      },
+      items: cartItems.map(item => ({
+        _id: item.id,
+        quantity: item.quantity,
+        ...(item.specialTypes && { specialTypes: item.specialTypes })
+      })),
+      termsAccepted: isCheckedAcceptTerms
+    };
 
+    if (orderType === 'airbnb') {
+      return {
+        ...baseOrderData,
+        isInstantDelivery: false,
+        deliveryDate: document.querySelector('input[type="date"]').value,
+        deliveryTime: document.querySelector('select').value
+      };
+    } else {
+      return {
+        ...baseOrderData,
+        isInstantDelivery: isCheckedInstantDelivery,
+        deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
+        deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null
+      };
+    }
+  };
   return (
     <div
       className='w-full min-w-full h-fit flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'
@@ -159,66 +202,57 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                 <PayPalButtons
                   className='w-[100%] h-[100%]'
                   createOrder={(data, actions) => {
-                    return actions.order.create({
-                      purchase_units: [
-                        {
-                          amount: {
-                            value: cartTotal.toString(),
-                            breakdown: {
-                              item_total: {
-                                value: cartTotal.toString(),
-                                currency_code: "HUF"
-                              }
-                            }
-                          },
-                          items: cartItems.map(item => ({
-                            name: item.name.hu,
-                            unit_amount: {
-                              value: item.price.toString(),
-                              currency_code: "HUF"
-                            },
-                            quantity: item.quantity,
-                            description: item.description.hu || ''
-                          }))
-                        }
-                      ],
-                      application_context: {
-                        shipping_preference: "GET_FROM_FILE"
-                      }
-                    });
-                  }}
+  return actions.order.create({
+    purchase_units: [
+      {
+        amount: {
+          value: cartTotal.toString(),
+          breakdown: {
+            item_total: {
+              value: cartTotal.toString(),
+              currency_code: "HUF"
+            }
+          }
+        },
+        items: cartItems.map(item => {
+          // Handle box type items differently
+          if (item.items) {
+            return {
+              name: item.name.hu,
+              unit_amount: {
+                value: item.price.toString(),
+                currency_code: "HUF"
+              },
+              quantity: item.quantity,
+              description: `Box: ${item.items.map(i => i.name.hu).join(', ')}`,
+              category: 'BOX'
+            };
+          }
+          
+          // Handle regular food and merch items
+          return {
+            name: `${item.name.hu}${item.specialTypes ? ` (${item.specialTypes.join(', ')})` : ''}`,
+            unit_amount: {
+              value: item.price.toString(),
+              currency_code: "HUF"
+            },
+            quantity: item.quantity,
+            description: item.description.hu || '',
+            category: item.type?.toUpperCase() || 'MERCH'
+          };
+        })
+      }
+    ],
+    application_context: {
+      shipping_preference: "GET_FROM_FILE"
+    }
+  });
+}}
                   onApprove={(data, actions) => {
                     setIsProcessingPayment(true);
                     return actions.order.capture().then((details) => {
-                      const orderData = {
-                        paymentId: details.id,
-                        customer: {
-                          name: details.payer.name.given_name + ' ' + details.payer.name.surname,
-                          email: details.payer.email_address,
-                          phone: mobileNumber
-                        },
-                        address: {
-                          country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
-                          firstName: details.payer.name.given_name,
-                          lastName: details.payer.name.surname,
-                          city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
-                          addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
-                          addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
-                          zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
-                        },
-                        items: cartItems.map(item => ({
-                            _id: item.id,  // Assuming each cart item has an _id field
-                            quantity: item.quantity
-                        })),
-                        termsAccepted: isCheckedAcceptTerms,
-                        isInstantDelivery: isCheckedInstantDelivery,
-                        deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
-                        deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null,
-                        total: cartTotal
-                      };
-                      console.log('Sending order data to backend:', orderData);
-
-                      // First create the order
+                      const orderData = createOrderData(details);
+                      
                       fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                         method: 'POST',
                         headers: {
@@ -228,7 +262,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                       })
                       .then(response => response.json())
                       .then(data => {
-                        // Then send confirmation email
                         return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
                           method: 'POST',
                           headers: {
@@ -238,26 +271,17 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                         });
                       })
                       .then(() => {
-                        console.log('Order created and email sent');
                         handlePaymentSuccess(details);
                       })
                       .catch(error => {
                         console.error('Error:', error);
-                      }).finally(() => {
+                      })
+                      .finally(() => {
                         setIsProcessingPayment(false);
                       });
                     });
                   }}
-
-
-
-
-
-
-
-
-
-                                  />
+                />
               </PayPalScriptProvider>
             </div>
           ):(<></>)}

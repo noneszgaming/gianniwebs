@@ -18,15 +18,16 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
     const isAdminItemPage = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
     
     const handleRemove = () => {
-        const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const isAirbnb = window.location.pathname.includes('/airbnb');
+        const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+        
+        const currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
         const updatedCart = currentCart.filter(item => 
-            // Compare with the English name or direct name depending on the structure
             (item.name?.en || item.name) !== (name?.en || name)
         );
-        localStorage.setItem('cart', JSON.stringify(updatedCart));
         
+        localStorage.setItem(cartKey, JSON.stringify(updatedCart));
         cartCount.value = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
-        
         window.dispatchEvent(new Event('cartUpdated'));
     };     
 

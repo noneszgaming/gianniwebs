@@ -5,16 +5,32 @@ import CartBtn from './buttons/CartBtn'
 import HomeBtn from './buttons/HomeBtn'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSignals } from '@preact/signals-react/runtime'
-import { isWebshopOpen, cartCount, isSidePanelOpened } from '../signals'
+import { isWebshopOpen, cartCount, isSidePanelOpened, storeType } from '../signals'
 import NavBarBtn from './admin/NavBarBtn'
 import OpenCloseToggle from './admin/OpenCloseToggle'
 import LanguageChangeBtn from './LanguageChangeBtn'
-import { LanguageContext } from '../context/LanguageContext';
-import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../context/LanguageContext'
+import { useTranslation } from 'react-i18next'
 import logo from '../assets/logo.png'
 import icon from '/mini_logo.png'
 import SidePanelBtn from './buttons/SidePanelBtn'
 import SidePanel from './SidePanel'
+
+const StoreControls = () => {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center">
+        <p className="text-sm">Public Store</p>
+        <OpenCloseToggle storeType="public" />
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-sm">Airbnb Store</p>
+        <OpenCloseToggle storeType="airbnb" />
+      </div>
+    </div>
+  );
+};
+
 
 const NavBar = ({ type }) => {
   useSignals();
@@ -25,13 +41,12 @@ const NavBar = ({ type }) => {
   const showAdminControls = location.pathname.startsWith('/admin/') && location.pathname !== '/admin/';
   const { t } = useTranslation();
 
-  // Initialize cart from localStorage
+  // Determine store type from URL
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cartCount.value = cart.reduce((sum, item) => sum + item.quantity, 0);
-  }, []);
-  
-  // WebSocket only for store status
+    storeType.value = location.pathname.includes('/airbnb') ? 'airbnb' : 'public';
+  }, [location]);
+
+  // Modified WebSocket logic
   useEffect(() => {
     const wsUrl = `${import.meta.env.VITE_API_URL.replace('http', 'ws')}/ws`;
     const ws = new WebSocket(wsUrl);
@@ -39,34 +54,39 @@ const NavBar = ({ type }) => {
     ws.onopen = () => {
       ws.send(JSON.stringify({ 
         type: 'GET_STORE_STATE',
-        clientId: Date.now().toString()
+        clientId: Date.now().toString(),
+        storeType: storeType.value
       }));
     };
   
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'STORE_STATUS_UPDATE') {
+      if (data.type === 'STORE_STATUS_UPDATE' && data.storeType === storeType.value) {
         const state = data.state || (data.data && data.data.state);
         isWebshopOpen.value = state === 'open';
       }
     };
   
     return () => ws.close();
-  }, []);
+  }, [storeType.value]);
+
+  // Modified cart handling
+  useEffect(() => {
+    const cartKey = `cart_${storeType.value}`;
+    const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+    cartCount.value = cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [storeType.value]);
 
   useEffect(() => {
     const handleCartUpdate = () => {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const cartKey = `cart_${storeType.value}`;
+      const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
       cartCount.value = cart.reduce((sum, item) => sum + item.quantity, 0);
     };
   
     window.addEventListener('cartUpdated', handleCartUpdate);
-    
-    return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-    };
-  }, []);
-
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [storeType.value]);
   return (
     <div 
       className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none`}
@@ -87,7 +107,7 @@ const NavBar = ({ type }) => {
             onClick={() => navigate('/admin/edit')}
             className={location.pathname === '/admin/edit' ? 'text-accent' : 'text-black'}
           />
-          <OpenCloseToggle />
+          <StoreControls />
         </div>
       )}
 
@@ -103,12 +123,16 @@ const NavBar = ({ type }) => {
           }`} />
         </div>
         {location.pathname !== '/' && 
-          <HomeBtn className={"md:flex hidden"} />
+          <HomeBtn 
+            className={"md:flex hidden"} 
+            route={storeType.value === 'airbnb' ? '/airbnb' : '/'} 
+          />
         }
         <div className='flex items-center gap-x-4'>
           <CartBtn 
             itemCount={cartCount.value} 
             className={"md:flex hidden"} 
+            route={storeType.value === 'airbnb' ? '/airbnb/cart' : '/cart'}
           />
           <div 
             className='flex justify-center relative p-1'
@@ -135,3 +159,4 @@ const NavBar = ({ type }) => {
 }
 
 export default NavBar
+
