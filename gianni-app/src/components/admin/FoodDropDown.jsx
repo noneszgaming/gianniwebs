@@ -6,12 +6,17 @@ import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
 import FoodDropDownItem from './FoodDropDownItem';
 
-// Add onFoodsSelected prop to pass data up to parent component
-const FoodDropDown = ({ onFoodsSelected }) => {
+const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedFoodItems, setSelectedFoodItems] = useState({});
-    const [foods, setFoods] = useState([]);  
+    const [foods, setFoods] = useState([]);
+    const [isInitialized, setIsInitialized] = useState(false);
+    
+    // Debug logs
+    useEffect(() => {
+        console.log('Initial selected IDs in FoodDropDown:', initialSelectedIds);
+    }, [initialSelectedIds]);
 
     // Fetch foods from the API
     useEffect(() => {
@@ -30,23 +35,48 @@ const FoodDropDown = ({ onFoodsSelected }) => {
                 console.log('Foods data:', data);
                 
                 if (Array.isArray(data)) {
-                    // Csak az elérhető ételeket szűrjük ki
+                    // Only filter available food items
                     const availableFoods = data
                         .filter(item => item.type === 'food' && item.available)
                         .map(food => ({
                             ...food,
-                            uniqueId: food._id  // Használjuk az eredeti _id-t uniqueId-ként
+                            uniqueId: food._id  // Use original _id as uniqueId
                         }));
                     
                     console.log('Available foods:', availableFoods);
                     setFoods(availableFoods);
                     
-                    // Inicializáljuk a kiválasztási állapotot
+                    // Create a new object for selection state
                     const initialState = {};
+                    
+                    // First set all to false
                     availableFoods.forEach(food => {
-                        initialState[food._id] = false;  // Használjuk az _id-t a kiválasztási állapot kulcsaként
+                        initialState[food._id] = false;
                     });
+                    
+                    // Then set selected ones to true
+                    initialSelectedIds.forEach(selectedId => {
+                        // Log each ID we're looking for
+                        console.log('Looking for food with ID:', selectedId);
+                        
+                        // Check each food item
+                        availableFoods.forEach(food => {
+                            // Convert IDs to strings for comparison
+                            const foodId = String(food._id);
+                            const selectedIdStr = String(selectedId);
+                            
+                            if (foodId === selectedIdStr || 
+                                String(food.id) === selectedIdStr || 
+                                String(food.uniqueId) === selectedIdStr) {
+                                console.log('Found match for ID:', selectedId, 'Food:', food.name.en);
+                                initialState[food._id] = true;
+                            }
+                        });
+                    });
+                    
+                    console.log('Initial selection state:', initialState);
                     setSelectedFoodItems(initialState);
+                    setIsInitialized(true);
                 } else {
                     console.error('Invalid response format:', data);
                     setFoods([]);
@@ -58,24 +88,59 @@ const FoodDropDown = ({ onFoodsSelected }) => {
         };
         
         fetchFoods();
-    }, []);
-      // Update parent component whenever selection changes
-      useEffect(() => {
-          // Extract the IDs of selected food items - ensure we're passing the MongoDB _id, not uniqueId
-          const selectedIds = Object.entries(selectedFoodItems)
-              .filter(([_, isSelected]) => isSelected)
-              .map(([id]) => {
-                  // Find the original food item to get its MongoDB _id
-                  const foodItem = foods.find(food => food.uniqueId === id || food._id === id);
-                  return foodItem?._id; // Return the MongoDB _id
-              })
-              .filter(id => id); // Filter out any undefined values
+    }, []);  // Only run once when component mounts
+
+    // Handle initialSelectedIds changes separately after foods are loaded
+    useEffect(() => {
+        if (foods.length > 0 && initialSelectedIds.length > 0) {
+            console.log('Updating selected foods based on initialSelectedIds:', initialSelectedIds);
+            
+            // Create a new object for selection state
+            const newState = {};
+            
+            // First set all to false
+            foods.forEach(food => {
+                newState[food._id] = false;
+            });
+            
+            // Then set selected ones to true
+            initialSelectedIds.forEach(selectedId => {
+                foods.forEach(food => {
+                    // Convert IDs to strings for comparison
+                    const foodId = String(food._id);
+                    const selectedIdStr = String(selectedId);
+                    
+                    if (foodId === selectedIdStr || 
+                        String(food.id) === selectedIdStr || 
+                        String(food.uniqueId) === selectedIdStr) {
+                        console.log('Marking selected:', food.name.en);
+                        newState[food._id] = true;
+                    }
+                });
+            });
+            
+            console.log('Updated selection state:', newState);
+            setSelectedFoodItems(newState);
+        }
+    }, [initialSelectedIds, foods]);
+
+    // Update parent component whenever selection changes
+    useEffect(() => {
+        if (!isInitialized) return;
         
-          // Call the callback with selected IDs if provided
-          if (onFoodsSelected) {
-              onFoodsSelected(selectedIds);
-          }
-      }, [selectedFoodItems, onFoodsSelected, foods]);
+        // Extract the IDs of selected food items
+        const selectedIds = Object.entries(selectedFoodItems)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([id]) => id)
+            .filter(id => id); 
+    
+        console.log('Notifying parent of selected IDs:', selectedIds);
+        // Call the callback with selected IDs if provided
+        if (onFoodsSelected) {
+            onFoodsSelected(selectedIds);
+        }
+    }, [selectedFoodItems, onFoodsSelected, isInitialized]);
+
     const selectedFoodItemsCount = Object.values(selectedFoodItems).filter(Boolean).length;
 
     return (
@@ -99,7 +164,7 @@ const FoodDropDown = ({ onFoodsSelected }) => {
                         <div className="py-2 text-center text-gray-500">No food items available</div>
                     ) : (
                         foods.map((foodItem) => {
-                            const itemId = foodItem.uniqueId || foodItem._id;
+                            const itemId = foodItem._id;
                             return (
                                 <FoodDropDownItem
                                     key={itemId}

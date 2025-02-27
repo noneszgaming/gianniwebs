@@ -112,14 +112,14 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                     <>
                         <button
                             onClick={prevImage}
-                            className='absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white/80 transition-colors'
+                            className='absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white/80 transition-colors cursor-pointer'
                         >
                             <FaChevronLeft className='text-black' />
                         </button>
                      
                         <button
                             onClick={nextImage}
-                            className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white/80 transition-colors'
+                            className='absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/50 p-2 rounded-full hover:bg-white/80 transition-colors cursor-pointer'
                         >
                             <FaChevronRight className='text-black' />
                         </button>

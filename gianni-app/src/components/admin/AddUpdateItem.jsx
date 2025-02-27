@@ -4,7 +4,7 @@ import { useSignal, useSignals } from '@preact/signals-react/runtime'
 import React, { useState, useEffect } from 'react'
 import PrimaryBtn from '../buttons/PrimaryBtn';
 import SecondaryBtn from '../buttons/SecondaryBtn';
-import { isAddBoxOpened, isAddItemOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
+import { isAddBoxOpened, isAddItemOpened, isUpdateBoxOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
 import FoodDropDown from './FoodDropDown';
 
 const AddUpdateItem = () => {
@@ -29,6 +29,7 @@ const AddUpdateItem = () => {
         img: ''
     });
 
+    // Existing effect for regular item updates
     useEffect(() => {
         if (isUpdateItemOpened.value) {
             const editingItem = JSON.parse(localStorage.getItem('editingItem'));
@@ -51,6 +52,46 @@ const AddUpdateItem = () => {
             }
         }
     }, [isUpdateItemOpened.value]);
+
+    // New effect for box updates
+    useEffect(() => {
+        if (isUpdateBoxOpened.value) {
+            const editingBox = JSON.parse(localStorage.getItem('editingBox')) || 
+                               JSON.parse(localStorage.getItem('editingItem')); // Try both keys for backward compatibility
+            
+            console.log('Loading box data for editing:', editingBox);
+            
+            if (editingBox) {
+                // Update the form data with box details
+                setFormData({
+                    name: {
+                        en: editingBox.name.en || '',
+                        hu: editingBox.name.hu || '',
+                        de: editingBox.name.de || ''
+                    },
+                    description: {
+                        en: editingBox.description.en || '',
+                        hu: editingBox.description.hu || '',
+                        de: editingBox.description.de || ''
+                    },
+                    price: editingBox.price || '',
+                    type: 'box', // Always set type to 'box' for box updates
+                    img: editingBox.img || ''
+                });
+                
+                // Set the selected foods
+                if (editingBox.items && Array.isArray(editingBox.items)) {
+                    const itemIds = editingBox.items.map(item => {
+                        // Handle both object items and string IDs
+                        return typeof item === 'object' ? (item._id || item.id) : item;
+                    }).filter(Boolean);
+                    
+                    console.log('Pre-selecting food items:', itemIds);
+                    setSelectedFoods(itemIds);
+                }
+            }
+        }
+    }, [isUpdateBoxOpened.value]);
 
     const compressImage = (file) => {
         return new Promise((resolve) => {
@@ -122,6 +163,9 @@ const AddUpdateItem = () => {
         if (isUpdateItemOpened.value) {
             isUpdateItemOpened.value = false;
             localStorage.removeItem('editingItem');
+        } else if (isUpdateBoxOpened.value) {
+            isUpdateBoxOpened.value = false;
+            localStorage.removeItem('editingBox');
         } else {
             isAddItemOpened.value = false;
             isAddBoxOpened.value = false;
@@ -130,6 +174,7 @@ const AddUpdateItem = () => {
 
     // Add this handler to receive selected foods from the FoodDropDown component
     const handleFoodsSelected = (selectedIds) => {
+        console.log('Foods selected:', selectedIds); 
         setSelectedFoods(selectedIds);
     };
 
@@ -140,32 +185,37 @@ const AddUpdateItem = () => {
         try {
             const token = localStorage.getItem('adminToken');
             const editingItem = JSON.parse(localStorage.getItem('editingItem'));
+            const editingBox = JSON.parse(localStorage.getItem('editingBox'));
             
-            // Alapértelmezett payload
+            // Default payload
             const payload = { ...formData };
             
-            // Ha box-ot adunk hozzá, akkor állítsuk be a megfelelő elemeket
-            if (isAddBoxOpened.value) {
+            // For box operations, add the selected foods
+            if (isAddBoxOpened.value || isUpdateBoxOpened.value) {
                 console.log("Selected food IDs:", selectedFoods); // Debug log
                 
-                // Győződjünk meg róla, hogy az items tömb a MongoDB által elvárt formátumban van
+                // Make sure the items array is in the format expected by MongoDB
                 payload.items = selectedFoods;
-                
-                // Ha van speciális típus (pl. allergének), azt is beállíthatjuk
-                // payload.specialTypes = [...]; // ha van ilyen adat
             }
             
-            const url = isUpdateItemOpened.value
-                ? `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`
-                : isAddBoxOpened.value
-                    ? `${import.meta.env.VITE_API_URL}/api/boxes` // Box létrehozás végpont
-                    : `${import.meta.env.VITE_API_URL}/api/items`;
+            // Determine the correct URL for the operation
+            let url;
+            if (isUpdateItemOpened.value) {
+                url = `${import.meta.env.VITE_API_URL}/api/items/${editingItem.id}`;
+            } else if (isUpdateBoxOpened.value) {
+                const boxId = editingBox?.id || editingBox?._id || editingItem?.id;
+                url = `${import.meta.env.VITE_API_URL}/api/boxes/${boxId}`;
+            } else if (isAddBoxOpened.value) {
+                url = `${import.meta.env.VITE_API_URL}/api/boxes`;
+            } else {
+                url = `${import.meta.env.VITE_API_URL}/api/items`;
+            }
 
             console.log("Sending payload:", payload); // Debug log
             console.log("To URL:", url); // Debug log
 
             const response = await fetch(url, {
-                method: isUpdateItemOpened.value ? 'PATCH' : 'POST',
+                method: isUpdateItemOpened.value || isUpdateBoxOpened.value ? 'PATCH' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -187,14 +237,17 @@ const AddUpdateItem = () => {
 
             if (response.ok) {
                 alert(
-                    isUpdateItemOpened.value ? 'Item updated successfully!' : 
-                    isAddBoxOpened.value ? 'Box added successfully!' : 
+                    isUpdateItemOpened.value ? 'Item updated successfully!' :
+                    isUpdateBoxOpened.value ? 'Box updated successfully!' :
+                    isAddBoxOpened.value ? 'Box added successfully!' :
                     'Item added successfully!'
                 );
                 isUpdateItemOpened.value = false;
+                isUpdateBoxOpened.value = false;
                 isAddItemOpened.value = false;
                 isAddBoxOpened.value = false;
                 localStorage.removeItem('editingItem');
+                localStorage.removeItem('editingBox');
                 window.location.reload();
             } else {
                 throw new Error(responseData?.error || 'Operation failed');
@@ -229,6 +282,7 @@ const AddUpdateItem = () => {
                         {isAddItemOpened.value && 'Add Merch or Food'}
                         {isUpdateItemOpened.value && 'Update Item'}
                         {isAddBoxOpened.value && 'Add Box'}
+                        {isUpdateBoxOpened.value && 'Update Box'}
                     </h2>
                     
                     <div className='w-[80%] flex gap-2'>
@@ -323,8 +377,11 @@ const AddUpdateItem = () => {
                         />
                     }
 
-                    {(isAddBoxOpened.value) &&
-                        <FoodDropDown onFoodsSelected={handleFoodsSelected} />
+                    {(isAddBoxOpened.value || isUpdateBoxOpened.value) &&
+                        <FoodDropDown 
+                            onFoodsSelected={handleFoodsSelected} 
+                            initialSelectedIds={selectedFoods}
+                        />
                     }
 
                     <div className='w-[60%] flex justify-evenly items-center'>
@@ -336,7 +393,8 @@ const AddUpdateItem = () => {
                             text= {
                                 (isAddItemOpened.value && 'Add Merch or Food') || 
                                 (isUpdateItemOpened.value && 'Update Item') || 
-                                (isAddBoxOpened.value && 'Add Box')
+                                (isAddBoxOpened.value && 'Add Box') ||
+                                (isUpdateBoxOpened.value && 'Update Box')
                             }
                             type="submit" 
                         />

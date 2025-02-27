@@ -19,6 +19,7 @@ const isChoosePaymentPageOpened = signal(false);
 
 const isAddItemOpened = signal(false);
 const isUpdateItemOpened = signal(false);
+const isUpdateBoxOpened = signal(false);
 const isSuccessfulPaymentOpened = signal(false);
 
 const isAddAllergeneOpened = signal(false);
@@ -33,6 +34,7 @@ export {
 
     isAddItemOpened,
     isUpdateItemOpened,
+    isUpdateBoxOpened,
     isSuccessfulPaymentOpened,
 
     isAddAllergeneOpened,

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import './i18n.js';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -6,11 +7,12 @@ import './index.css'
 import App from './App.jsx'
 import NavBar from './components/NavBar.jsx'
 import AddUpdateItem from './components/admin/AddUpdateItem.jsx'
-import { isAddBoxOpened, isAddItemOpened, isSidePanelOpened, isSuccessfulPaymentOpened, isUpdateItemOpened } from './signals.jsx'
+import { isAddBoxOpened, isAddItemOpened, isSidePanelOpened, isSuccessfulPaymentOpened, isUpdateBoxOpened, isUpdateItemOpened } from './signals.jsx'
 import { useSignals } from '@preact/signals-react/runtime'
 import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
 import SidePanel from './components/SidePanel.jsx';
+import BgLogo from './components/BgLogo.jsx';
 
 const Root = () => {
 
@@ -23,6 +25,7 @@ const Root = () => {
           <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
             {isAddBoxOpened.value && <AddUpdateItem />}
             {isAddItemOpened.value && <AddUpdateItem />}
+            {isUpdateBoxOpened.value && <AddUpdateItem />}
             {isUpdateItemOpened.value && <AddUpdateItem />}
             {isSidePanelOpened.value && <SidePanel />}
             {isSuccessfulPaymentOpened.value && 
@@ -33,6 +36,7 @@ const Root = () => {
               />
             }
             <NavBar type="admin"/>
+            <BgLogo />
             <App />
           </div>
         </LanguageProvider>

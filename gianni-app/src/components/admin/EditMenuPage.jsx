@@ -18,10 +18,9 @@ const EditMenuPage = () => {
     const [allergenes, setAllergenes] = useState([]);
     const [users, setUsers] = useState([]);
     const [isAddUserOpened, setIsAddUserOpened] = useState(false);
+    const [boxes, setBoxes] = useState([]);
     const [endDate, setEndDate] = useState('');
-    // Add this line to define the missing state variable
     const [allergeneInput, setAllergeneInput] = useState({ hu: '', en: '', de: '' });
-
 
     const handleAllergeneSubmit = async () => {
         try {
@@ -46,6 +45,7 @@ const EditMenuPage = () => {
             console.error('Error submitting allergene:', error);
         }
     };
+
     const handleUserSubmit = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/create`, {
@@ -68,6 +68,7 @@ const EditMenuPage = () => {
             console.error('Error creating user:', error);
         }
     };
+
     const deleteUser = async (id) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/${id}`, {
@@ -85,7 +86,20 @@ const EditMenuPage = () => {
         }
     };
     
-    
+    const fetchBoxes = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boxes`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+            const data = await response.json();
+            setBoxes(data);
+        } catch (error) {
+            console.error('Error fetching boxes:', error);
+        }
+    };
+
     const fetchUsers = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/all`, {
@@ -99,7 +113,6 @@ const EditMenuPage = () => {
             console.error('Error fetching users:', error);
         }
     };
-    
 
     const fetchItems = async () => {
         try {
@@ -116,6 +129,7 @@ const EditMenuPage = () => {
             console.log('Error fetching items:', error);
         }
     };
+
     const fetchAllergenes = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/specialtypes`);
@@ -125,6 +139,7 @@ const EditMenuPage = () => {
             console.error('Error fetching allergenes:', error);
         }
     };
+
     const deleteAllergene = async (id) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/specialtypes/${id}`, {
@@ -146,12 +161,27 @@ const EditMenuPage = () => {
         fetchItems();
         fetchAllergenes();
         fetchUsers();
+        fetchBoxes();
     }, []);
 
     return (
         <div className='w-full h-fit grid grid-cols-3 md:grid-cols-4 justify-items-center gap-x-10 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
             <div className="w-full col-span-3">
                 <h2 className='text-3xl font-bold py-3 select-none'>Boxes</h2>
+                {boxes.map((box) => (
+                    <Item
+                        key={box._id}
+                        id={box._id}
+                        name={box.name}
+                        description={box.description}
+                        available={box.available}
+                        price={box.price}
+                        img={box.img}
+                        type="box"
+                        items={box.items}
+                        onUpdate={fetchBoxes}
+                    />
+                ))}
                 <h2 className='text-3xl font-bold py-3 select-none'>Foods</h2>
                 {foods.map((food) => (
                     <Item
