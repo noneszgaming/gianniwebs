@@ -13,6 +13,7 @@ import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
 import SidePanel from './components/SidePanel.jsx';
 import BgLogo from './components/BgLogo.jsx';
+import { Toaster } from 'react-hot-toast';
 
 const Root = () => {
 
@@ -22,6 +23,7 @@ const Root = () => {
     <StrictMode>
       <BrowserRouter>
         <LanguageProvider>
+          <Toaster position="top-right" />
           <div className='w-full h-screen flex flex-col relative bg-slate-200 selection:bg-accent selection:text-light'>
             {isAddBoxOpened.value && <AddUpdateItem />}
             {isAddItemOpened.value && <AddUpdateItem />}

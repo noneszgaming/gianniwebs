@@ -13,6 +13,7 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     const [foods, setFoods] = useState([]);
     const [isInitialized, setIsInitialized] = useState(false);
     const [initialIdsProcessed, setInitialIdsProcessed] = useState(false);
+    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
     // Fetch foods csak egyszer fut le
     useEffect(() => {
@@ -83,10 +84,11 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
             setSelectedFoodItems(newState);
             setIsInitialized(true);
             setInitialIdsProcessed(true);
+
+            setTimeout(() => setInitialLoadComplete(true), 100);
         }
     }, [foods, initialSelectedIds, initialIdsProcessed]);
 
-    // Szülő komponens értesítése a kiválasztott elemekről
     useEffect(() => {
         if (!isInitialized) return;
         
@@ -94,17 +96,19 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
             .filter(([_, isSelected]) => isSelected)
             .map(([id]) => id)
             .filter(id => id);
-
+    
         console.log('Notifying parent of selected IDs:', selectedIds);
-        if (onFoodsSelected) {
+        
+        // Only notify parent if this isn't the initial load
+        if (onFoodsSelected && initialLoadComplete) {
             onFoodsSelected(selectedIds);
         }
-    }, [selectedFoodItems, onFoodsSelected, isInitialized]);
+    }, [selectedFoodItems, onFoodsSelected, isInitialized, initialLoadComplete]);
 
     const selectedFoodItemsCount = Object.values(selectedFoodItems).filter(Boolean).length;
 
     return (
-        <div className='w-[80%] mb-4 relative select-none'>
+        <div className='w-[80%] min-w-50 mb-4 relative select-none'>
             <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className='w-full p-2 border border-accent rounded-lg flex justify-between items-center cursor-pointer'
@@ -119,7 +123,7 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
             </div>
 
             {isDropdownOpen && (
-                <div className='absolute top-full left-0 w-full max-h-60 bg-white border border-accent rounded-lg mt-1 p-2 z-10 overflow-y-auto'>
+                <div className='absolute top-full left-0 w-fit max-h-60 bg-white border border-accent rounded-lg mt-1 p-2 z-10 overflow-y-auto'>
                     {foods.length === 0 ? (
                         <div className="py-2 text-center text-gray-500">No food items available</div>
                     ) : (

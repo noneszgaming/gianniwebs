@@ -10,6 +10,8 @@ import { cartCount, isUpdateBoxOpened, isUpdateItemOpened, isWebshopOpen } from 
 import { LanguageContext } from '../context/LanguageContext';
 import AllergenDropDown from './AllergenDropDown';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import FoodDropDown from './admin/FoodDropDown';
+import toast from 'react-hot-toast';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 
@@ -169,6 +171,35 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         }
     };    
 
+    // Add this function to the Item component
+    const handleUpdateBoxItems = async (selectedIds) => {
+        if (!isAdminItemPage || type !== 'box') return;
+    
+        try {
+        const token = localStorage.getItem('adminToken');
+        
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boxes/${id}`, {
+            method: 'PATCH',
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+            items: selectedIds
+            })
+        });
+    
+        if (response.ok) {
+            toast.success('Box contents updated');
+            if (onUpdate) onUpdate();
+        } else {
+            toast.error('Failed to update box contents');
+        }
+        } catch (error) {
+        console.error('Error updating box items:', error);
+        }
+    };  
+
     return (
         <div className='w-[80%] md:w-full md:min-w-full md:h-48 flex md:flex-row flex-col justify-between items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl md:px-8 mb-10 pb-[8%] md:pb-[0]'>
             <div className='h-full flex md:flex-row flex-col justify-center items-center gap-4'>
@@ -250,7 +281,26 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                         {typeof description === 'object' ? description[language] : description}
                     </p>
                     {/* TODO: fix the "type === 'food' condition doesnt working" bug */}
-                    {(!isAdminItemPage && type === 'food') && <AllergenDropDown />}
+                    <div className='flex gap-2'>
+                        {(!isAdminItemPage && type === 'food') && <AllergenDropDown />}
+                        {(type === 'box') && (
+                            <FoodDropDown
+                                initialSelectedIds={items ? items.map(item => item._id || item.id) : []}
+                                onFoodsSelected={(selectedIds) => {
+                                    // Only update if the user is on the admin page and this is a box
+                                    if (isAdminItemPage && type === 'box') {
+                                        // Compare with current items to avoid unnecessary updates
+                                        const currentItemIds = items ? items.map(item => item._id || item.id) : [];
+                                        const hasChanges = JSON.stringify(currentItemIds.sort()) !== JSON.stringify(selectedIds.sort());
+                                        
+                                        if (hasChanges) {
+                                            handleUpdateBoxItems(selectedIds);
+                                        }
+                                    }
+                                }}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
 
