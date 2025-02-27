@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
 import AllergenDropDownItem from './AllergenDropDownItem';
 
-const AllergenDropDown = ({ }) => {
+const AllergenDropDown = ({ className }) => {
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [allergenes, setAllergenes] = useState([]);
@@ -35,7 +35,7 @@ const AllergenDropDown = ({ }) => {
     const selectedAllergensCount = Object.values(selectedAllergenes).filter(Boolean).length;
 
     return (
-        <div className='w-fit mb-4 relative select-none'>
+        <div className={`mb-4 relative select-none ${className}`}>
             <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className='w-full p-2 border border-accent rounded-lg flex justify-between items-center gap-2 cursor-pointer'

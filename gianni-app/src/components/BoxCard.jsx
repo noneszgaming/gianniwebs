@@ -192,7 +192,7 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                     </div>
                 )}
 
-                <AllergenDropDown />
+                <AllergenDropDown className="w-full"/>
 
                 <PrimaryBtn 
                     text={t("primaryBtn.addToCart")} 
