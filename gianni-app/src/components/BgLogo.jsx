@@ -4,11 +4,13 @@ import React from 'react'
 
 const BgLogo = () => {
   return (
-    <img 
-        className='absolute w-[45%] left-1/2 top-30 transform -translate-x-1/2'
-        src='/brown_mini_logo.png' 
-        alt="Logo" 
-    />
+    <div className=''>
+        <img 
+            className='absolute w-[40%] left-1/2 top-30 transform -translate-x-1/2'
+            src='/brown_mini_logo.png' 
+            alt="Logo" 
+        />
+    </div>
   )
 }
 
