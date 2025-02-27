@@ -68,10 +68,20 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
             }
             return idMatch;
         });
-
+    
         if (existingItemIndex !== -1) {
             existingCart[existingItemIndex].quantity += selectedQuantity;
         } else {
+            // Make sure to save the COMPLETE items array with all properties
+            const boxItems = items ? items.map(item => ({
+                id: item._id || item.id,
+                name: item.name,
+                description: item.description,
+                price: item.price,
+                img: item.img, // Most importantly, include the image for each item
+                type: item.type
+            })) : [];
+            
             const newItem = {
                 id,
                 name,
@@ -79,15 +89,17 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 price,
                 img,
                 quantity: selectedQuantity,
-                items
+                type: 'box', // Explicitly set type to 'box'
+                items: boxItems // Store the complete items array
             };
             existingCart.push(newItem);
         }
-
+    
         localStorage.setItem(cartKey, JSON.stringify(existingCart));
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };
+    
 
     return (
         <div className='hover:scale-[110%] w-[300px] min-h-[560px] h-fit flex flex-col gap-4 items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-y-visible pb-5'>

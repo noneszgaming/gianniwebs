@@ -11,6 +11,7 @@ const CartPage = () => {
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
     };
+
     useEffect(() => {
         const handleCartUpdate = () => {
             // Determine cart type from URL
@@ -29,7 +30,18 @@ const CartPage = () => {
                     en: item.description,
                     hu: item.description,
                     de: item.description
-                }
+                },
+                type: item.type || 'food',
+                // Ensure all item objects in the items array have complete data
+                items: item.items ? item.items.map(subItem => ({
+                    ...subItem,
+                    name: subItem.name?.en ? subItem.name : {
+                        en: subItem.name,
+                        hu: subItem.name,
+                        de: subItem.name
+                    },
+                    img: subItem.img || '' // Ensure img is preserved
+                })) : []
             }));
             setCartItems(transformedItems);
         };
@@ -38,6 +50,7 @@ const CartPage = () => {
         window.addEventListener('cartUpdated', handleCartUpdate);
         return () => window.removeEventListener('cartUpdated', handleCartUpdate);
     }, []);
+
 
     return (
         <div className='w-full h-fit grid grid-cols-1 lg:grid-cols-4 gap-x-10 gap-y-14 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
@@ -62,6 +75,8 @@ const CartPage = () => {
                             price={item.price}
                             img={item.img}
                             quantity={item.quantity}
+                            type={item.type}
+                            items={item.items}
                         />
                     ))
                 )}

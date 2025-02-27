@@ -12,13 +12,15 @@ import AllergenDropDown from './AllergenDropDown';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import FoodDropDown from './admin/FoodDropDown';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 
 const Item = ({ id, name, description, price, count, img, available, type, onUpdate, items }) => {
     const { language } = useContext(LanguageContext)
     const isAdminItemPage = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
-    
+    const { t } = useTranslation();
+
     // Image swiper states for box type
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const intervalRef = useRef(null);
@@ -282,25 +284,38 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     </p>
                     {/* TODO: fix the "type === 'food' condition doesnt working" bug */}
                     <div className='flex gap-2'>
-                        {(!isAdminItemPage && type === 'food') && <AllergenDropDown />}
+                        {/* Allow allergen dropdown in cart for food items */}
+                        {(!isAdminItemPage && (type === 'food' || type === 'box' || count)) && <AllergenDropDown />}
+                        
+                        {/* Show FoodDropDown for boxes in admin page */}
                         {(type === 'box') && (
-                            <FoodDropDown
-                                initialSelectedIds={items ? items.map(item => item._id || item.id) : []}
-                                onFoodsSelected={(selectedIds) => {
-                                    // Only update if the user is on the admin page and this is a box
-                                    if (isAdminItemPage && type === 'box') {
-                                        // Compare with current items to avoid unnecessary updates
-                                        const currentItemIds = items ? items.map(item => item._id || item.id) : [];
-                                        const hasChanges = JSON.stringify(currentItemIds.sort()) !== JSON.stringify(selectedIds.sort());
-                                        
-                                        if (hasChanges) {
-                                            handleUpdateBoxItems(selectedIds);
+                            isAdminItemPage ? (
+                                <FoodDropDown
+                                    initialSelectedIds={items ? items.map(item => item._id || item.id) : []}
+                                    onFoodsSelected={(selectedIds) => {
+                                        // Only update if the user is on the admin page and this is a box
+                                        if (isAdminItemPage && type === 'box') {
+                                            // Compare with current items to avoid unnecessary updates
+                                            const currentItemIds = items ? items.map(item => item._id || item.id) : [];
+                                            const hasChanges = JSON.stringify(currentItemIds.sort()) !== JSON.stringify(selectedIds.sort());
+                                            
+                                            if (hasChanges) {
+                                                handleUpdateBoxItems(selectedIds);
+                                            }
                                         }
-                                    }
-                                }}
-                            />
+                                    }}
+                                />
+                            ) : (
+                                // For cart view, we still want to see box contents but not edit them
+                                <div className="text-sm text-gray-500 italic">
+                                    {items && items.length > 0 ? 
+                                        `${items.map(i => i.name[language]).join(', ')}` : 
+                                        t("emptyBox")}
+                                </div>
+                            )
                         )}
                     </div>
+
                 </div>
             </div>
 

@@ -35,10 +35,10 @@ const AllergenDropDown = ({ }) => {
     const selectedAllergensCount = Object.values(selectedAllergenes).filter(Boolean).length;
 
     return (
-        <div className='w-full mb-4 relative select-none'>
+        <div className='w-fit mb-4 relative select-none'>
             <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className='w-full p-2 border border-accent rounded-lg flex justify-between items-center cursor-pointer'
+                className='w-full p-2 border border-accent rounded-lg flex justify-between items-center gap-2 cursor-pointer'
             >
                 <span>
                     {selectedAllergensCount
@@ -49,7 +49,7 @@ const AllergenDropDown = ({ }) => {
             </div>
 
             {isDropdownOpen && (
-                <div className='absolute top-full left-0 w-full bg-white border border-accent rounded-lg mt-1 p-2 z-10'>
+                <div className='absolute top-full left-0 w-fit bg-white border border-accent rounded-lg mt-1 p-2 z-10'>
                     {allergenes.map((allergene) => (
                         <AllergenDropDownItem
                             key={allergene.id}
