@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import './i18n.js';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -11,6 +12,7 @@ import { useSignals } from '@preact/signals-react/runtime'
 import SuccessfulPopup from './components/SuccessfulPopup.jsx'
 import { LanguageProvider } from './context/LanguageContext.jsx'
 import SidePanel from './components/SidePanel.jsx';
+import BgLogo from './components/BgLogo.jsx';
 
 const Root = () => {
 
@@ -34,6 +36,7 @@ const Root = () => {
               />
             }
             <NavBar type="admin"/>
+            <BgLogo />
             <App />
           </div>
         </LanguageProvider>
