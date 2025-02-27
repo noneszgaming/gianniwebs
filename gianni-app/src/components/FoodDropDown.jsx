@@ -1,11 +1,3 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { IoIosArrowDown } from "react-icons/io";
-import FoodDropDownItem from './FoodDropDownItem';
-
 const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -147,5 +139,3 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
         </div>
     );
 };
-
-export default FoodDropDown;
