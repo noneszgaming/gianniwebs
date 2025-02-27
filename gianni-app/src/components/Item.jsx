@@ -282,7 +282,6 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     <p className='text-md'>
                         {typeof description === 'object' ? description[language] : description}
                     </p>
-                    {/* TODO: fix the "type === 'food' condition doesnt working" bug */}
                     <div className='flex gap-2'>
                         {/* Allow allergen dropdown in cart for food items */}
                         {(!isAdminItemPage && (type === 'food' || type === 'box' || count)) && <AllergenDropDown />}
@@ -325,6 +324,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                         <AvailabilityToggle
                             itemId={id}
                             initialAvailability={available}
+                            itemType={type}
                             onToggle={() => onUpdate()}
                         />
                         <MiniAdminItemBtn onClick={type === 'box' ? handleBoxEdit : handleEdit}>

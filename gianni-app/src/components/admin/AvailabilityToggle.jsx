@@ -5,15 +5,21 @@ import { FaCheck } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { useSignal } from "@preact/signals-react";
 import { isWebshopOpen } from "../../signals";
+import toast from "react-hot-toast";
 
-const AvailabilityToggle = ({ itemId, initialAvailability, onToggle }) => {
+const AvailabilityToggle = ({ itemId, initialAvailability, itemType = 'food', onToggle }) => {
     const [isAvailable, setIsAvailable] = useState(initialAvailability);
 
     const handleToggle = async () => {
         try {
             const token = localStorage.getItem('adminToken');
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items/${itemId}`, {
+            // Select the appropriate endpoint based on item type
+            const endpoint = itemType === 'box' 
+                ? `${import.meta.env.VITE_API_URL}/api/boxes/${itemId}`
+                : `${import.meta.env.VITE_API_URL}/api/items/${itemId}`;
+
+            const response = await fetch(endpoint, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,13 +32,18 @@ const AvailabilityToggle = ({ itemId, initialAvailability, onToggle }) => {
 
             if (response.ok) {
                 setIsAvailable(!isAvailable);
+                toast.success(`Availability ${!isAvailable ? 'enabled' : 'disabled'}`);
+                
                 // Call the onToggle prop after successful update
                 if (onToggle) {
                     onToggle(!isAvailable);
                 }
+            } else {
+                toast.error('Failed to update availability');
             }
         } catch (error) {
             console.error('Error updating availability:', error);
+            toast.error('Error updating availability');
         }
     };
 
