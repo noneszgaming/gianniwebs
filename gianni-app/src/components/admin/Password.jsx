@@ -22,7 +22,7 @@ const Password = ({ onChange, className, type }) => {
             <div className={`w-full h-12 bg-light rounded-xl flex justify-start items-center px-3 relative border-[2px] shadow-2xl shadow-black/60 ${isPasswordFocused ? 'border-accent' : 'border-light'} ${className}`}>
                 <h2 
                     className={`absolute font-semibold lg:text-xl duration-500 select-none
-                        ${isPasswordFocused ? ' text-accent' : ' text-slate-800 hover:cursor-text'}
+                        ${isPasswordFocused ? 'text-dark' : ' text-dark hover:cursor-text'}
                         ${isPasswordFocused || !isPasswordEmpty ? 'left-2 -top-8 ' : 'left-12 top-[8px]'}
                     `}
                     onClick={() => inputRef.current.focus()}
