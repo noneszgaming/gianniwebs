@@ -11,15 +11,12 @@ import CheckBox from './CheckBox';
 import { useTranslation } from 'react-i18next';
 import { isWebshopOpen } from '../signals';
 
-
 const TotalSummaryWidget = ({ totalPrice }) => {
   const location = useLocation();
   const orderType = location.pathname.includes('/airbnb') ? 'airbnb' : 'public';
   const cartKey = orderType === 'airbnb' ? 'cart_airbnb' : 'cart_public';
 
-
   useSignals();
-
 
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -30,15 +27,13 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   const [isValidMobile, setIsValidMobile] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const defaultDate = tomorrow.toISOString().split('T')[0];
 
-
   const [cartTotal, setCartTotal] = useState(0);
   const [cartItems, setCartItems] = useState([]);
-
+ 
   useEffect(() => {
     // Get cart from the correct storage key
     const storedCart = JSON.parse(localStorage.getItem(cartKey)) || [];
@@ -46,7 +41,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     const total = storedCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setCartTotal(total);
   }, [cartKey]);
-
+ 
   // Update when cart changes
   useEffect(() => {
     const handleCartUpdated = () => {
@@ -55,18 +50,17 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       const total = updatedCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       setCartTotal(total);
     };
-   
+    
     window.addEventListener('cartUpdated', handleCartUpdated);
     return () => window.removeEventListener('cartUpdated', handleCartUpdated);
   }, [cartKey]);
-
 
   const initialOptions = {
     clientId: "AUugzFtEnv8l8EOE0knHrxPMSL7G6ESl4Asw7_uJ_tC9UpvcUe06nNH12oyeV8l5e__eW0Df5pe5wmfL",
     currency: "HUF",
     intent: "capture",
   };
-
+ 
   const handlePaymentSuccess = (details) => {
     console.log("Sikeres fizetés!", details);
     localStorage.removeItem(cartKey);
@@ -83,7 +77,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     isSuccessfulPaymentOpened.value = true;
   };
 
-
   const generateTimeOptions = () => {
     const options = [];
     for (let hour = 8; hour <= 20; hour++) {
@@ -92,7 +85,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     }
     return options;
   };
-
 
   const validateMobile = (number) => {
     const digitsOnly = number.replace(/\D/g, '');
@@ -106,13 +98,11 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     return digitsOnly.length >= 10 && digitsOnly.length <= 15;
   };
 
-
   const handleMobileChange = (e) => {
     const number = e.target.value;
     setMobileNumber(number);
     setIsValidMobile(validateMobile(number));
   };
-  
   const handleNoteChange = (e) => {
     setOrderNote(e.target.value);
   };
@@ -185,8 +175,11 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
         deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null
       };
-    }
-  };
+      console.log('Final order data:', baseOrderData);
+      return baseOrderData;
+    };
+  
+  
 
   return (
     <div
@@ -196,7 +189,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       <h2 className='text-2xl font-bold text-center'>
         {t('summary.title')}
       </h2>
-
 
       <div className='md:w-[80%] w-full flex flex-col justify-between items-center'>
         <p className='text-lg'>
@@ -211,7 +203,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         value={mobileNumber}
         onChange={handleMobileChange}
       />
-      <FormElement
+            <FormElement
         label={t('summary.comment')}
         type="textarea"
         width="md:w-[80%] w-full"
@@ -240,7 +232,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           </div>
         </div>
 
-
         {!isCheckedInstantDelivery && (
           <div className="flex items-center gap-4">
             <input
@@ -258,7 +249,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           </div>
         )}
       </div>
-     
+      
       {isCheckedAcceptTerms && isValidMobile && isWebshopOpen.value ? (
         <div className='w-[80%] h-fit'>
           <PayPalScriptProvider className='h-[50px]' options={initialOptions}>
@@ -278,23 +269,32 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                         }
                       },
                       items: cartItems.map(item => {
-                        // Get appropriate name
-                        const itemName = typeof item.name === 'object' ? item.name.hu : item.name;
-                        const itemDesc = typeof item.description === 'object' ? item.description.hu : item.description;
+                        // Get appropriate name based on the current language or fallback to Hungarian
+                        const itemName = typeof item.name === 'object' ?
+                          (item.name[localStorage.getItem('i18nextLng') || 'hu'] || item.name.hu) :
+                          item.name;
                         
-                        // Handle box type items differently
-                        if (item.items) {
+                        const itemDesc = typeof item.description === 'object' ?
+                          (item.description[localStorage.getItem('i18nextLng') || 'hu'] || item.description.hu) :
+                          (item.description || '');
+                        
+                        // Handle allergenes if available
+                        const allergenesInfo = item.allergenes ?
+                          Object.keys(item.allergenes)
+                            .filter(key => key !== 'undefined' && item.allergenes[key])
+                            .join(', ') :
+                          '';
+                        
+                        // Box type items with nested items
+                        if (item.type === 'box' && item.items && item.items.length > 0) {
                           return {
                             name: itemName,
                             unit_amount: {
                               value: item.price.toString(),
                               currency_code: "HUF"
                             },
-                            quantity: item.quantity,
-                            description: `Box: ${item.items.map(i => 
-                              typeof i.name === 'object' ? i.name.hu : i.name
-                            ).join(', ')}`,
-                            category: 'BOX'
+                            quantity: item.quantity || 1,
+                            description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
                           };
                         }
                         
@@ -361,7 +361,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           </PayPalScriptProvider>
         </div>
       ):(<></>)}
-     
+      
       {isProcessingPayment && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-accent"></div>
@@ -370,6 +370,5 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     </div>
   )
 }
-
 
 export default TotalSummaryWidget
