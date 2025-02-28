@@ -15,14 +15,15 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
     const { language } = useContext(LanguageContext)
     const [selectedQuantity, setSelectedQuantity] = useState(1)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    
+    const [selectedAllergenes, setSelectedAllergenes] = useState({})
+   
     // Use items' images if available, otherwise use placeholder
-    const images = items && items.length > 0 
+    const images = items && items.length > 0
         ? items.map(item => item.img)
         : [img || ''] // Fallback to provided img or empty string
-    
+   
     const intervalRef = useRef(null);
-  
+ 
     const nextImage = () => {
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
         resetInterval();
@@ -57,7 +58,7 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
     const handleAddToCart = () => {
         const cartKey = `cart_${storeType.value}`;
         const existingCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        
+       
         // Compare both id and items array (if exists)
         const existingItemIndex = existingCart.findIndex(item => {
             const idMatch = item.id === id;
@@ -68,9 +69,11 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
             }
             return idMatch;
         });
-    
+   
         if (existingItemIndex !== -1) {
             existingCart[existingItemIndex].quantity += selectedQuantity;
+            // Frissítsük az allergéneket
+            existingCart[existingItemIndex].allergenes = selectedAllergenes;
         } else {
             // Make sure to save the COMPLETE items array with all properties
             const boxItems = items ? items.map(item => ({
@@ -81,7 +84,7 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 img: item.img, // Most importantly, include the image for each item
                 type: item.type
             })) : [];
-            
+           
             const newItem = {
                 id,
                 name,
@@ -90,16 +93,16 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 img,
                 quantity: selectedQuantity,
                 type: 'box', // Explicitly set type to 'box'
-                items: boxItems // Store the complete items array
+                items: boxItems, // Store the complete items array
+                allergenes: selectedAllergenes // Allergének mentése
             };
             existingCart.push(newItem);
         }
-    
+   
         localStorage.setItem(cartKey, JSON.stringify(existingCart));
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
     };
-    
 
     return (
         <div className='hover:scale-[110%] w-[300px] min-h-[560px] h-fit flex flex-col gap-4 items-center bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-y-visible pb-5'>
@@ -137,14 +140,14 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                         </button>
                     </>
                 )}
-              
+             
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
                     {images.map((_, index) => (
-                        <div 
-                            key={index} 
+                        <div
+                            key={index}
                             className={`h-2 rounded-full cursor-pointer transition-all duration-500 ${
-                                currentImageIndex === index 
-                                    ? 'w-8 bg-primary relative overflow-hidden' 
+                                currentImageIndex === index
+                                    ? 'w-8 bg-primary relative overflow-hidden'
                                     : 'w-3 bg-white/70'
                             }`}
                             onClick={() => {
@@ -153,7 +156,7 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                             }}
                         >
                             {currentImageIndex === index && (
-                                <div 
+                                <div
                                     className="absolute top-0 left-0 h-full bg-white/80"
                                     style={{
                                         width: '100%',
@@ -192,10 +195,13 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                     </div>
                 )}
 
-                <AllergenDropDown className="w-full"/>
+                <AllergenDropDown 
+                    className="w-full"
+                    onAllergenChange={(allergenes) => setSelectedAllergenes(allergenes)}
+                />
 
-                <PrimaryBtn 
-                    text={t("primaryBtn.addToCart")} 
+                <PrimaryBtn
+                    text={t("primaryBtn.addToCart")}
                     className='w-[80%] text-lg self-center'
                     onClick={handleAddToCart}
                 />

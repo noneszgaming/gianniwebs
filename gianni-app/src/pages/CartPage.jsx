@@ -32,7 +32,7 @@ const CartPage = () => {
                     de: item.description
                 },
                 type: item.type || 'food',
-                // Ensure all item objects in the items array have complete data
+                allergenes: item.allergenes || {},
                 items: item.items ? item.items.map(subItem => ({
                     ...subItem,
                     name: subItem.name?.en ? subItem.name : {
@@ -40,16 +40,22 @@ const CartPage = () => {
                         hu: subItem.name,
                         de: subItem.name
                     },
-                    img: subItem.img || '' // Ensure img is preserved
+                    img: subItem.img || ''
                 })) : []
             }));
-            setCartItems(transformedItems);
+            
+            if (JSON.stringify(cartItems) !== JSON.stringify(transformedItems)) {
+                setCartItems(transformedItems);
+            }
         };
 
         handleCartUpdate();
+        
         window.addEventListener('cartUpdated', handleCartUpdate);
         return () => window.removeEventListener('cartUpdated', handleCartUpdate);
-    }, []);
+        
+    }, [cartItems.length]);
+
 
 
     return (
@@ -77,6 +83,7 @@ const CartPage = () => {
                             quantity={item.quantity}
                             type={item.type}
                             items={item.items}
+                            allergenes={item.allergenes}
                         />
                     ))
                 )}

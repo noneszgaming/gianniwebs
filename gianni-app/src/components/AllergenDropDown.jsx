@@ -6,23 +6,26 @@ import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
 import AllergenDropDownItem from './AllergenDropDownItem';
 
-const AllergenDropDown = ({ className }) => {
+const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllergenChange, itemId }) => {
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [allergenes, setAllergenes] = useState([]);
-    const [selectedAllergenes, setSelectedAllergenes] = useState({});
+    const [selectedAllergenes, setSelectedAllergenes] = useState(initialSelectedAllergenes);
 
     const fetchAllergenes = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/specialtypes`);
             const data = await response.json();
             setAllergenes(data);
-            // Initialize selectedAllergenes with fetched data
-            const initialSelected = {};
-            data.forEach(allergene => {
-                initialSelected[allergene._id] = false;
-            });
-            setSelectedAllergenes(initialSelected);
+            
+            // Csak akkor inicializáljuk, ha nincs kezdeti érték
+            if (Object.keys(initialSelectedAllergenes).length === 0) {
+                const initialSelected = {};
+                data.forEach(allergene => {
+                    initialSelected[allergene._id] = false;
+                });
+                setSelectedAllergenes(initialSelected);
+            }
         } catch (error) {
             console.error('Error fetching allergenes:', error);
         }
@@ -31,6 +34,16 @@ const AllergenDropDown = ({ className }) => {
     useEffect(() => {
         fetchAllergenes();
     }, []);
+
+    // Módosítsd az AllergenDropDown.jsx useEffect hook-ját
+    useEffect(() => {
+        // Ha változnak a kiválasztott allergének, értesítjük a szülő komponenst
+        if (onAllergenChange && JSON.stringify(selectedAllergenes) !== JSON.stringify(initialSelectedAllergenes)) {
+            onAllergenChange(selectedAllergenes);
+        }
+        // Függőségi tömb hozzáadása
+    }, [selectedAllergenes, onAllergenChange, JSON.stringify(initialSelectedAllergenes)]);
+
 
     const selectedAllergensCount = Object.values(selectedAllergenes).filter(Boolean).length;
 
@@ -57,18 +70,18 @@ const AllergenDropDown = ({ className }) => {
                             name={allergene.name[i18n.language]}
                             isChecked={Boolean(selectedAllergenes[allergene.id])}
                             onCheckChange={(newValue) => {
-                                setSelectedAllergenes(prev => ({
-                                    ...prev,
+                                const newSelected = {
+                                    ...selectedAllergenes,
                                     [allergene.id]: newValue
-                                }));
-                                console.log('New state:', allergene.id, newValue); // Add this to debug
+                                };
+                                setSelectedAllergenes(newSelected);
                             }}
                         />
                     ))}
-
                 </div>
             )}
         </div>
     );
 };
+
 export default AllergenDropDown;

@@ -16,11 +16,11 @@ import { useTranslation } from 'react-i18next'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 
-const Item = ({ id, name, description, price, count, img, available, type, onUpdate, items }) => {
+const Item = ({ id, name, description, price, count, img, available, type, onUpdate, items, allergenes }) => {
     const { language } = useContext(LanguageContext)
     const isAdminItemPage = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
     const { t } = useTranslation();
-
+    
     // Image swiper states for box type
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const intervalRef = useRef(null);
@@ -62,6 +62,24 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
             };
         }
     }, [images.length, type]);
+
+    const handleAllergenChange = (updatedAllergenes) => {
+        const isAirbnb = window.location.pathname.includes('/airbnb');
+        const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
+        
+        const currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        const itemIndex = currentCart.findIndex(item =>
+            item.id === id ||
+            (typeof name === 'object' && item.name?.en === name.en)
+        );
+        
+        if (itemIndex !== -1) {
+            if (JSON.stringify(currentCart[itemIndex].allergenes) !== JSON.stringify(updatedAllergenes)) {
+                currentCart[itemIndex].allergenes = updatedAllergenes;
+                localStorage.setItem(cartKey, JSON.stringify(currentCart));
+            }
+        }
+    };
 
     const handleRemove = () => {
         const isAirbnb = window.location.pathname.includes('/airbnb');
@@ -176,10 +194,10 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
     // Add this function to the Item component
     const handleUpdateBoxItems = async (selectedIds) => {
         if (!isAdminItemPage || type !== 'box') return;
-    
+   
         try {
         const token = localStorage.getItem('adminToken');
-        
+       
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boxes/${id}`, {
             method: 'PATCH',
             headers: {
@@ -190,7 +208,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
             items: selectedIds
             })
         });
-    
+   
         if (response.ok) {
             toast.success('Box contents updated');
             if (onUpdate) onUpdate();
@@ -283,10 +301,12 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                         {typeof description === 'object' ? description[language] : description}
                     </p>
                     <div className='flex gap-2'>
-                        {/* Allow allergen dropdown in cart for food items */}
-                        {(!isAdminItemPage && (type === 'food' || type === 'box' || count)) && <AllergenDropDown />}
-                        
-                        {/* Show FoodDropDown for boxes in admin page */}
+                        {(!isAdminItemPage && (type === 'food' || type === 'box' || count)) && (
+                            <AllergenDropDown 
+                                initialSelectedAllergenes={allergenes || {}} 
+                                onAllergenChange={handleAllergenChange}
+                            />
+                        )}
                         {(type === 'box') && (
                             isAdminItemPage ? (
                                 <FoodDropDown
