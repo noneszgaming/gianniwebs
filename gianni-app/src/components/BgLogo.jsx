@@ -6,7 +6,7 @@ const BgLogo = () => {
   return (
     <div className='w-full relative'>
         <img 
-            className='absolute w-[40%] left-1/2 top-30 transform -translate-x-1/2'
+            className='absolute w-[40%] left-1/2 top-[20px] transform -translate-x-1/2'
             src='/brown_mini_logo.png' 
             alt="Logo" 
         />
