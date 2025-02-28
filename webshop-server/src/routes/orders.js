@@ -96,35 +96,45 @@ router.post('/orders', async (req, res) => {
         }
           // Enhanced item processing with special types
           const itemPromises = req.body.items.map(async (item) => {
-              const fullItem = await Item.findById(item._id);
-              if (!fullItem) {
-                  // Try finding it as a box if item lookup fails
-                  const boxItem = await Box.findById(item._id);
-                  if (!boxItem) {
-                      throw new Error(`Item or Box with ID ${item._id} not found`);
-                  }
-                  return {
-                      name: boxItem.name,
-                      price: boxItem.price,
-                      description: boxItem.description,
-                      type: 'box',
-                      quantity: item.quantity
-                  };
-              }
+            const fullItem = await Item.findById(item._id);
             
-              const specialTypes = item.specialTypes ? 
-                  await SpecialType.find({ _id: { $in: item.specialTypes }}) : 
-                  [];
+            if (!fullItem) {
+                // Try finding it as a box if item lookup fails
+                const boxItem = await Box.findById(item._id);
+                
+                if (!boxItem) {
+                    throw new Error(`Item or Box with ID ${item._id} not found`);
+                }
+                
+                // Process specialTypes for boxes too, just like for regular items
+                const specialTypes = item.specialTypes ?
+                    await SpecialType.find({ _id: { $in: item.specialTypes }}) :
+                    [];
+                
+                return {
+                    name: boxItem.name,
+                    price: boxItem.price,
+                    description: boxItem.description,
+                    type: 'box',
+                    quantity: item.quantity,
+                    specialTypes: specialTypes.map(st => st._id) // Add this line for boxes too
+                };
+            }
             
-              return {
-                  name: fullItem.name,
-                  price: fullItem.price,
-                  description: fullItem.description,
-                  type: fullItem.type,
-                  quantity: item.quantity,
-                  specialTypes: specialTypes.map(st => st._id)
-              };
-          });
+            const specialTypes = item.specialTypes ?
+                await SpecialType.find({ _id: { $in: item.specialTypes }}) :
+                [];
+            
+            return {
+                name: fullItem.name,
+                price: fullItem.price,
+                description: fullItem.description,
+                type: fullItem.type,
+                quantity: item.quantity,
+                specialTypes: specialTypes.map(st => st._id)
+            };
+        });
+        
         const completedItems = await Promise.all(itemPromises);
 
         const total_price = completedItems.reduce((total, item) => {
@@ -138,7 +148,7 @@ router.post('/orders', async (req, res) => {
             total_price: total_price,
             customer: customer._id,
             address: address._id,
-            isInstantDelivery: req.body.isInstantDelivery,
+            
             deliveryDate: req.body.isInstantDelivery ? new Date() : new Date(req.body.deliveryDate),
             deliveryTime: req.body.isInstantDelivery ? null : req.body.deliveryTime,
             status: orderStatus

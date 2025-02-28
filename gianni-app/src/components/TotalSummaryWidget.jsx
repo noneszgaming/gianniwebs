@@ -102,50 +102,79 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     setMobileNumber(number);
     setIsValidMobile(validateMobile(number));
   };
-
-  const createOrderData = (details) => {
-    const baseOrderData = {
-      paymentId: details.id,
-      order_type: orderType,
-      customer: {
-        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
-        email: details.payer.email_address,
-        phone: mobileNumber
-      },
-      address: {
-        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
-        firstName: details.payer.name.given_name,
-        lastName: details.payer.name.surname,
-        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
-        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
-        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
-        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
-      },
-      items: cartItems.map(item => ({
-        _id: item.originalId || item.id, // Use originalId if available (for duplicated items)
-        quantity: item.quantity,
-        ...(item.specialTypes && { specialTypes: item.specialTypes }),
-        ...(item.allergenes && { allergenes: item.allergenes }) // Include allergenes if available
-      })),
-      termsAccepted: isCheckedAcceptTerms
-    };
-
-    if (orderType === 'airbnb') {
-      return {
-        ...baseOrderData,
-        isInstantDelivery: false,
-        deliveryDate: document.querySelector('input[type="date"]').value,
-        deliveryTime: document.querySelector('select').value
-      };
-    } else {
-      return {
-        ...baseOrderData,
-        isInstantDelivery: isCheckedInstantDelivery,
+    const createOrderData = (details) => {
+      console.log('Cart items before processing:', cartItems);
+  
+      const baseOrderData = {
+        paymentId: details.id,
+        order_type: orderType,
+        customer: {
+          name: details.payer.name.given_name + ' ' + details.payer.name.surname,
+          email: details.payer.email_address,
+          phone: mobileNumber
+        },
+        address: {
+          country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
+          firstName: details.payer.name.given_name,
+          lastName: details.payer.name.surname,
+          city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
+          addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
+          addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
+          zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
+        },
+        items: cartItems.map(item => {
+          console.log('Processing item:', item);
+          // Extract the base ID (remove duplicate suffix if present)
+          const baseId = item.id.split('_duplicate_')[0];
+      
+          // Create the basic item data
+          const itemData = {
+            _id: baseId,
+            quantity: item.quantity || 1
+          };
+      
+          // Initialize specialTypes array if not already present
+          if (!itemData.specialTypes) {
+            itemData.specialTypes = [];
+          }
+      
+          // Handle existing specialTypes
+          if (item.specialTypes && item.specialTypes.length > 0) {
+            itemData.specialTypes = [...item.specialTypes];
+          }
+      
+          // Handle allergenes - add MongoDB IDs as specialTypes
+          if (item.allergenes) {
+            console.log('Processing allergenes:', item.allergenes);
+        
+            // For each key in allergenes object that is not "undefined" and has value true
+            Object.entries(item.allergenes).forEach(([key, value]) => {
+              if (key !== "undefined" && value === true) {
+                // Check if it's a valid MongoDB ID (24 hex chars)
+                if (/^[0-9a-fA-F]{24}$/.test(key)) {
+                  itemData.specialTypes.push(key);
+                }
+              }
+            });
+          }
+      
+          // Only include specialTypes if it has items
+          if (itemData.specialTypes.length === 0) {
+            delete itemData.specialTypes;
+          }
+      
+          console.log('Final item data:', itemData);
+          return itemData;
+        }),
+        termsAccepted: isCheckedAcceptTerms,
         deliveryDate: !isCheckedInstantDelivery ? document.querySelector('input[type="date"]').value : null,
         deliveryTime: !isCheckedInstantDelivery ? document.querySelector('select').value : null
       };
-    }
-  };
+      console.log('Final order data:', baseOrderData);
+      return baseOrderData;
+    };
+  
+  
 
   return (
     <div
@@ -215,7 +244,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
             <PayPalButtons
               className='w-[100%] h-[100%]'
               createOrder={(data, actions) => {
-                return actions.order.create({
+                const orderData = {
                   purchase_units: [
                     {
                       amount: {
@@ -228,36 +257,44 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                         }
                       },
                       items: cartItems.map(item => {
-                        // Get appropriate name
-                        const itemName = typeof item.name === 'object' ? item.name.hu : item.name;
-                        const itemDesc = typeof item.description === 'object' ? item.description.hu : item.description;
+                        // Get appropriate name based on the current language or fallback to Hungarian
+                        const itemName = typeof item.name === 'object' ?
+                          (item.name[localStorage.getItem('i18nextLng') || 'hu'] || item.name.hu) :
+                          item.name;
                         
-                        // Handle box type items differently
-                        if (item.items) {
+                        const itemDesc = typeof item.description === 'object' ?
+                          (item.description[localStorage.getItem('i18nextLng') || 'hu'] || item.description.hu) :
+                          (item.description || '');
+                        
+                        // Handle allergenes if available
+                        const allergenesInfo = item.allergenes ?
+                          Object.keys(item.allergenes)
+                            .filter(key => key !== 'undefined' && item.allergenes[key])
+                            .join(', ') :
+                          '';
+                        
+                        // Box type items with nested items
+                        if (item.type === 'box' && item.items && item.items.length > 0) {
                           return {
                             name: itemName,
                             unit_amount: {
                               value: item.price.toString(),
                               currency_code: "HUF"
                             },
-                            quantity: item.quantity,
-                            description: `Box: ${item.items.map(i => 
-                              typeof i.name === 'object' ? i.name.hu : i.name
-                            ).join(', ')}`,
-                            category: 'BOX'
+                            quantity: item.quantity || 1,
+                            description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
                           };
                         }
-                       
-                        // Handle regular food and merch items
+                        
+                        // Regular food or merch items
                         return {
                           name: `${itemName}${item.specialTypes ? ` (${item.specialTypes.join(', ')})` : ''}`,
                           unit_amount: {
                             value: item.price.toString(),
                             currency_code: "HUF"
                           },
-                          quantity: item.quantity,
-                          description: itemDesc || '',
-                          category: item.type?.toUpperCase() || 'MERCH'
+                          quantity: item.quantity || 1,
+                          description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
                         };
                       })
                     }
@@ -265,12 +302,20 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                   application_context: {
                     shipping_preference: "GET_FROM_FILE"
                   }
-                });
+                };
+                
+                // Debug output to see what's being sent to PayPal
+                console.log('PayPal Order Data:', JSON.stringify(orderData, null, 2));
+                
+                return actions.order.create(orderData);
               }}
+              
+            
               onApprove={(data, actions) => {
                 setIsProcessingPayment(true);
                 return actions.order.capture().then((details) => {
                   const orderData = createOrderData(details);
+                  console.log('Order Data:', orderData);
                  
                   fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                     method: 'POST',

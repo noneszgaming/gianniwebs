@@ -44,10 +44,6 @@ const boxSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Item',
         default: null
-    }],
-    specialTypes: [{
-        type: String,
-        default: null
     }]
 });
 

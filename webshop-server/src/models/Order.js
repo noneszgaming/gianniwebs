@@ -60,19 +60,13 @@ const orderSchema = new mongoose.Schema({
         ref: 'Address',
         required: true
     },
-    isInstantDelivery: {
-        type: Boolean,
-        required: true
-    },
+    
     deliveryDate: {
         type: Date,
         required: true
     },
     deliveryTime: {
-        type: String,
-        required: function() {
-            return !this.isInstantDelivery;
-        }
+        type: String
     },
     orderValidation: {
         type: Boolean,

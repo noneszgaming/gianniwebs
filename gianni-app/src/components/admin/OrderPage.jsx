@@ -1,44 +1,20 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import { IconButton } from '@mui/material';
-import { FaRedoAlt } from 'react-icons/fa';
-import zIndex from '@mui/material/styles/zIndex';
-  const columns = [
-    { field: 'paymentId', headerName: 'Payment ID', width: 200 },
-    { field: 'status', headerName: 'Status', width: 130 },
-    { field: 'customerName', headerName: 'Customer Name', width: 150 },
-    { field: 'customerEmail', headerName: 'Customer Email', width: 200 },
-    { field: 'customerPhone', headerName: 'Phone', width: 130 },
-    { field: 'city', headerName: 'City', width: 130 },
-    { field: 'addressLine1', headerName: 'Address Line 1', width: 200 },
-    { field: 'addressLine2', headerName: 'Address Line 2', width: 200 },
-    { field: 'zipCode', headerName: 'Zip Code', width: 100 },
-    { field: 'isInstantDelivery', headerName: 'Instant Delivery', width: 130 },
-    { field: 'deliveryDate', headerName: 'Delivery Date', width: 130 },
-    { field: 'deliveryTime', headerName: 'Delivery Time', width: 130 },
-    { field: 'created_date', headerName: 'Created Date', width: 130 },
-    { field: 'total_price', headerName: 'Total Price', width: 130 },
-    {
-      field: 'itemsList',
-      headerName: 'Items',
-      width: 300,
-      renderCell: (params) => (
-        <div style={{ 
-          whiteSpace: 'pre-line', 
-          padding: '8px 0',
-          width: '100%'
-        }}>
-          {params.value}
-        </div>
-      )
-    }
-  
-  ];
-
+import { 
+  IconButton, 
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  List,
+  ListItem,
+  Divider
+} from '@mui/material';
+import { FaRedoAlt, FaListAlt } from 'react-icons/fa';
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
@@ -46,6 +22,19 @@ const OrderPage = () => {
     page: 0,
     pageSize: 10,
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const handleOpenModal = (items, orderId) => {
+    setSelectedItems(items);
+    setSelectedOrderId(orderId);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const columns = [
     { field: 'paymentId', headerName: 'Fizetési azonosító', width: 200 },
@@ -70,6 +59,17 @@ const OrderPage = () => {
         </div>
       )
     },
+    { 
+      field: 'order_type', 
+      headerName: 'Rendelés típusa', 
+      width: 150,
+      renderCell: (params) => (
+        <div>
+          {params.value === 'public' ? 'Nyilvános' : 
+           params.value === 'airbnb' ? 'Airbnb' : params.value}
+        </div>
+      )
+    },
     { field: 'customerName', headerName: 'Vásárló neve', width: 150 },
     { field: 'customerEmail', headerName: 'Email cím', width: 200 },
     { field: 'customerPhone', headerName: 'Telefonszám', width: 130 },
@@ -85,45 +85,20 @@ const OrderPage = () => {
     {
       field: 'items',
       headerName: 'Termékek',
-      width: 300,
-      renderCell: (params) => {
-        const items = params.value;
-        
-        return (
-          <div style={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden',
-            padding: '4px'
-          }}>
-            {items.map((item, index) => {
-              try {
-                const nameObj = JSON.parse(item.name.replace(/([a-zA-Z0-9_]+):/g, '"$1":').replace(/'/g, '"'));
-                const displayName = nameObj.hu || nameObj.en || item.name;
-                
-                return (
-                  <div key={`${params.id}-${index}`} style={{ 
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    fontSize: '0.875rem',
-                    lineHeight: '1.2'
-                  }}>
-                    {displayName} ({item.price} Ft × {item.quantity})
-                  </div>
-                );
-              } catch (error) {
-                console.log('Error parsing item:', item);
-                return null;
-              }
-            })}
-          </div>
-        );
-      }
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<FaListAlt />}
+          onClick={() => handleOpenModal(params.value, params.row.paymentId)}
+        >
+          Részletek
+        </Button>
+      )
     }
   ];
+
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -136,14 +111,9 @@ const OrderPage = () => {
       const data = await response.json();
       if (response.ok) {
         const transformedOrders = data.orders.map(order => {
-          // Create a formatted string of all items
-          const itemsList = order.items.reduce((acc, item) => {
-            const nameObj = JSON.parse(item.name.replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
-            return acc + `${nameObj.hu} (${item.price} Ft × ${item.quantity})\n`;
-          }, '');
-
           return {
             ...order,
+            order_type: order.order_type,
             customerName: order.customer?.name,
             customerEmail: order.customer?.email,
             customerPhone: order.customer?.phone,
@@ -154,7 +124,6 @@ const OrderPage = () => {
             deliveryDate: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : '-',
             created_date: order.created_date ? new Date(order.created_date).toLocaleDateString() : '-',
             total_price: `${order.total_price?.toLocaleString() || 0} Ft`,
-            itemsList: itemsList.trim()
           };
         });
         console.log('Transformed orders:', transformedOrders);
@@ -164,6 +133,7 @@ const OrderPage = () => {
       console.error('Error fetching orders:', error);
     }
   };
+
   const handleRestartVerification = async (paymentId) => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -183,7 +153,6 @@ const OrderPage = () => {
       console.error('Error restarting verification:', error);
     }
   };
-
 
   useEffect(() => {
     fetchOrders(); // Initial fetch
@@ -214,66 +183,79 @@ const OrderPage = () => {
           sx={{ border: 0 }}
           localeText={{
             noRowsLabel: 'Nincsenek rendelések',
-            noResultsOverlayLabel: 'Nincs találat.',
-            toolbarDensity: 'Sűrűség',
-            toolbarDensityLabel: 'Sűrűség',
-            toolbarDensityCompact: 'Kompakt',
-            toolbarDensityStandard: 'Normál',
-            toolbarDensityComfortable: 'Kényelmes',
-            toolbarExport: 'Exportálás',
-            toolbarExportLabel: 'Exportálás',
-            toolbarExportCSV: 'CSV letöltése',
-            columnsPanelTextFieldLabel: 'Oszlop keresése',
-            columnsPanelTextFieldPlaceholder: 'Oszlop neve',
-            columnsPanelDragIconLabel: 'Oszlop átrendezése',
-            columnsPanelShowAllButton: 'Összes megjelenítése',
-            columnsPanelHideAllButton: 'Összes elrejtése',
-            filterPanelAddFilter: 'Szűrő hozzáadása',
-            filterPanelDeleteIconLabel: 'Törlés',
-            filterPanelOperators: 'Operátorok',
-            filterPanelOperatorAnd: 'És',
-            filterPanelOperatorOr: 'Vagy',
-            filterPanelColumns: 'Oszlopok',
-            filterPanelInputLabel: 'Érték',
-            filterPanelInputPlaceholder: 'Érték szűrése',
-            columnMenuLabel: 'Menü',
-            columnMenuShowColumns: 'Oszlopok megjelenítése',
-            columnMenuManageColumns: 'Oszlopok kezelése',
-            columnMenuFilter: 'Szűrő',
-            columnMenuHideColumn: 'Oszlop elrejtése',
-            columnMenuUnsort: 'Rendezés törlése',
-            columnMenuSortAsc: 'Rendezés növekvő',
-            columnMenuSortDesc: 'Rendezés csökkenő',
-            columnHeaderFiltersLabel: 'Szűrők megjelenítése',
-            columnHeaderSortIconLabel: 'Rendezés',
-            footerRowSelected: (count) =>
-              count !== 1
-                ? `${count.toLocaleString()} sor kiválasztva`
-                : `1 sor kiválasztva`,
-            MuiTablePagination: {
-              labelRowsPerPage: 'Sorok száma:',
-              labelDisplayedRows: ({ from, to, count }) =>
-                `${from}-${to} / ${count !== -1 ? count : `${to}-nél több`}`,
-            },
-            filterOperatorContains: 'tartalmazza',
-            filterOperatorEquals: 'egyenlő',
-            filterOperatorStartsWith: 'kezdődik',
-            filterOperatorEndsWith: 'végződik',
-            filterOperatorIs: 'megegyezik',
-            filterOperatorNot: 'nem',
-            filterOperatorAfter: 'után',
-            filterOperatorOnOrAfter: 'ekkor vagy után',
-            filterOperatorBefore: 'előtt',
-            filterOperatorOnOrBefore: 'ekkor vagy előtt',
-            filterOperatorIsEmpty: 'üres',
-            filterOperatorIsNotEmpty: 'nem üres',
-            filterOperatorIsAnyOf: 'bármelyik',
-            filterValueAny: 'bármely',
-            filterValueTrue: 'igaz',
-            filterValueFalse: 'hamis',
+            // ... további lokalizációs beállítások
           }}
         />
       </Paper>
-    </div>  )};
+
+      {/* Termék részletek modal */}
+      <Dialog
+        open={modalOpen}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+        sx={{ zIndex: 5000 }} // Magasabb z-index érték, mint a táblázaté
+      >
+        <DialogTitle>
+          Rendelés részletei - {selectedOrderId}
+        </DialogTitle>
+        <DialogContent dividers>
+          <List>
+            {selectedItems && selectedItems.map((item, index) => {
+              try {
+                const nameObj = JSON.parse(item.name.replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
+                const descriptionObj = item.description ? JSON.parse(item.description.replace(/(\w+):/g, '"$1":').replace(/'/g, '"')) : {};
+                const displayName = nameObj.hu || nameObj.en || item.name;
+                const displayDescription = descriptionObj.hu || descriptionObj.en || item.description || '';
+                
+                return (
+                  <React.Fragment key={index}>
+                    {index > 0 && <Divider sx={{ my: 2 }} />}
+                    <ListItem sx={{ display: 'block', py: 1 }}>
+                      <Typography variant="h6">
+                        {displayName} ({item.price} Ft × {item.quantity})
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Típus: {item.type === 'food' ? 'Étel' : item.type === 'merch' ? 'Termék' : item.type === 'box' ? 'Box' : item.type}
+                      </Typography>
+                      {displayDescription && (
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          {displayDescription}
+                        </Typography>
+                      )}
+                      
+                      {item.specialTypes && item.specialTypes.length > 0 && (
+                        <div>
+                          <Typography variant="subtitle2" sx={{ mt: 1 }}>
+                            Speciális típusok:
+                          </Typography>
+                          <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
+                            {item.specialTypes.map((type, idx) => (
+                              <li key={idx}>
+                                <Typography variant="body2">
+                                  {type.name.hu || type.name.en || ''}
+                                </Typography>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </ListItem>
+                  </React.Fragment>
+                );
+              } catch (error) {
+                console.log('Error parsing item:', item, error);
+                return null;
+              }
+            })}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Bezárás</Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
 
 export default OrderPage;
