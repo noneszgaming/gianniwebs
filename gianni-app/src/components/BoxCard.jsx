@@ -188,7 +188,7 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 )}
 
                 <AllergenDropDown 
-                    className="w-full"
+                    className="w-full mb-4"
                     onAllergenChange={(allergenes) => setSelectedAllergenes(allergenes)}
                 />
 

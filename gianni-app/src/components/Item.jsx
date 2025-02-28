@@ -13,6 +13,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import FoodDropDown from './admin/FoodDropDown';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next'
+import DuplicateItemBtn from './buttons/DuplicateItemBtn';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/items`;
 
@@ -86,9 +87,8 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
         
         const currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const updatedCart = currentCart.filter(item =>
-            (item.name?.en || item.name) !== (name?.en || name)
-        );
+        // Filter by item ID instead of name to properly handle duplicates
+        const updatedCart = currentCart.filter(item => item.id !== id);
         
         localStorage.setItem(cartKey, JSON.stringify(updatedCart));
         cartCount.value = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
@@ -300,12 +300,27 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                     <p className='text-md'>
                         {typeof description === 'object' ? description[language] : description}
                     </p>
-                    <div className='flex gap-2'>
+                    <div className='flex justify-center items-center gap-2'>
                         {(!isAdminItemPage && (type === 'food' || type === 'box' || count)) && (
-                            <AllergenDropDown 
-                                initialSelectedAllergenes={allergenes || {}} 
-                                onAllergenChange={handleAllergenChange}
-                            />
+                            <div className='flex justify-center items-center gap-2'>
+                                <AllergenDropDown 
+                                    initialSelectedAllergenes={allergenes || {}} 
+                                    onAllergenChange={handleAllergenChange}
+                                />
+                                <DuplicateItemBtn 
+                                    item={{
+                                        id,
+                                        name,
+                                        description,
+                                        price,
+                                        img,
+                                        quantity: 1,
+                                        type,
+                                        items,
+                                        allergenes
+                                    }} 
+                                />
+                            </div>
                         )}
                         {(type === 'box') && (
                             isAdminItemPage ? (

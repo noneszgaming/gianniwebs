@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 const AmountCounter = ({ className, type, name, id, onQuantityChange }) => {
     const { t } = useTranslation();
     const [quantity, setQuantity] = useState(1);
-    
+   
     // Initialize quantity from localStorage when component mounts
     useEffect(() => {
         if (type === "cartItem") {
@@ -19,8 +19,9 @@ const AmountCounter = ({ className, type, name, id, onQuantityChange }) => {
         if (type === "cartItem") {
             const isAirbnb = window.location.pathname.includes('/airbnb');
             const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
-            
+           
             const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            // Look for exact ID match to properly handle duplicated items
             const item = cart.find(item => item.id === id);
             return item ? item.quantity : 1;
         }
@@ -32,20 +33,21 @@ const AmountCounter = ({ className, type, name, id, onQuantityChange }) => {
         if (value.length > 3) {
             value = value.slice(0, 3);
         }
-        
+       
         // Ensure value is a valid number between 0-100
         const numValue = Math.min(Math.max(parseInt(value) || 0, 0), 100);
-        
+       
         // Update local state
         setQuantity(numValue);
 
         if (type === "cartItem") {
             const isAirbnb = window.location.pathname.includes('/airbnb');
             const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
-            
+           
             const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+            // Use exact ID match to ensure we're updating the correct item
             const itemIndex = cart.findIndex(item => item.id === id);
-            
+           
             if (itemIndex !== -1) {
                 cart[itemIndex].quantity = numValue;
                 localStorage.setItem(cartKey, JSON.stringify(cart));
@@ -57,7 +59,7 @@ const AmountCounter = ({ className, type, name, id, onQuantityChange }) => {
             onQuantityChange(numValue);
         }
     }
-    
+   
     const handleKeyDown = (e) => {
         if (e.key === '-' || e.key === '.' || e.key === 'e') {
             e.preventDefault();

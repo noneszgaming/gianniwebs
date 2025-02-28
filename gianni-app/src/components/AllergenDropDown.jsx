@@ -48,7 +48,7 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
     const selectedAllergensCount = Object.values(selectedAllergenes).filter(Boolean).length;
 
     return (
-        <div className={`mb-4 relative select-none ${className}`}>
+        <div className={`relative select-none ${className}`}>
             <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className='w-full p-2 border border-accent rounded-lg flex justify-between items-center gap-2 cursor-pointer'
