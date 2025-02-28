@@ -362,7 +362,11 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
                 <div className='flex flex-col justify-center items-end gap-3'>
                     <p className='text-[22px] font-bold'>{price} Ft</p>
                     {!isAdminItemPage && (
-                        <AmountCounter type='cartItem' name={name.en} />
+                        <AmountCounter 
+                            type='cartItem' 
+                            name={name.en} 
+                            id={id} 
+                        />
                     )}
                 </div>
             </div>

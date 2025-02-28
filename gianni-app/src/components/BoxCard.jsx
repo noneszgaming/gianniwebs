@@ -58,21 +58,13 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
     const handleAddToCart = () => {
         const cartKey = `cart_${storeType.value}`;
         const existingCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-       
-        // Compare both id and items array (if exists)
-        const existingItemIndex = existingCart.findIndex(item => {
-            const idMatch = item.id === id;
-            // If both have items arrays, compare them
-            if (items && item.items) {
-                const itemsMatch = JSON.stringify(item.items) === JSON.stringify(items);
-                return idMatch && itemsMatch;
-            }
-            return idMatch;
-        });
-   
+        
+        // Simplify the comparison to only use ID
+        const existingItemIndex = existingCart.findIndex(item => item.id === id);
+    
         if (existingItemIndex !== -1) {
             existingCart[existingItemIndex].quantity += selectedQuantity;
-            // Frissítsük az allergéneket
+            // Update allergenes
             existingCart[existingItemIndex].allergenes = selectedAllergenes;
         } else {
             // Make sure to save the COMPLETE items array with all properties
@@ -81,10 +73,10 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 name: item.name,
                 description: item.description,
                 price: item.price,
-                img: item.img, // Most importantly, include the image for each item
+                img: item.img,
                 type: item.type
             })) : [];
-           
+            
             const newItem = {
                 id,
                 name,
@@ -92,13 +84,13 @@ const BoxCard = ({ name, description, price, img, id, items }) => {
                 price,
                 img,
                 quantity: selectedQuantity,
-                type: 'box', // Explicitly set type to 'box'
-                items: boxItems, // Store the complete items array
-                allergenes: selectedAllergenes // Allergének mentése
+                type: 'box',
+                items: boxItems,
+                allergenes: selectedAllergenes
             };
             existingCart.push(newItem);
         }
-   
+    
         localStorage.setItem(cartKey, JSON.stringify(existingCart));
         cartCount.value = existingCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));

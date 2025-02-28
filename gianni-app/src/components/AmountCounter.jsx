@@ -1,20 +1,27 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next';
 
-const AmountCounter = ({ className, type, name, onQuantityChange }) => {
+const AmountCounter = ({ className, type, name, id, onQuantityChange }) => {
     const { t } = useTranslation();
-  
+    const [quantity, setQuantity] = useState(1);
+    
+    // Initialize quantity from localStorage when component mounts
+    useEffect(() => {
+        if (type === "cartItem") {
+            const storedQuantity = getQuantityFromStorage();
+            setQuantity(storedQuantity);
+        }
+    }, [type, id]);
+
     const getQuantityFromStorage = () => {
         if (type === "cartItem") {
             const isAirbnb = window.location.pathname.includes('/airbnb');
             const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
             
             const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-            const item = cart.find(item => 
-                (item.name?.en || item.name) === name
-            );
+            const item = cart.find(item => item.id === id);
             return item ? item.quantity : 1;
         }
         return 1;
@@ -25,29 +32,32 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
         if (value.length > 3) {
             value = value.slice(0, 3);
         }
-        value = Math.min(Math.max(parseInt(value) || 0, 0), 100);
-        e.target.value = value;
+        
+        // Ensure value is a valid number between 0-100
+        const numValue = Math.min(Math.max(parseInt(value) || 0, 0), 100);
+        
+        // Update local state
+        setQuantity(numValue);
 
         if (type === "cartItem") {
             const isAirbnb = window.location.pathname.includes('/airbnb');
             const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
             
             const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-            const itemIndex = cart.findIndex(item => 
-                (item.name?.en || item.name) === name
-            );
+            const itemIndex = cart.findIndex(item => item.id === id);
             
             if (itemIndex !== -1) {
-                cart[itemIndex].quantity = parseInt(value);
+                cart[itemIndex].quantity = numValue;
                 localStorage.setItem(cartKey, JSON.stringify(cart));
                 window.dispatchEvent(new Event('cartUpdated'));
             }
         }
 
         if (onQuantityChange) {
-            onQuantityChange(value);
+            onQuantityChange(numValue);
         }
     }
+    
     const handleKeyDown = (e) => {
         if (e.key === '-' || e.key === '.' || e.key === 'e') {
             e.preventDefault();
@@ -62,8 +72,7 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
                 type="number"
                 min="1"
                 max="100"
-                value={type === "cartItem" ? getQuantityFromStorage() : undefined}
-                defaultValue={type === "cartItem" ? undefined : 1}
+                value={quantity}
                 onKeyDown={handleKeyDown}
                 onChange={handleInputChange}
             />
@@ -72,6 +81,3 @@ const AmountCounter = ({ className, type, name, onQuantityChange }) => {
 }
 
 export default AmountCounter
-
-
-
