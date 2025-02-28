@@ -19,6 +19,7 @@
             "title": "Total Summary",
             "subtotal": "Subtotal",
             "mobile": "Mobile",
+            "comment": "Comment",
             "terms": {
                 "accept": "Accept",
                 "termsAndConditions": "Terms & Conditions"

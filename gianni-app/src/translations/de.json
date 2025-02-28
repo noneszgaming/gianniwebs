@@ -19,6 +19,7 @@
             "title": "Zusammenfassung",
             "subtotal": "Zwischensumme",
             "mobile": "Mobilnummer",
+            "comment": "Kommentar",
             "terms": {
                 "accept": "Akzeptieren",
                 "termsAndConditions": "AGB"

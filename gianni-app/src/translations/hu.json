@@ -19,6 +19,7 @@
             "title": "Összegzés",
             "subtotal": "Részösszeg",
             "mobile": "Telefonszám",
+            "comment": "Megjegyzés",
             "terms": {
                 "accept": "Elfogadom az",
                 "termsAndConditions": "ÁSZF-eket"
