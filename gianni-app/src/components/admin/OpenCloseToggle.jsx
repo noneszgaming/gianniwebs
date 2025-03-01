@@ -7,8 +7,7 @@ const OpenCloseToggle = ({ storeType }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const ws = new WebSocket(`${import.meta.env.VITE_API_URL.replace('http', 'ws')}/ws`);
-        
+        const ws = new WebSocket(import.meta.env.VITE_WS_URL);
         ws.onopen = () => {
             ws.send(JSON.stringify({
                 type: 'GET_STORE_STATE',

@@ -48,7 +48,7 @@ const NavBar = ({ type }) => {
 
   // Modified WebSocket logic
   useEffect(() => {
-    const wsUrl = `${import.meta.env.VITE_API_URL.replace('http', 'ws')}/ws`;
+    const wsUrl = import.meta.env.VITE_WS_URL;
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
