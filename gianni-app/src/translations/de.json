@@ -7,6 +7,7 @@
         "sucPaymentDesc": "Ihre Zahlung war erfolgreich!",
         "emptyCart": "Ihr Warenkorb ist leer!",
         "merches": "Merchandise",
+        "foods": "Speisen",
         "primaryBtn": {
             "addToCart": "In den Warenkorb",
             "add": "HINZUFÜGEN"
