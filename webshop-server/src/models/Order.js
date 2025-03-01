@@ -60,7 +60,9 @@ const orderSchema = new mongoose.Schema({
         ref: 'Address',
         required: true
     },
-    
+    order_note: {
+        type: String,
+    },
     deliveryDate: {
         type: Date,
         required: true

@@ -148,6 +148,7 @@ router.post('/orders', async (req, res) => {
             total_price: total_price,
             customer: customer._id,
             address: address._id,
+            order_note: req.body.note,
             
             deliveryDate: req.body.isInstantDelivery ? new Date() : new Date(req.body.deliveryDate),
             deliveryTime: req.body.isInstantDelivery ? null : req.body.deliveryTime,
