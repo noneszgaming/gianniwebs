@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import CartItem from '../components/Item'
 import TotalSummaryWidget from '../components/TotalSummaryWidget'
-import MerchWidget from '../components/merch/MerchWidget'
+import Widget from '../components/widgets/Widget'
 import { useTranslation } from 'react-i18next'
 
 const CartPage = () => {
@@ -60,9 +60,17 @@ const CartPage = () => {
 
     return (
         <div className='w-full h-fit grid grid-cols-1 lg:grid-cols-4 gap-x-10 gap-y-14 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
+            {location.pathname === "/airbnb/cart" &&
+                <div className='w-full flex md:flex-row flex-col gap-10 lg:col-span-4 col-span-2 '>
+                    <Widget type="food"/>
+                    <Widget type="merch"/>
+                </div>
+            }
             <div className="w-full lg:order-2 order-1 col-span-2 lg:col-span-1 flex flex-col gap-10 md:mt-15">
                 <TotalSummaryWidget totalPrice={calculateTotal()} />
-                <MerchWidget />
+                {location.pathname === "/cart" &&
+                    <Widget type="merch"/>
+                }
             </div>
 
             <div className="w-full flex flex-col items-center lg:order-1 order-2 col-span-2 lg:col-span-3">

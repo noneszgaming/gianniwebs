@@ -7,6 +7,7 @@
         "sucPaymentDesc": "A fizetés sikeres volt!",
         "emptyCart": "A kosár üres!",
         "merches": "Termékek",
+        "foods": "Ételek",
         "primaryBtn": {
             "addToCart": "Kosárba",
             "add": "HOZZÁAD"
