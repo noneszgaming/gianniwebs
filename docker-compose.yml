@@ -29,7 +29,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/webshop
       - PORT=3001
-      - CORS_ORIGIN=http://91.214.112.140:80
+      - CORS_ORIGIN=https://giannigiovanni.hu
     depends_on:
       - mongodb
 
@@ -40,7 +40,7 @@ services:
     expose:
       - "80"
     environment:
-      - VITE_API_URL=http://91.214.112.140:3001
+      - VITE_API_URL=https://giannigiovanni.hu/api
     depends_on:
       - backend
 

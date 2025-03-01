@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
     end_date: {
         type: Date,
         required: true
+    },
+    start_date: {
+        type: Date,
+        required: true
     }
 });
 
