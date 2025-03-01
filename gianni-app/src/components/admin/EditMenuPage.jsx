@@ -20,6 +20,7 @@ const EditMenuPage = () => {
     const [isAddUserOpened, setIsAddUserOpened] = useState(false);
     const [boxes, setBoxes] = useState([]);
     const [endDate, setEndDate] = useState('');
+    const [startDate, setStartDate] = useState('');
     const [allergeneInput, setAllergeneInput] = useState({ hu: '', en: '', de: '' });
 
     const handleAllergeneSubmit = async () => {
@@ -55,12 +56,14 @@ const EditMenuPage = () => {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 },
                 body: JSON.stringify({
-                    end_date: endDate
+                    end_date: endDate,
+                    start_date: startDate
                 })
             });
     
             if (response.ok) {
                 setEndDate('');
+                setStartDate('');
                 setIsAddUserOpened(false);
                 fetchUsers();
             }
@@ -296,6 +299,12 @@ const EditMenuPage = () => {
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
+                                className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
+                            />
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
                                 className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
                             />
                             <button
