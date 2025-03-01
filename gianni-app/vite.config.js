@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  preview: {
+    allowedHosts: ["giannigiovanni.hu", "www.giannigiovanni.hu"]
+  }
 })
