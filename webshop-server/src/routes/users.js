@@ -55,6 +55,7 @@ router.post('/user/create', auth, async (req, res) => {
             password: randomPassword,
 
             end_date: new Date(req.body.end_date),
+            start_date: new Date(req.body.start_date),
             created_at: new Date()
         });
 
@@ -83,6 +84,7 @@ router.get('/users/all', auth, async (req, res) => {
             username: user.username,
             password: user.password,
             end_date: user.end_date,
+            start_date: user.start_date
         }));
 
         res.status(200).send(formattedUsers);

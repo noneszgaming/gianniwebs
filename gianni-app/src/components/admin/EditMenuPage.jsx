@@ -60,7 +60,7 @@ const EditMenuPage = () => {
                     start_date: startDate
                 })
             });
-    
+
             if (response.ok) {
                 setEndDate('');
                 setStartDate('');
@@ -80,7 +80,7 @@ const EditMenuPage = () => {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
-    
+
             if (response.ok) {
                 fetchUsers();
             }
@@ -88,7 +88,7 @@ const EditMenuPage = () => {
             console.error('Error deleting user:', error);
         }
     };
-    
+
     const fetchBoxes = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boxes`, {
@@ -275,7 +275,7 @@ const EditMenuPage = () => {
                             allergenes.map((allergene) => (
                                 <div key={allergene.id} className="w-full flex justify-between items-center p-2">
                                     <span>{allergene.name[i18n.language]}</span>
-                                    <DeleteBtn 
+                                    <DeleteBtn
                                         onClick={() => deleteAllergene(allergene.id)}
                                     />
                                 </div>
@@ -295,18 +295,27 @@ const EditMenuPage = () => {
                     </div>
                     {isAddUserOpened && (
                         <div className='w-full h-fit flex flex-col gap-2'>
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
-                            />
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
-                            />
+                            
+                            <div className="flex flex-col">
+                                <label htmlFor="start-date" className="text-dark mb-1">Start Date</label>
+                                <input
+                                    id="start-date"
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <label htmlFor="end-date" className="text-dark mb-1">End Date</label>
+                                <input
+                                    id="end-date"
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
+                                />
+                            </div>
                             <button
                                 onClick={handleUserSubmit}
                                 className='w-10 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
@@ -324,7 +333,9 @@ const EditMenuPage = () => {
                                     <div className="flex flex-col">
                                         <span>Username: {user.username}</span>
                                         <span>Password: {user.password}</span>
+                                        <span>Start: {new Date(user.start_date).toLocaleDateString()}</span>
                                         <span>Expires: {new Date(user.end_date).toLocaleDateString()}</span>
+
 
                                     </div>
                                     <DeleteBtn onClick={() => deleteUser(user.id)} />

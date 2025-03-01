@@ -1,5 +1,27 @@
 const mongoose = require('mongoose');
 
+// Define a schema for the specialType snapshot
+const specialTypeSnapshotSchema = new mongoose.Schema({
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    name: {
+        hu: {
+            type: String,
+            required: true
+        },
+        en: {
+            type: String,
+            required: true
+        },
+        de: {
+            type: String,
+            required: true
+        }
+    }
+}, { _id: false });
+
 const orderSchema = new mongoose.Schema({
     paymentId: {
         type: String,
@@ -33,10 +55,7 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
-        specialTypes: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'SpecialType'
-        }]
+        specialTypes: [specialTypeSnapshotSchema] // Changed from reference to embedded document
     }],
     total_price: {
         type: Number,

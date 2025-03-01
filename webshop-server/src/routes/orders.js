@@ -94,46 +94,52 @@ router.post('/orders', async (req, res) => {
             });
             await address.save();
         }
-          // Enhanced item processing with special types
-          const itemPromises = req.body.items.map(async (item) => {
-            const fullItem = await Item.findById(item._id);
-            
-            if (!fullItem) {
+            // Modified item processing to store snapshots of specialTypes
+            const itemPromises = req.body.items.map(async (item) => {
+              const fullItem = await Item.findById(item._id);
+  
+              if (!fullItem) {
                 // Try finding it as a box if item lookup fails
                 const boxItem = await Box.findById(item._id);
-                
+    
                 if (!boxItem) {
-                    throw new Error(`Item or Box with ID ${item._id} not found`);
+                  throw new Error(`Item or Box with ID ${item._id} not found`);
                 }
-                
-                // Process specialTypes for boxes too, just like for regular items
+    
+                // Store complete specialType objects instead of just IDs
                 const specialTypes = item.specialTypes ?
-                    await SpecialType.find({ _id: { $in: item.specialTypes }}) :
-                    [];
-                
+                  await SpecialType.find({ _id: { $in: item.specialTypes }}) :
+                  [];
+    
                 return {
-                    name: boxItem.name,
-                    price: boxItem.price,
-                    description: boxItem.description,
-                    type: 'box',
-                    quantity: item.quantity,
-                    specialTypes: specialTypes.map(st => st._id) // Add this line for boxes too
+                  name: boxItem.name,
+                  price: boxItem.price,
+                  description: boxItem.description,
+                  type: 'box',
+                  quantity: item.quantity,
+                  specialTypes: specialTypes.map(st => ({
+                    _id: st._id,
+                    name: st.name
+                  }))
                 };
-            }
-            
-            const specialTypes = item.specialTypes ?
+              }
+  
+              const specialTypes = item.specialTypes ?
                 await SpecialType.find({ _id: { $in: item.specialTypes }}) :
                 [];
-            
-            return {
+  
+              return {
                 name: fullItem.name,
                 price: fullItem.price,
                 description: fullItem.description,
                 type: fullItem.type,
                 quantity: item.quantity,
-                specialTypes: specialTypes.map(st => st._id)
-            };
-        });
+                specialTypes: specialTypes.map(st => ({
+                  _id: st._id, 
+                  name: st.name
+                }))
+              };
+            });
         
         const completedItems = await Promise.all(itemPromises);
 
