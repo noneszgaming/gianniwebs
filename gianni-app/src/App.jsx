@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 
 import UserLogin from './pages/UserLogin';
+import AddressPage from './components/admin/AddressPage'
 
 // A Route komponensben:
 
@@ -47,6 +48,11 @@ function App() {
         <Route path="/admin/edit" element={
           <ProtectedRoute>
             <EditMenuPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/address" element={
+          <ProtectedRoute>
+            <AddressPage />
           </ProtectedRoute>
         } />
       </Routes>

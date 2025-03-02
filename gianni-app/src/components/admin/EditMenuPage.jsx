@@ -283,67 +283,7 @@ const EditMenuPage = () => {
                         )}
                     </div>
                 </div>
-                <div className='bg-light w-full h-fit flex flex-col justify-center items-center gap-4 rounded-[30px] px-4 pt-2 pb-4 shadow-black/50 shadow-2xl'>
-                    <div className='w-full h-fit flex justify-center items-center gap-2'>
-                        <h2 className='text-xl font-bold text-dark self-center'>Users</h2>
-                        <button
-                            className='w-8 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
-                            onClick={() => setIsAddUserOpened(!isAddUserOpened)}
-                        >
-                            <IoIosAdd className={`w-8 h-8 text-light transition-transform duration-500 ${isAddUserOpened ? 'rotate-45' : ''}`} />
-                        </button>
-                    </div>
-                    {isAddUserOpened && (
-                        <div className='w-full h-fit flex flex-col gap-2'>
-                            
-                            <div className="flex flex-col">
-                                <label htmlFor="start-date" className="text-dark mb-1">Start Date</label>
-                                <input
-                                    id="start-date"
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
-                                />
-                            </div>
-                            <div className="flex flex-col">
-                                <label htmlFor="end-date" className="text-dark mb-1">End Date</label>
-                                <input
-                                    id="end-date"
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
-                                />
-                            </div>
-                            <button
-                                onClick={handleUserSubmit}
-                                className='w-10 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
-                            >
-                                <MdSubdirectoryArrowLeft className='w-6 h-6 text-light' />
-                            </button>
-                        </div>
-                    )}
-                    <div className='w-full h-fit flex flex-col justify-items-center items-start gap-2'>
-                        {users.length === 0 ? (
-                            <h2 className='text-md text-dark self-center'>No users found</h2>
-                        ) : (
-                            users.map((user) => (
-                                <div key={user.id} className="w-full flex justify-between items-center p-2">
-                                    <div className="flex flex-col">
-                                        <span>Username: {user.username}</span>
-                                        <span>Password: {user.password}</span>
-                                        <span>Start: {new Date(user.start_date).toLocaleDateString()}</span>
-                                        <span>Expires: {new Date(user.end_date).toLocaleDateString()}</span>
-
-
-                                    </div>
-                                    <DeleteBtn onClick={() => deleteUser(user.id)} />
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+               
             </div>
         </div>
     );

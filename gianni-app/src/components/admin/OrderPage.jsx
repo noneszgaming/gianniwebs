@@ -114,13 +114,13 @@ const OrderPage = () => {
           return {
             ...order,
             order_type: order.order_type,
-            customerName: order.customer?.name,
-            customerEmail: order.customer?.email,
-            customerPhone: order.customer?.phone,
-            city: order.address?.city,
-            addressLine1: order.address?.addressLine1,
-            addressLine2: order.address?.addressLine2,
-            zipCode: order.address?.zipCode,
+            customerName: order.customer?.name || order.user?.name || '-',
+            customerEmail: order.customer?.email || order.user?.email || '-',
+            customerPhone: order.customer?.phone || order.user?.phone || '-',
+            city: order.address?.city || order.addressSnapshot?.city || '-',
+            addressLine1: order.address?.addressLine1 || order.addressSnapshot?.addressLine1 || '-',
+            addressLine2: order.address?.addressLine2 || order.addressSnapshot?.addressLine2 || '-',
+            zipCode: order.address?.zipCode || order.addressSnapshot?.zipCode || '-',
             deliveryDate: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : '-',
             created_date: order.created_date ? new Date(order.created_date).toLocaleDateString() : '-',
             total_price: `${order.total_price?.toLocaleString() || 0} Ft`,
@@ -168,9 +168,9 @@ const OrderPage = () => {
   return (
     <div 
       className='flex items-center justify-center w-full h-full'
-      style={{ zIndex: 4000 }}
+      style={{ zIndex: 1000 }}
     >
-      <Paper sx={{ height: 600, width: '100%', p: 2 }}>
+      <Paper sx={{ height: 800, width: '100%', p: 2 }}>
         <DataGrid
           rows={orders}
           columns={columns}
@@ -183,7 +183,64 @@ const OrderPage = () => {
           sx={{ border: 0 }}
           localeText={{
             noRowsLabel: 'Nincsenek rendelések',
-            // ... további lokalizációs beállítások
+            noResultsOverlayLabel: 'Nincs találat.',
+            toolbarDensity: 'Sűrűség',
+            toolbarDensityLabel: 'Sűrűség',
+            toolbarDensityCompact: 'Kompakt',
+            toolbarDensityStandard: 'Normál',
+            toolbarDensityComfortable: 'Kényelmes',
+            toolbarExport: 'Exportálás',
+            toolbarExportLabel: 'Exportálás',
+            toolbarExportCSV: 'CSV letöltése',
+            columnsPanelTextFieldLabel: 'Oszlop keresése',
+            columnsPanelTextFieldPlaceholder: 'Oszlop neve',
+            columnsPanelDragIconLabel: 'Oszlop átrendezése',
+            columnsPanelShowAllButton: 'Összes megjelenítése',
+            columnsPanelHideAllButton: 'Összes elrejtése',
+            filterPanelAddFilter: 'Szűrő hozzáadása',
+            filterPanelDeleteIconLabel: 'Törlés',
+            filterPanelOperators: 'Operátorok',
+            filterPanelOperatorAnd: 'És',
+            filterPanelOperatorOr: 'Vagy',
+            filterPanelColumns: 'Oszlopok',
+            filterPanelInputLabel: 'Érték',
+            filterPanelInputPlaceholder: 'Érték szűrése',
+            columnMenuLabel: 'Menü',
+            columnMenuShowColumns: 'Oszlopok megjelenítése',
+            columnMenuManageColumns: 'Oszlopok kezelése',
+            columnMenuFilter: 'Szűrő',
+            columnMenuHideColumn: 'Oszlop elrejtése',
+            columnMenuUnsort: 'Rendezés törlése',
+            columnMenuSortAsc: 'Rendezés növekvő',
+            columnMenuSortDesc: 'Rendezés csökkenő',
+            columnHeaderFiltersLabel: 'Szűrők megjelenítése',
+            columnHeaderSortIconLabel: 'Rendezés',
+            footerRowSelected: (count) =>
+              count !== 1
+                ? `${count.toLocaleString()} sor kiválasztva`
+                : `1 sor kiválasztva`,
+            MuiTablePagination: {
+              labelRowsPerPage: 'Sorok száma:',
+              labelDisplayedRows: ({ from, to, count }) =>
+                `${from}-${to} / ${count !== -1 ? count : `${to}-nél több`}`,
+            },
+            filterOperatorContains: 'tartalmazza',
+            filterOperatorEquals: 'egyenlő',
+            filterOperatorStartsWith: 'kezdődik',
+            filterOperatorEndsWith: 'végződik',
+            filterOperatorIs: 'megegyezik',
+            filterOperatorNot: 'nem',
+            filterOperatorAfter: 'után',
+            filterOperatorOnOrAfter: 'ekkor vagy után',
+            filterOperatorBefore: 'előtt',
+            filterOperatorOnOrBefore: 'ekkor vagy előtt',
+            filterOperatorIsEmpty: 'üres',
+            filterOperatorIsNotEmpty: 'nem üres',
+            filterOperatorIsAnyOf: 'bármelyik',
+            filterValueAny: 'bármely',
+            filterValueTrue: 'igaz',
+            filterValueFalse: 'hamis',
+
           }}
         />
       </Paper>
@@ -197,7 +254,7 @@ const OrderPage = () => {
         sx={{ zIndex: 5000 }} // Magasabb z-index érték, mint a táblázaté
       >
         <DialogTitle>
-          Rendelés részletei - {selectedOrderId}
+          Rendelés termékei - {selectedOrderId}
         </DialogTitle>
         <DialogContent dividers>
           <List>

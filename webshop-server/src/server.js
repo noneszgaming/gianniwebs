@@ -10,6 +10,7 @@ const emailRoutes = require('./routes/email');
 const boxesRoutes = require('./routes/boxes');
 const userRoutes = require('./routes/users');
 const storeRoutes = require('./routes/store');
+const addresses = require('./routes/user_address');
 const specialTypesRoutes = require('./routes/specialTypes');
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api', emailRoutes);
 app.use('/api', boxesRoutes);
 app.use('/api', userRoutes);
 app.use('/api', specialTypesRoutes);
+app.use('/api/addresses', addresses);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)

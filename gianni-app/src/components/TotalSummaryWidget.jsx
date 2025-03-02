@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
 import PrimaryBtn from './buttons/PrimaryBtn'
@@ -26,6 +24,12 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   const [orderNote, setOrderNote] = useState('');
   const [isValidMobile, setIsValidMobile] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  
+  // New state for Airbnb customer info
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidName, setIsValidName] = useState(false);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -39,7 +43,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     default: defaultDate
   });
   const [selectedDate, setSelectedDate] = useState(defaultDate);
-
 
   useEffect(() => {
     if (orderType === 'airbnb') {
@@ -131,6 +134,15 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     return digitsOnly.length >= 10 && digitsOnly.length <= 15;
   };
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  const validateName = (name) => {
+    return name.trim().length >= 2;
+  };
+
   const handleMobileChange = (e) => {
     const number = e.target.value;
     setMobileNumber(number);
@@ -139,56 +151,105 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   const handleNoteChange = (e) => {
     setOrderNote(e.target.value);
   };
+
+  const handleNameChange = (e) => {
+    const name = e.target.value;
+    setCustomerName(name);
+    setIsValidName(validateName(name));
+  };
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setCustomerEmail(email);
+    setIsValidEmail(validateEmail(email));
+  };
+
+  // Check if all required fields are valid for showing payment
+  const areAllFieldsValid = () => {
+    if (orderType === 'airbnb') {
+      return isCheckedAcceptTerms && isValidMobile && isValidName && isValidEmail && isWebshopOpen.value;
+    }
+    return isCheckedAcceptTerms && isValidMobile && isWebshopOpen.value;
+  };
+
   const createOrderData = (details) => {
     console.log('Cart items before processing:', cartItems);
+  
+    // Determine customer information based on order type
+    let customerInfo = {};
+    let addressInfo = {};
+  
+    // Get userData for address information (for Airbnb orders)
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    console.log('userData from localStorage:', userData);
+  
+    if (orderType === 'airbnb') {
+      // For Airbnb orders, use the customer's inputted information
+      customerInfo = {
+        name: customerName,
+        email: customerEmail,
+        phone: mobileNumber
+      };
+    
+      // Use address from userData for Airbnb orders
+      addressInfo = {
+        _id: userData.address._id
+
+      };
+    
+      // Log to verify the address data
+      console.log('Airbnb address data:', addressInfo);
+    
+
+    } else {
+      // For public orders, use PayPal provided information
+      customerInfo = {
+        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
+        email: details.payer.email_address,
+        phone: mobileNumber
+      };
+    
+      // Use PayPal shipping address for public orders
+      addressInfo = {
+        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
+        firstName: details.payer.name.given_name || '',
+        lastName: details.payer.name.surname || '',
+        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || 'Budapest', // Default if missing
+        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || 'Logodi utca 44', // Default if missing
+        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
+        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || '1012' // Default if missing
+      };
+    }
+
+
 
     const baseOrderData = {
       paymentId: details.id,
       order_type: orderType,
-      customer: {
-        name: details.payer.name.given_name + ' ' + details.payer.name.surname,
-        email: details.payer.email_address,
-        phone: mobileNumber
-      },
-      address: {
-        country: details.purchase_units[0]?.shipping?.address?.country_code || 'Hungary',
-        firstName: details.payer.name.given_name,
-        lastName: details.payer.name.surname,
-        city: details.purchase_units[0]?.shipping?.address?.admin_area_2 || '',
-        addressLine1: details.purchase_units[0]?.shipping?.address?.address_line_1 || '',
-        addressLine2: details.purchase_units[0]?.shipping?.address?.address_line_2 || '',
-        zipCode: details.purchase_units[0]?.shipping?.address?.postal_code || ''
-      },
+      customer: customerInfo,
+      address: addressInfo,
       note: orderNote,
       items: cartItems.map(item => {
+        // Rest of the item processing code remains the same
         console.log('Processing item:', item);
-        // Extract the base ID (remove duplicate suffix if present)
         const baseId = item.id.split('_duplicate_')[0];
-
-        // Create the basic item data
         const itemData = {
           _id: baseId,
           quantity: item.quantity || 1
         };
 
-        // Initialize specialTypes array if not already present
         if (!itemData.specialTypes) {
           itemData.specialTypes = [];
         }
 
-        // Handle existing specialTypes
         if (item.specialTypes && item.specialTypes.length > 0) {
           itemData.specialTypes = [...item.specialTypes];
         }
 
-        // Handle allergenes - add MongoDB IDs as specialTypes
         if (item.allergenes) {
           console.log('Processing allergenes:', item.allergenes);
-
-          // For each key in allergenes object that is not "undefined" and has value true
           Object.entries(item.allergenes).forEach(([key, value]) => {
             if (key !== "undefined" && value === true) {
-              // Check if it's a valid MongoDB ID (24 hex chars)
               if (/^[0-9a-fA-F]{24}$/.test(key)) {
                 itemData.specialTypes.push(key);
               }
@@ -196,7 +257,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
           });
         }
 
-        // Only include specialTypes if it has items
         if (itemData.specialTypes.length === 0) {
           delete itemData.specialTypes;
         }
@@ -208,13 +268,10 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       deliveryDate: document.querySelector('input[type="date"]').value,
       deliveryTime: document.querySelector('select').value
     };
+  
     console.log('Final order data:', baseOrderData);
     return baseOrderData;
-  };
-
-
-
-  return (
+  };  return (
     <div
       className='w-full min-w-full h-fit flex flex-col justify-evenly items-center gap-5 bg-light font-poppins rounded-[26px] shadow-black/50 shadow-2xl duration-500 overflow-hidden px-4 py-4'
       style={{ zIndex: 1 }}
@@ -229,6 +286,29 @@ const TotalSummaryWidget = ({ totalPrice }) => {
         </p>
         <p className='text-[30px] font-bold'>{totalPrice} Ft</p>
       </div>
+      
+      {/* Additional fields for Airbnb orders */}
+      {orderType === 'airbnb' && (
+        <>
+          <FormElement
+            label="Név"
+            type="text"
+            width="md:w-[80%] w-full"
+            value={customerName}
+            onChange={handleNameChange}
+            required={true}
+          />
+          <FormElement
+            label="Email cím"
+            type="email"
+            width="md:w-[80%] w-full"
+            value={customerEmail}
+            onChange={handleEmailChange}
+            required={true}
+          />
+        </>
+      )}
+      
       <FormElement
         label={t('summary.mobile')}
         type="tel"
@@ -254,30 +334,26 @@ const TotalSummaryWidget = ({ totalPrice }) => {
               {t('summary.terms.accept')} <span className='text-accent cursor-pointer hover:border-b'>{t('summary.terms.termsAndConditions')}</span>
             </label>
           </div>
-
         </div>
 
-
-
         <div className="flex items-center gap-4">
-        <input
-  type="date"
-  min={dateRange.min}
-  max={dateRange.max}
-  value={selectedDate}
-  onChange={(e) => setSelectedDate(e.target.value)}
-  className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent"
-/>
-  <select className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent">
-    {generateTimeOptions().map((time) => (
-      <option key={time} value={time}>{time}</option>
-    ))}
-  </select>
-</div>
-
+          <input
+            type="date"
+            min={dateRange.min}
+            max={dateRange.max}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent"
+          />
+          <select className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent">
+            {generateTimeOptions().map((time) => (
+              <option key={time} value={time}>{time}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {isCheckedAcceptTerms && isValidMobile && isWebshopOpen.value ? (
+      {areAllFieldsValid() ? (
         <div className='w-[80%] h-fit'>
           <PayPalScriptProvider className='h-[50px]' options={initialOptions}>
             <PayPalButtons
@@ -302,32 +378,20 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                           item.name;
 
                         const itemDesc = typeof item.description === 'object' ?
-                          (item.description[localStorage.getItem('i18nextLng') || 'hu'] || item.description.hu) :
-                          (item.description || '');
+                        (item.description[localStorage.getItem('i18nextLng') || 'hu'] || item.description.hu) :
+                        (item.description || '');
 
-                        // Handle allergenes if available
-                        const allergenesInfo = item.allergenes ?
-                          Object.keys(item.allergenes)
-                            .filter(key => key !== 'undefined' && item.allergenes[key])
-                            .join(', ') :
-                          '';
+                      // Handle allergenes if available
+                      const allergenesInfo = item.allergenes ?
+                        Object.keys(item.allergenes)
+                          .filter(key => key !== 'undefined' && item.allergenes[key])
+                          .join(', ') :
+                        '';
 
-                        // Box type items with nested items
-                        if (item.type === 'box' && item.items && item.items.length > 0) {
-                          return {
-                            name: itemName,
-                            unit_amount: {
-                              value: item.price.toString(),
-                              currency_code: "HUF"
-                            },
-                            quantity: item.quantity || 1,
-                            description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
-                          };
-                        }
-
-                        // Regular food or merch items
+                      // Box type items with nested items
+                      if (item.type === 'box' && item.items && item.items.length > 0) {
                         return {
-                          name: `${itemName}${item.specialTypes ? ` (${item.specialTypes.join(', ')})` : ''}`,
+                          name: itemName,
                           unit_amount: {
                             value: item.price.toString(),
                             currency_code: "HUF"
@@ -335,27 +399,80 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                           quantity: item.quantity || 1,
                           description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
                         };
-                      })
-                    }
-                  ],
-                  application_context: {
-                    shipping_preference: "GET_FROM_FILE"
+                      }
+
+                      // Regular food or merch items
+                      return {
+                        name: `${itemName}${item.specialTypes ? ` (${item.specialTypes.join(', ')})` : ''}`,
+                        unit_amount: {
+                          value: item.price.toString(),
+                          currency_code: "HUF"
+                        },
+                        quantity: item.quantity || 1,
+                        description: `${itemDesc}${allergenesInfo ? ` | Allergenes: ${allergenesInfo}` : ''}`,
+                      };
+                    })
                   }
-                };
+                ],
+                application_context: {
+                  shipping_preference: "GET_FROM_FILE"
+                }
+              };
 
-                // Debug output to see what's being sent to PayPal
-                console.log('PayPal Order Data:', JSON.stringify(orderData, null, 2));
+              // Debug output to see what's being sent to PayPal
+              console.log('PayPal Order Data:', JSON.stringify(orderData, null, 2));
 
-                return actions.order.create(orderData);
-              }}
+              return actions.order.create(orderData);
+            }}
 
+            onApprove={(data, actions) => {
+              setIsProcessingPayment(true);
+              return actions.order.capture().then((details) => {
+                const orderData = createOrderData(details);
+                console.log('Order Data:', orderData);
+            
+                if (orderType === 'airbnb') {
+                  // Airbnb-specifikus rendelés létrehozás
+                  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                  // Ha a token külön van tárolva
+                  const userToken = localStorage.getItem('userToken');
 
-              onApprove={(data, actions) => {
-                setIsProcessingPayment(true);
-                return actions.order.capture().then((details) => {
-                  const orderData = createOrderData(details);
-                  console.log('Order Data:', orderData);
-
+                  if (!userToken) {
+                    console.error('Nincs felhasználói token a rendeléshez');
+                    setIsProcessingPayment(false);
+                    return;
+                  }
+            
+                  fetch(`${import.meta.env.VITE_API_URL}/api/orders/airbnb`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${userToken}`
+                    },
+                    body: JSON.stringify(orderData)
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log('Airbnb order created:', data);
+                    return fetch(`${import.meta.env.VITE_API_URL}/api/email/send-order-email`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(orderData)
+                    });
+                  })
+                  .then(() => {
+                    handlePaymentSuccess(details);
+                  })
+                  .catch(error => {
+                    console.error('Error creating Airbnb order:', error);
+                  })
+                  .finally(() => {
+                    setIsProcessingPayment(false);
+                  });
+                } else {
+                  // Eredeti publikus rendelés létrehozás
                   fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
                     method: 'POST',
                     headers: {
@@ -363,39 +480,40 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                     },
                     body: JSON.stringify(orderData)
                   })
-                    .then(response => response.json())
-                    .then(data => {
-                      return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(orderData)
-                      });
-                    })
-                    .then(() => {
-                      handlePaymentSuccess(details);
-                    })
-                    .catch(error => {
-                      console.error('Error:', error);
-                    })
-                    .finally(() => {
-                      setIsProcessingPayment(false);
+                  .then(response => response.json())
+                  .then(data => {
+                    return fetch(`${import.meta.env.VITE_API_URL}/api/email/send-order-email`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(orderData)
                     });
-                });
-              }}
-            />
-          </PayPalScriptProvider>
-        </div>
-      ) : (<></>)}
+                  })
+                  .then(() => {
+                    handlePaymentSuccess(details);
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
+                  })
+                  .finally(() => {
+                    setIsProcessingPayment(false);
+                  });
+                }
+              });
+            }}
+          />
+        </PayPalScriptProvider>
+      </div>
+    ) : (<></>)}
 
-      {isProcessingPayment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-accent"></div>
-        </div>
-      )}
-    </div>
-  )
+    {isProcessingPayment && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-accent"></div>
+      </div>
+    )}
+  </div>
+)
 }
 
 export default TotalSummaryWidget

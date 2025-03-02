@@ -107,6 +107,11 @@ const NavBar = ({ type }) => {
             onClick={() => navigate('/admin/edit')}
             className={location.pathname === '/admin/edit' ? 'text-accent' : 'text-black'}
           />
+            <NavBarBtn
+            text="ADDRESS"
+            onClick={() => navigate('/admin/address')}
+            className={location.pathname === '/admin/address' ? 'text-accent' : 'text-black'}
+          />
           <StoreControls />
         </div>
       )}
