@@ -1,8 +1,10 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { IoIosAdd } from "react-icons/io";
 import { MdSubdirectoryArrowLeft } from "react-icons/md";
 import DeleteBtn from '../buttons/DeleteBtn';
 import PrimaryBtn from '../buttons/PrimaryBtn';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AddressPage = () => {
     // User states
@@ -12,8 +14,8 @@ const AddressPage = () => {
     const [startDate, setStartDate] = useState('');
     const [selectedAddressId, setSelectedAddressId] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
+    // Remove error state and handle errors directly with toast
+    
     // Address states
     const [addresses, setAddresses] = useState([]);
     const [isAddAddressOpened, setIsAddAddressOpened] = useState(false);
@@ -35,18 +37,17 @@ const AddressPage = () => {
     const handleUserSubmit = async () => {
         try {
             setLoading(true);
-            setError(null);
 
             // Ellenőrizzük, hogy valid címet választott-e
             if (!selectedAddressId) {
-                setError('Kérjük válasszon címet!');
+                toast.error('Kérjük válasszon címet!');
                 setLoading(false);
                 return;
             }
 
             // Ellenőrizzük, hogy valid dátumokat adott-e meg
             if (!startDate || !endDate) {
-                setError('Kérjük adja meg a kezdő és lejárati dátumot!');
+                toast.error('Kérjük adja meg a kezdő és lejárati dátumot!');
                 setLoading(false);
                 return;
             }
@@ -71,6 +72,7 @@ const AddressPage = () => {
             }
 
             // Sikeres felhasználó létrehozás
+            toast.success('Felhasználó sikeresen létrehozva!');
             setEndDate('');
             setStartDate('');
             setSelectedAddressId('');
@@ -81,7 +83,7 @@ const AddressPage = () => {
 
         } catch (error) {
             console.error('Hiba a felhasználó létrehozásakor:', error);
-            setError(error.message);
+            toast.error(error.message || 'Hiba történt a felhasználó létrehozásakor');
         } finally {
             setLoading(false);
         }
@@ -90,11 +92,10 @@ const AddressPage = () => {
     const handleAddressSubmit = async () => {
         try {
             setLoading(true);
-            setError(null);
 
             // Ellenőrizzük, hogy minden mező ki van töltve
             if (!addressForm.city || !addressForm.addressLine1 || !addressForm.zipCode) {
-                setError('Kérjük töltse ki a kötelező mezőket (város, cím, irányítószám)!');
+                toast.error('Kérjük töltse ki a kötelező mezőket (város, cím, irányítószám)!');
                 setLoading(false);
                 return;
             }
@@ -115,6 +116,7 @@ const AddressPage = () => {
             }
 
             // Sikeres cím létrehozás
+            toast.success('Cím sikeresen létrehozva!');
             setAddressForm({
                 city: '',
                 addressLine1: '',
@@ -128,7 +130,7 @@ const AddressPage = () => {
 
         } catch (error) {
             console.error('Hiba a cím létrehozásakor:', error);
-            setError(error.message);
+            toast.error(error.message || 'Hiba történt a cím létrehozásakor');
         } finally {
             setLoading(false);
         }
@@ -156,11 +158,12 @@ const AddressPage = () => {
             }
 
             // Sikeres törlés, frissítsük a felhasználók listáját
+            toast.success('Felhasználó sikeresen törölve!');
             fetchUsers();
 
         } catch (error) {
             console.error('Hiba a felhasználó törlésekor:', error);
-            setError(error.message);
+            toast.error(error.message || 'Hiba történt a felhasználó törlésekor');
         } finally {
             setLoading(false);
         }
@@ -188,15 +191,16 @@ const AddressPage = () => {
             }
 
             // Sikeres törlés, frissítsük a címek listáját
+            toast.success('Cím sikeresen törölve!');
             fetchAddresses();
 
         } catch (error) {
             console.error('Hiba a cím törlésekor:', error);
-            setError(error.message);
-
             // Ha a hiba arra utal, hogy a címet használja valamelyik felhasználó
             if (error.message.includes('in use') || error.message.includes('használja')) {
-                alert('Ezt a címet jelenleg használja egy vagy több felhasználó! Először törölnie kell őket.');
+                toast.error('Ezt a címet jelenleg használja egy vagy több felhasználó! Először törölnie kell őket.');
+            } else {
+                toast.error(error.message || 'Hiba történt a cím törlésekor');
             }
         } finally {
             setLoading(false);
@@ -223,7 +227,7 @@ const AddressPage = () => {
 
         } catch (error) {
             console.error('Hiba a felhasználók lekérdezésekor:', error);
-            setError(error.message);
+            toast.error(error.message || 'Hiba történt a felhasználók lekérdezésekor');
         } finally {
             setLoading(false);
         }
@@ -249,7 +253,7 @@ const AddressPage = () => {
 
         } catch (error) {
             console.error('Hiba a címek lekérdezésekor:', error);
-            setError(error.message);
+            toast.error(error.message || 'Hiba történt a címek lekérdezésekor');
         } finally {
             setLoading(false);
         }
@@ -262,19 +266,27 @@ const AddressPage = () => {
 
     return (
         <div className='w-full h-fit grid grid-cols-3 md:grid-cols-4 justify-items-center gap-x-10 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
-            {/* Error display */}
-            {error && (
-                <div className="col-span-3 w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <p>{error}</p>
-                </div>
-            )}
+            {/* Toast container for displaying notifications */}
+            <Toaster 
+                position="top-right" 
+                toastOptions={{ 
+                    duration: 5000,
+                    // Ensure each toast is unique by limiting duplicates
+                    success: {
+                        id: 'success',
+                    },
+                    error: {
+                        id: 'error',
+                    }
+                }} 
+            />
 
             <div className="w-full col-span-3">
                 <h2 className='text-3xl font-bold py-3 select-none'>AirBnB Címek</h2>
                 {loading && addresses.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Címek betöltése...</p>
+                    <p className="text-dark py-4">Címek betöltése...</p>
                 ) : addresses.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Nincsenek még címek. Hozzon létre egyet!</p>
+                    <p className="text-dark py-4">Nincsenek még címek. Hozzon létre egyet!</p>
                 ) : (
                     addresses.map((address) => (
                         <div key={address._id} className="bg-white shadow-md rounded-lg p-4 mb-4 flex justify-between items-center">
@@ -289,30 +301,32 @@ const AddressPage = () => {
                 )}
                 <h2 className='text-3xl font-bold py-3 select-none mt-6'>AirBnB Felhasználók</h2>
                 {loading && users.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Felhasználók betöltése...</p>
+                    <p className="text-dark text-center py-4">Felhasználók betöltése...</p>
                 ) : users.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Nincsenek még felhasználók. Hozzon létre egyet!</p>
+                    <p className="text-dark text-center py-4">Nincsenek még felhasználók. Hozzon létre egyet!</p>
                 ) : (
                     users.map((user) => (
-                        <div key={user.id} className="bg-white shadow-md rounded-lg p-4 mb-4 flex justify-between items-center">
-                        <div>
-                            <h3 className="font-bold">{user.username}</h3>
-                            <p>Jelszó: {user.password}</p>
-                            {user.name && <p>Név: {user.name}</p>}
-                            {user.email && <p>Email: {user.email}</p>}
-                            {user.phone && <p>Telefon: {user.phone}</p>}
-                            <p>Időszak: {new Date(user.start_date).toLocaleDateString()} - {new Date(user.end_date).toLocaleDateString()}</p>
-                            {user.address && (
-                                <div className="mt-2 p-2 bg-gray-100 rounded">
-                                    <p className="font-semibold">Cím:</p>
-                                    <p>{user.address.city}, {user.address.zipCode}</p>
-                                    <p>{user.address.addressLine1}</p>
-                                    {user.address.addressLine2 && <p>{user.address.addressLine2}</p>}
+                        <div key={user.id} className="w-fit bg-white shadow-md rounded-lg p-4 mb-4 flex justify-between items-center gap-8">
+                            <div className='flex gap-8'>
+                                <div className='font-medium'>
+                                    <h3 className="font-bold">{user.username}</h3>
+                                    <p>Jelszó: <span className='bg-dark-accent text-light px-1 rounded-lg'>{user.password}</span></p>
+                                    {user.name && <p>Név: <span className='bg-dark-accent text-light px-1 rounded-lg'>{user.name}</span></p>}
+                                    {user.email && <p>Email: <span className='bg-dark-accent text-light px-1 rounded-lg'>{user.email}</span></p>}
+                                    {user.phone && <p>Telefon: <span className='bg-dark-accent text-light px-1 rounded-lg'>{user.phone}</span></p>}
+                                    <p>Időszak: <span className='bg-dark-accent text-light px-1 rounded-lg'>{new Date(user.start_date).toLocaleDateString()}</span> - <span className='bg-dark-accent text-light px-1 rounded-lg'>{new Date(user.end_date).toLocaleDateString()}</span></p>
                                 </div>
-                            )}
+                                {user.address && (
+                                    <div className="mt-2 p-2 bg-gray-200 rounded-lg">
+                                        <p className="font-semibold">Cím:</p>
+                                        <p>{user.address.city}, {user.address.zipCode}</p>
+                                        <p>{user.address.addressLine1}</p>
+                                        {user.address.addressLine2 && <p>{user.address.addressLine2}</p>}
+                                    </div>
+                                )}
+                            </div>
+                            <DeleteBtn onClick={() => deleteUser(user.id)} />
                         </div>
-                        <DeleteBtn onClick={() => deleteUser(user.id)} />
-                    </div>
                     ))
                 )}
             </div>

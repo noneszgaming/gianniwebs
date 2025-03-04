@@ -52,7 +52,7 @@ const AdminLogin = () => {
                 className='w-[80%] md:w-[26%] h-[50%] flex flex-col justify-center items-center gap-16 relative z-20 bg-white/30 backdrop-blur-lg px-6 rounded-[30px] border-3 border-accent'
                 onSubmit={handleLogin}
             >
-                <h1 className='text-3xl text-dark font-bold'>Login</h1>
+                <h1 className='text-3xl text-dark font-bold'>Login <span className='text-sm text-neon-green'>ADMIN</span></h1>
                 <Username
                     onChange={(e) => setUsername(e.target.value)}
                 />

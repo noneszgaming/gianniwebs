@@ -96,7 +96,6 @@ const WidgetItem = ({ name, price, img, id, description, type = 'merch', allerge
                         <p className='text-base sm:text-lg md:text-[20px] font-semibold'>{price} Ft</p>
                     </div>
                     
-                    {/* Show allergen dropdown only for food items */}
                     {type === 'food' && (
                         <AllergenDropDown
                             className="w-full mb-1"

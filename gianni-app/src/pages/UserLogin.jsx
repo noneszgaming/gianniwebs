@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import PrimaryButton from '../components/buttons/PrimaryBtn';
 import Password from '../components/admin/Password';
@@ -39,9 +40,10 @@ const UserLogin = () => {
     return (
         <div className='w-full h-screen flex justify-center items-center font-poppins text-light selection:bg-accent'>
             <form
-                className='w-[80%] md:w-[26%] h-[50%] flex flex-col justify-center items-center gap-16 relative z-20'
+                className='w-[80%] md:w-[26%] h-[50%] flex flex-col justify-center items-center gap-16 relative z-20 bg-white/30 backdrop-blur-lg px-6 rounded-[30px] border-3 border-accent'
                 onSubmit={handleLogin}
             >
+                <h1 className='text-3xl text-dark font-bold'>Login</h1>
                 <Username
                     onChange={(e) => setUsername(e.target.value)}
                 />
