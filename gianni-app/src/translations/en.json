@@ -17,6 +17,8 @@
             "closed": "CLOSED"
         },
         "summary": {
+            "name": "Name",
+            "email": "Email",
             "title": "Total Summary",
             "subtotal": "Subtotal",
             "mobile": "Mobile",

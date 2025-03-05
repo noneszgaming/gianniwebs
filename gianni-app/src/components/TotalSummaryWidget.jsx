@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
 import PrimaryBtn from './buttons/PrimaryBtn'
@@ -291,7 +293,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       {orderType === 'airbnb' && (
         <>
           <FormElement
-            label="Név"
+            label={t("summary.name")}
             type="text"
             width="md:w-[80%] w-full"
             value={customerName}
@@ -299,7 +301,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
             required={true}
           />
           <FormElement
-            label="Email cím"
+            label={t("summary.email")}
             type="email"
             width="md:w-[80%] w-full"
             value={customerEmail}

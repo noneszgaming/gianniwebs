@@ -17,6 +17,8 @@
             "closed": "GESCHLOSSEN"
         },
         "summary": {
+            "name": "Name",
+            "email": "Email",
             "title": "Zusammenfassung",
             "subtotal": "Zwischensumme",
             "mobile": "Mobilnummer",

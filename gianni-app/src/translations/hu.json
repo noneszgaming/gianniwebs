@@ -17,6 +17,8 @@
             "closed": "ZÁRVA"
         },
         "summary": {
+            "name": "Név",
+            "email": "Email",
             "title": "Összegzés",
             "subtotal": "Részösszeg",
             "mobile": "Telefonszám",
