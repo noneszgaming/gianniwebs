@@ -4,7 +4,7 @@ import { useSignal, useSignals } from '@preact/signals-react/runtime'
 import React, { useState, useEffect } from 'react'
 import PrimaryBtn from '../buttons/PrimaryBtn';
 import SecondaryBtn from '../buttons/SecondaryBtn';
-import { isAddBoxOpened, isAddItemOpened, isUpdateBoxOpened, isUpdateItemOpened, isWebshopOpen } from '../../signals';
+import { airbnbStoreOpen, isAddBoxOpened, isAddItemOpened, isUpdateBoxOpened, isUpdateItemOpened, isWebshopOpen, publicStoreOpen } from '../../signals';
 import FoodDropDown from './FoodDropDown';
 
 const AddUpdateItem = () => {
@@ -28,6 +28,8 @@ const AddUpdateItem = () => {
         type: 'food',
         img: ''
     });
+
+    const isAnyStoreOpen = airbnbStoreOpen.value || publicStoreOpen.value;
 
     // Existing effect for regular item updates
     useEffect(() => {
@@ -260,7 +262,7 @@ const AddUpdateItem = () => {
 
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
-            {isWebshopOpen.value ? (
+            {isAnyStoreOpen ? (
                 <div className='w-[70%] h-[90%] flex flex-col justify-evenly items-center gap-6 bg-slate-200 rounded-3xl'>
                     <h2 className='font-semibold text-[70px] text-dark-accent text-center'>
                         Ooops!

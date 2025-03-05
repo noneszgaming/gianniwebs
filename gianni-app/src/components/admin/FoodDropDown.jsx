@@ -1,7 +1,7 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
 import FoodDropDownItem from './FoodDropDownItem';
@@ -11,15 +11,13 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedFoodItems, setSelectedFoodItems] = useState({});
     const [foods, setFoods] = useState([]);
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [initialIdsProcessed, setInitialIdsProcessed] = useState(false);
-    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+    const initialProcessingDone = useRef(false);
+    const prevSelectedItemsRef = useRef(null);
 
-    // Fetch foods csak egyszer fut le
+    // Fetch foods only once
     useEffect(() => {
         const fetchFoods = async () => {
             try {
-                console.log('Fetching foods...');
                 const token = localStorage.getItem('adminToken');
                 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
@@ -40,7 +38,6 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
                     
                     setFoods(availableFoods);
                 } else {
-                    console.error('Invalid response format:', data);
                     setFoods([]);
                 }
             } catch (error) {
@@ -52,59 +49,65 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
         fetchFoods();
     }, []);
 
-    // Az initialSelectedIds és foods változások összekapcsolása egyetlen useEffect-be
+    // Process initial selected IDs when foods are loaded - only once
     useEffect(() => {
-        if (foods.length > 0 && !initialIdsProcessed) {
-            console.log('Processing initial selected IDs:', initialSelectedIds);
-            
-            // Állítsuk be az alapértelmezett értéket: minden elem false
+        if (foods.length > 0 && !initialProcessingDone.current) {
+            // Set default value: all items false
             const newState = {};
             foods.forEach(food => {
                 newState[food._id] = false;
             });
             
-            // Állítsuk be a kiválasztott elemeket true-ra
+            // Set selected items to true
             if (initialSelectedIds && initialSelectedIds.length > 0) {
                 initialSelectedIds.forEach(selectedId => {
                     foods.forEach(food => {
                         const foodId = String(food._id);
                         const selectedIdStr = String(selectedId);
                         
-                        if (foodId === selectedIdStr || 
-                            String(food.id) === selectedIdStr || 
+                        if (foodId === selectedIdStr ||
+                            String(food.id) === selectedIdStr ||
                             String(food.uniqueId) === selectedIdStr) {
-                            console.log('Marking selected:', food.name.en);
                             newState[food._id] = true;
                         }
                     });
                 });
             }
             
-            console.log('Setting selection state:', newState);
             setSelectedFoodItems(newState);
-            setIsInitialized(true);
-            setInitialIdsProcessed(true);
-
-            setTimeout(() => setInitialLoadComplete(true), 100);
+            initialProcessingDone.current = true;
         }
-    }, [foods, initialSelectedIds, initialIdsProcessed]);
+    }, [foods, initialSelectedIds]);
 
+    // Notify parent of selections - but use ref to prevent infinite loop
     useEffect(() => {
-        if (!isInitialized) return;
+        if (!initialProcessingDone.current) return;
         
         const selectedIds = Object.entries(selectedFoodItems)
             .filter(([_, isSelected]) => isSelected)
             .map(([id]) => id)
             .filter(id => id);
-    
-        console.log('Notifying parent of selected IDs:', selectedIds);
         
-        // Only notify parent if this isn't the initial load
-        if (onFoodsSelected && initialLoadComplete) {
-            onFoodsSelected(selectedIds);
+        // Only call onFoodsSelected if selected items have actually changed
+        const currentSelectedJson = JSON.stringify(selectedIds.sort());
+        if (prevSelectedItemsRef.current !== currentSelectedJson) {
+            prevSelectedItemsRef.current = currentSelectedJson;
+            
+            if (onFoodsSelected) {
+                onFoodsSelected(selectedIds);
+            }
         }
-    }, [selectedFoodItems, onFoodsSelected, isInitialized, initialLoadComplete]);
+    }, [selectedFoodItems, onFoodsSelected]);
 
+    // Function to handle item selection changes
+    const handleItemSelectionChange = (itemId, newValue) => {
+        setSelectedFoodItems(prev => ({
+            ...prev,
+            [itemId]: newValue
+        }));
+    };
+
+    // Calculate selected count
     const selectedFoodItemsCount = Object.values(selectedFoodItems).filter(Boolean).length;
 
     return (
@@ -135,13 +138,7 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
                                     foodItemKey={itemId}
                                     name={foodItem.name[i18n.language] || foodItem.name.en}
                                     isChecked={Boolean(selectedFoodItems[itemId])}
-                                    onCheckChange={(newValue) => {
-                                        console.log('Changing:', itemId, 'to', newValue);
-                                        setSelectedFoodItems(prev => ({
-                                            ...prev,
-                                            [itemId]: newValue
-                                        }));
-                                    }}
+                                    onCheckChange={(newValue) => handleItemSelectionChange(itemId, newValue)}
                                 />
                             );
                         })
@@ -152,4 +149,4 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     );
 };
 
-export default FoodDropDown;
+export default React.memo(FoodDropDown);

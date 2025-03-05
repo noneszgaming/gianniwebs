@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { FaLockOpen, FaLock } from "react-icons/fa";

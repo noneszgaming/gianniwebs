@@ -317,7 +317,7 @@ const AddressPage = () => {
                                     <p>Időszak: <span className='bg-dark-accent text-light px-1 rounded-lg'>{new Date(user.start_date).toLocaleDateString()}</span> - <span className='bg-dark-accent text-light px-1 rounded-lg'>{new Date(user.end_date).toLocaleDateString()}</span></p>
                                 </div>
                                 {user.address && (
-                                    <div className="mt-2 p-2 bg-gray-200 rounded-lg">
+                                    <div className="h-fit mt-2 p-2 bg-gray-200 rounded-lg">
                                         <p className="font-semibold">Cím:</p>
                                         <p>{user.address.city}, {user.address.zipCode}</p>
                                         <p>{user.address.addressLine1}</p>
