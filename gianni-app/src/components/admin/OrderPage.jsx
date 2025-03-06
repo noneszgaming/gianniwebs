@@ -77,7 +77,7 @@ const OrderPage = () => {
     { field: 'addressLine1', headerName: 'Cím 1', width: 200 },
     { field: 'addressLine2', headerName: 'Cím 2', width: 200 },
     { field: 'zipCode', headerName: 'Irányítószám', width: 100 },
-    { field: 'isInstantDelivery', headerName: 'Azonnali kiszállítás', width: 130 },
+    { field: 'order_note', headerName: 'Megjegyzés', width: 200 },
     { field: 'deliveryDate', headerName: 'Kiszállítás dátuma', width: 130 },
     { field: 'deliveryTime', headerName: 'Kiszállítás időpontja', width: 130 },
     { field: 'created_date', headerName: 'Létrehozva', width: 130 },
@@ -111,16 +111,33 @@ const OrderPage = () => {
       const data = await response.json();
       if (response.ok) {
         const transformedOrders = data.orders.map(order => {
+          // Extract user data from either user or userSnapshot
+          const userName = order.user?.name || 
+                         (order.userSnapshot ? 
+                           `${order.userSnapshot.firstName} ${order.userSnapshot.lastName}` : 
+                           '-');
+        
+          const userEmail = order.user?.email || 
+                            (order.userSnapshot ? 
+                              order.userSnapshot.email : 
+                              '-');
+        
+          const userPhone = order.user?.phone || 
+                            (order.userSnapshot ? 
+                              order.userSnapshot.phoneNumber : 
+                              '-');
+        
           return {
             ...order,
             order_type: order.order_type,
-            customerName: order.customer?.name || order.user?.name || '-',
-            customerEmail: order.customer?.email || order.user?.email || '-',
-            customerPhone: order.customer?.phone || order.user?.phone || '-',
-            city: order.address?.city || order.addressSnapshot?.city || '-',
-            addressLine1: order.address?.addressLine1 || order.addressSnapshot?.addressLine1 || '-',
-            addressLine2: order.address?.addressLine2 || order.addressSnapshot?.addressLine2 || '-',
-            zipCode: order.address?.zipCode || order.addressSnapshot?.zipCode || '-',
+            customerName: order.customer?.name || userName,
+            customerEmail: order.customer?.email || userEmail,
+            customerPhone: order.customer?.phone || userPhone,
+            city: order.addressReference?.city || order.addressSnapshot?.city || '-',
+            addressLine1: order.addressReference?.addressLine1 || order.addressSnapshot?.addressLine1 || '-',
+            addressLine2: order.addressReference?.addressLine2 || order.addressSnapshot?.addressLine2 || '-',
+            zipCode: order.addressReference?.zipCode || order.addressSnapshot?.zipCode || '-',
+            order_note: order.order_note || '-',
             deliveryDate: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : '-',
             created_date: order.created_date ? new Date(order.created_date).toLocaleDateString() : '-',
             total_price: `${order.total_price?.toLocaleString() || 0} Ft`,
@@ -133,7 +150,6 @@ const OrderPage = () => {
       console.error('Error fetching orders:', error);
     }
   };
-
   const handleRestartVerification = async (paymentId) => {
     try {
       const token = localStorage.getItem('adminToken');

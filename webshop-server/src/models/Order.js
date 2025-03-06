@@ -55,6 +55,29 @@ const addressSnapshotSchema = new mongoose.Schema({
     }
 }, { _id: false });
 
+// Új schema a felhasználói adatok tárolásához
+const userSnapshotSchema = new mongoose.Schema({
+    originalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    phoneNumber: {
+        type: String
+    }
+}, { _id: false });
+
 const orderSchema = new mongoose.Schema({
     paymentId: {
         type: String,
@@ -112,6 +135,13 @@ const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: function() {
+            return this.order_type === 'airbnb';
+        }
+    },
+    // Új mező a felhasználói adatok tárolásához
+    userSnapshot: {
+        type: userSnapshotSchema,
         required: function() {
             return this.order_type === 'airbnb';
         }

@@ -184,7 +184,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     // Get userData for address information (for Airbnb orders)
     const userData = JSON.parse(localStorage.getItem('userData') || '{}');
     console.log('userData from localStorage:', userData);
-  
+    const freshCartItems = JSON.parse(localStorage.getItem(cartKey)) || [];
     if (orderType === 'airbnb') {
       // For Airbnb orders, use the customer's inputted information
       customerInfo = {
@@ -223,47 +223,54 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       };
     }
 
-
-
     const baseOrderData = {
       paymentId: details.id,
       order_type: orderType,
       customer: customerInfo,
       address: addressInfo,
       note: orderNote,
-      items: cartItems.map(item => {
-        // Rest of the item processing code remains the same
+      items: freshCartItems.map(item => {
         console.log('Processing item:', item);
+        
+        // Extract the base ID for the product reference
         const baseId = item.id.split('_duplicate_')[0];
+        
+        // Create the initial item data
         const itemData = {
-          _id: baseId,
+          _id: baseId,  // Use the base ID for product reference
           quantity: item.quantity || 1
         };
 
-        if (!itemData.specialTypes) {
-          itemData.specialTypes = [];
-        }
-
-        if (item.specialTypes && item.specialTypes.length > 0) {
-          itemData.specialTypes = [...item.specialTypes];
-        }
-
-        if (item.allergenes) {
-          console.log('Processing allergenes:', item.allergenes);
+        // Process allergenes for THIS specific item (including duplicates)
+        // Don't rely on the base ID for allergenes
+        if (item.allergenes && Object.keys(item.allergenes).length > 0) {
+          console.log('Processing allergenes for item ' + item.id + ':', item.allergenes);
+          
+          // Create an array to hold the allergene IDs
+          const specialTypesArray = [];
+          
           Object.entries(item.allergenes).forEach(([key, value]) => {
             if (key !== "undefined" && value === true) {
               if (/^[0-9a-fA-F]{24}$/.test(key)) {
-                itemData.specialTypes.push(key);
+                specialTypesArray.push(key);
+                console.log(`Added allergene ${key} to item ${item.id}`);
               }
             }
           });
+          
+          // Only add the specialTypes if we found any
+          if (specialTypesArray.length > 0) {
+            itemData.specialTypes = specialTypesArray;
+            console.log(`Added ${specialTypesArray.length} specialTypes to item ${item.id}`);
+          }
+        }
+        
+        // Process any existing specialTypes
+        if (item.specialTypes && item.specialTypes.length > 0 && !itemData.specialTypes) {
+          itemData.specialTypes = [...item.specialTypes];
         }
 
-        if (itemData.specialTypes.length === 0) {
-          delete itemData.specialTypes;
-        }
-
-        console.log('Final item data:', itemData);
+        console.log('Final item data for ' + item.id + ':', itemData);
         return itemData;
       }),
       termsAccepted: isCheckedAcceptTerms,
@@ -456,7 +463,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                   .then(response => response.json())
                   .then(data => {
                     console.log('Airbnb order created:', data);
-                    return fetch(`${import.meta.env.VITE_API_URL}/api/email/send-order-email`, {
+                    return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -484,7 +491,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
                   })
                   .then(response => response.json())
                   .then(data => {
-                    return fetch(`${import.meta.env.VITE_API_URL}/api/email/send-order-email`, {
+                    return fetch(`${import.meta.env.VITE_API_URL}/api/send-order-email`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

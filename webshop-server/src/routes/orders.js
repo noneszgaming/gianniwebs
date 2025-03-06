@@ -193,9 +193,9 @@ router.post('/orders', async (req, res) => {
                   message: 'Payment ID is required'
               });
           }
-        
-          const user = await User.findById(req.user._id).populate('address');
-        
+      
+          const user = req.user;
+      
           // Check if subscription is expired
           const currentDate = new Date();
           if (currentDate > user.end_date) {
@@ -208,17 +208,17 @@ router.post('/orders', async (req, res) => {
               if (req.body.customer.name) updateFields.name = req.body.customer.name;
               if (req.body.customer.email) updateFields.email = req.body.customer.email;
               if (req.body.customer.phone) updateFields.phone = req.body.customer.phone;
-            
+          
               await User.findByIdAndUpdate(user._id, updateFields);
           }
 
           // Handle Airbnb-specific address
           let addressId = user.address;  // Default to user's existing address
-        
+      
           // If new address is provided in the request, create or update it
           if (req.body.address) {
               let address;
-            
+          
               if (user.address) {
                   // Update existing address
                   address = await User_Address.findByIdAndUpdate(
@@ -233,7 +233,7 @@ router.post('/orders', async (req, res) => {
                       user: user._id
                   });
                   await address.save();
-                
+              
                   // Update user with the new address
                   await User.findByIdAndUpdate(user._id, { address: address._id });
                   addressId = address._id;
@@ -247,16 +247,16 @@ router.post('/orders', async (req, res) => {
               if (!fullItem) {
                   // Try finding it as a box if item lookup fails
                   const boxItem = await Box.findById(item._id);
-  
+
                   if (!boxItem) {
                       throw new Error(`Item or Box with ID ${item._id} not found`);
                   }
-  
+
                   // Store complete specialType objects instead of just IDs
                   const specialTypes = item.specialTypes ?
                       await SpecialType.find({ _id: { $in: item.specialTypes }}) :
                       [];
-  
+
                   return {
                       name: boxItem.name,
                       price: boxItem.price,
@@ -286,62 +286,70 @@ router.post('/orders', async (req, res) => {
                   }))
               };
           });
-        
+      
           const completedItems = await Promise.all(itemPromises);
 
           const total_price = completedItems.reduce((total, item) => {
               return total + (Number(item.price) * Number(item.quantity));
           }, 0);
-              // Az Airbnb végpontban, a fullAddress lekérdezés előtt
-              // Győződjünk meg róla, hogy az addressId csak az ObjectId
-              if (typeof addressId === 'object' && addressId._id) {
-                addressId = addressId._id;
-              }
 
-              // Majd a lekérdezés
-              let fullAddress;
-              try {
-                fullAddress = await User_Address.findById(addressId);
-                
-                if (!fullAddress) {
-                  return res.status(404).send({
-                    success: false,
-                    message: 'Address not found'
-                  });
-                }
-              } catch (error) {
-                console.error('Error fetching address:', error);
-                return res.status(500).send({
-                  success: false,
-                  message: 'Error fetching address data',
-                  error: error.message
-                });
-              }
+          // Ensure addressId is just the ObjectId
+          if (typeof addressId === 'object' && addressId._id) {
+            addressId = addressId._id;
+          }
 
-              // A rendelés létrehozásakor
-              const order = new Order({
-                paymentId: req.body.paymentId,
-                order_type: 'airbnb',
-                items: completedItems,
-                total_price: total_price,
-                user: user._id,
-                addressModel: 'User_Address',
-                addressReference: addressId,
-                addressSnapshot: {
-                  originalId: addressId,
-                  country: fullAddress.country || 'Hungary',
-                  city: fullAddress.city,
-                  addressLine1: fullAddress.addressLine1,
-                  addressLine2: fullAddress.addressLine2 || '',
-                  zipCode: fullAddress.zipCode,
-                  firstName: fullAddress.firstName || '',
-                  lastName: fullAddress.lastName || ''
-                },
-                order_note: req.body.note,
-                deliveryDate: req.body.deliveryDate ? new Date(req.body.deliveryDate) : new Date(),
-                deliveryTime: req.body.deliveryTime,
-                status: 'pending'
-              });              await order.save();
+          // Fetch full address
+          let fullAddress;
+          try {
+            fullAddress = await User_Address.findById(addressId);
+          
+            if (!fullAddress) {
+              return res.status(404).send({
+                success: false,
+                message: 'Address not found'
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching address:', error);
+            return res.status(500).send({
+              success: false,
+              message: 'Error fetching address data',
+              error: error.message
+            });
+          }
+
+          // Create the order with user snapshot data
+          const order = new Order({
+              paymentId: req.body.paymentId,
+              order_type: 'airbnb',
+              items: completedItems,
+              total_price: total_price,
+              user: user._id,
+              userSnapshot: {
+                  originalId: user._id,
+                  email: user.email,
+                  firstName: user.firstName || req.body.customer.name.split(' ')[0],
+                  lastName: user.lastName || req.body.customer.name.split(' ').slice(1).join(' '),
+                  phoneNumber: user.phoneNumber || req.body.customer.phone
+              },
+              addressModel: 'User_Address',
+              addressReference: addressId,
+              addressSnapshot: {
+                originalId: addressId,
+                country: fullAddress.country || 'Hungary',
+                city: fullAddress.city,
+                addressLine1: fullAddress.addressLine1,
+                addressLine2: fullAddress.addressLine2 || '',
+                zipCode: fullAddress.zipCode,
+                firstName: fullAddress.firstName || '',
+                lastName: fullAddress.lastName || ''
+              },
+              order_note: req.body.note,
+              deliveryDate: req.body.deliveryDate ? new Date(req.body.deliveryDate) : new Date(),
+              deliveryTime: req.body.deliveryTime,
+              status: 'pending'
+          });
+          await order.save();
           res.status(201).send({
               success: true,
               message: 'Airbnb order created successfully',
