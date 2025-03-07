@@ -67,7 +67,7 @@ const WidgetItem = ({ name, price, img, id, description, type = 'merch', allerge
     };
 
     return (
-        <div className='w-full h-full flex flex-col sm:flex-row justify-evenly items-center bg-light font-poppins rounded-[26px] p-3 sm:p-4 transition-all duration-300 overflow-y-visible'>
+        <div className='w-full h-full flex flex-col sm:flex-row justify-evenly items-center bg-light font-poppins rounded-[26px] p-3 sm:p-4 transition-all duration-300 overflow-visible relative'>
             {/* Image section */}
             <div className='w-full sm:w-[40%] lg:w-[40%] mb-2 sm:mb-0 flex justify-center items-center'>
                 <img
@@ -90,7 +90,7 @@ const WidgetItem = ({ name, price, img, id, description, type = 'merch', allerge
                 </div>
                 
                 {/* Controls section */}
-                <div className='flex flex-col gap-2 sm:gap-4 overflow-y-visible'>
+                <div className='flex flex-col gap-2 sm:gap-4 overflow-y-visible relative'>
                     <div className='w-full flex justify-between items-center'>
                         <AmountCounter onQuantityChange={setSelectedQuantity} />
                         <p className='text-base sm:text-lg md:text-[20px] font-semibold'>{price} Ft</p>
