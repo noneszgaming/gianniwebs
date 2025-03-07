@@ -104,18 +104,20 @@ const Widget = ({ type = 'merch' }) => {
                 className='flex transition-transform duration-500 ease-in-out h-full'
                 style={{ transform: `translateX(-${currentItemIndex * 100}%)` }}
               >
-                {items.map((item) => (
-                  <div key={item.id} className='w-full flex-shrink-0'>
-                    <WidgetItem
-                      id={item.id}
-                      name={item.name}
-                      description={item.description}
-                      price={item.price}
-                      img={item.img}
-                      type={type}
-                      allergenes={item.allergenes}
-                    />
-                  </div>
+                {items.map((item, index) => (
+                <div key={item.id} className='w-full flex-shrink-0'>
+                  <WidgetItem
+                    id={item.id}
+                    name={item.name}
+                    description={item.description}
+                    price={item.price}
+                    img={item.img}
+                    type={type}
+                    allergenes={item.allergenes}
+                    currentIndex={currentItemIndex} // Átadjuk az aktuális indexet
+                    itemIndex={index} // Átadjuk az elem saját indexét is
+                  />
+                </div>
                 ))}
               </div>
             </div>

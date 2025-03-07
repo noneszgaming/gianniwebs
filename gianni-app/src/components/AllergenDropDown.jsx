@@ -6,7 +6,14 @@ import { IoIosArrowDown } from "react-icons/io";
 import AllergenDropDownItem from './AllergenDropDownItem';
 import { createPortal } from 'react-dom';
 
-const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllergenChange, itemId }) => {
+const AllergenDropDown = ({ 
+    className, 
+    initialSelectedAllergenes = {}, 
+    onAllergenChange, 
+    itemId,
+    slideIdentifier 
+  }) => {
+
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [allergenes, setAllergenes] = useState([]);
@@ -37,6 +44,13 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
     useEffect(() => {
         fetchAllergenes();
     }, []);
+
+    // Új useEffect: figyeljük az itemId változását és becsukjuk a dropdown-t, ha változik
+    useEffect(() => {
+        if (itemId && isDropdownOpen) {
+            setIsDropdownOpen(false);
+        }
+    }, [slideIdentifier]);
 
     useEffect(() => {
         // Notify parent component if allergenes change

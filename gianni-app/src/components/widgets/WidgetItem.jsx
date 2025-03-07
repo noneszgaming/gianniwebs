@@ -8,11 +8,23 @@ import PrimaryBtn from '../buttons/PrimaryBtn';
 import { useTranslation } from 'react-i18next';
 import AllergenDropDown from '../AllergenDropDown';
 
-const WidgetItem = ({ name, price, img, id, description, type = 'merch', allergenes }) => {
+const WidgetItem = ({ 
+    name, 
+    price, 
+    img, 
+    id, 
+    description, 
+    type = 'merch', 
+    allergenes,
+    currentIndex,
+    itemIndex
+  }) => {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [selectedAllergenes, setSelectedAllergenes] = useState(allergenes || {});
     const { language } = useContext(LanguageContext);
     const { t } = useTranslation();
+    const slideIdentifier = itemIndex !== undefined && currentIndex !== undefined ? 
+    `item-${id}-slide-${currentIndex}` : id;
 
     // Use provided description or fallback to default descriptions
     const itemDescription = description || {
@@ -100,6 +112,8 @@ const WidgetItem = ({ name, price, img, id, description, type = 'merch', allerge
                         <AllergenDropDown
                             className="w-full mb-1"
                             onAllergenChange={(allergenes) => setSelectedAllergenes(allergenes)}
+                            itemId={id}
+                            slideIdentifier={slideIdentifier} // Átadjuk a kombinált azonosítót
                         />
                     )}
                     
