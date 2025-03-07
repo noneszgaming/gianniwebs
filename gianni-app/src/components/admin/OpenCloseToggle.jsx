@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { FaLockOpen, FaLock } from "react-icons/fa";
-import { useSignal } from "@preact/signals-react";
+import { publicStoreOpen, airbnbStoreOpen } from "../../signals";
 
 const OpenCloseToggle = ({ storeType }) => {
-    const [isOpen, setIsOpen] = useState(false);
+
+    const storeSignal = storeType === 'airbnb' ? airbnbStoreOpen : publicStoreOpen;
 
     useEffect(() => {
         const ws = new WebSocket(import.meta.env.VITE_WS_URL);
@@ -20,15 +21,16 @@ const OpenCloseToggle = ({ storeType }) => {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'STORE_STATUS_UPDATE' && data.storeType === storeType) {
-                setIsOpen(data.state === 'open');
+                // A megfelelő signal frissítése
+                storeSignal.value = data.state === 'open';
             }
         };
 
         return () => ws.close();
-    }, [storeType]);
+    }, [storeType, storeSignal]);
 
     const toggleStoreState = async () => {
-        const newState = !isOpen;
+        const newState = !storeSignal.value;
         try {
             const token = localStorage.getItem('adminToken');
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/setState`, {
@@ -37,14 +39,15 @@ const OpenCloseToggle = ({ storeType }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     state: newState ? 'open' : 'closed',
-                    type: storeType 
+                    type: storeType
                 })
             });
 
             if (response.ok) {
-                setIsOpen(newState);
+                // A megfelelő signal frissítése
+                storeSignal.value = newState;
             }
         } catch (error) {
             console.error('Network error:', error);
@@ -60,8 +63,8 @@ const OpenCloseToggle = ({ storeType }) => {
         >
             <FaLockOpen className="text-green-500 w-4"/>
             <span
-                className={`absolute w-6 h-6 rounded-full shadow-md transform duration-700 ${isOpen ? "bg-green-500" : "bg-accent"}`}
-                style={{ transition: 'all 0.3s ease', left: isOpen ? "2px" : "calc(100% - 2px - 24px)" }}
+                className={`absolute w-6 h-6 rounded-full shadow-md transform duration-700 ${storeSignal.value ? "bg-green-500" : "bg-accent"}`}
+                style={{ transition: 'all 0.3s ease', left: storeSignal.value ? "2px" : "calc(100% - 2px - 24px)" }}
             />
             <FaLock className="ml-auto text-red-600 w-3"/>
         </div>

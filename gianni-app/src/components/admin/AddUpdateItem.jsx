@@ -29,8 +29,6 @@ const AddUpdateItem = () => {
         img: ''
     });
 
-    const isAnyStoreOpen = airbnbStoreOpen.value || publicStoreOpen.value;
-
     // Existing effect for regular item updates
     useEffect(() => {
         if (isUpdateItemOpened.value) {
@@ -58,11 +56,11 @@ const AddUpdateItem = () => {
     // New effect for box updates
     useEffect(() => {
         if (isUpdateBoxOpened.value) {
-            const editingBox = JSON.parse(localStorage.getItem('editingBox')) || 
+            const editingBox = JSON.parse(localStorage.getItem('editingBox')) ||
                                JSON.parse(localStorage.getItem('editingItem')); // Try both keys for backward compatibility
-            
+           
             console.log('Loading box data for editing:', editingBox);
-            
+           
             if (editingBox) {
                 // Update the form data with box details
                 setFormData({
@@ -80,14 +78,14 @@ const AddUpdateItem = () => {
                     type: 'box', // Always set type to 'box' for box updates
                     img: editingBox.img || ''
                 });
-                
+               
                 // Set the selected foods
                 if (editingBox.items && Array.isArray(editingBox.items)) {
                     const itemIds = editingBox.items.map(item => {
                         // Handle both object items and string IDs
                         return typeof item === 'object' ? (item._id || item.id) : item;
                     }).filter(Boolean);
-                    
+                   
                     console.log('Pre-selecting food items:', itemIds);
                     setSelectedFoods(itemIds);
                 }
@@ -115,10 +113,10 @@ const AddUpdateItem = () => {
 
                     canvas.width = width;
                     canvas.height = height;
-                    
+                   
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
+                   
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.3);
                     const base64Clean = compressedBase64.split(',')[1];
                     resolve(base64Clean);
@@ -176,30 +174,30 @@ const AddUpdateItem = () => {
 
     // Add this handler to receive selected foods from the FoodDropDown component
     const handleFoodsSelected = (selectedIds) => {
-        console.log('Foods selected:', selectedIds); 
+        console.log('Foods selected:', selectedIds);
         setSelectedFoods(selectedIds);
     };
 
     // Modify the handleSubmit function to include selected foods when adding a box
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+       
         try {
             const token = localStorage.getItem('adminToken');
             const editingItem = JSON.parse(localStorage.getItem('editingItem'));
             const editingBox = JSON.parse(localStorage.getItem('editingBox'));
-            
+           
             // Default payload
             const payload = { ...formData };
-            
+           
             // For box operations, add the selected foods
             if (isAddBoxOpened.value || isUpdateBoxOpened.value) {
                 console.log("Selected food IDs:", selectedFoods); // Debug log
-                
+               
                 // Make sure the items array is in the format expected by MongoDB
                 payload.items = selectedFoods;
             }
-            
+           
             // Determine the correct URL for the operation
             let url;
             if (isUpdateItemOpened.value) {
@@ -228,7 +226,7 @@ const AddUpdateItem = () => {
             // Check the raw response for debugging
             const responseText = await response.text();
             console.log("Server response:", responseText);
-            
+           
             // Try to parse the response as JSON for normal handling
             let responseData;
             try {
@@ -260,9 +258,13 @@ const AddUpdateItem = () => {
         }
     };
 
+    const shouldShowWarning = () => {
+        return airbnbStoreOpen.value || publicStoreOpen.value;
+    };
+
     return (
         <div className='absolute w-full h-full flex flex-col justify-center items-center font-poppins bg-black/70 backdrop-blur-lg' style={{ zIndex: 5500 }}>
-            {isAnyStoreOpen ? (
+            {shouldShowWarning() ? (
                 <div className='w-[70%] h-[90%] flex flex-col justify-evenly items-center gap-6 bg-slate-200 rounded-3xl'>
                     <h2 className='font-semibold text-[70px] text-dark-accent text-center'>
                         Ooops!
@@ -276,8 +278,8 @@ const AddUpdateItem = () => {
                     />
                 </div>
             ) : (
-                <form 
-                    onSubmit={handleSubmit} 
+                <form
+                    onSubmit={handleSubmit}
                     className='w-[80%] h-[90%] flex flex-col justify-center items-center gap-6 bg-slate-200 rounded-3xl'
                 >
                     <h2 className='font-semibold text-3xl'>
@@ -286,7 +288,7 @@ const AddUpdateItem = () => {
                         {isAddBoxOpened.value && 'Add Box'}
                         {isUpdateBoxOpened.value && 'Update Box'}
                     </h2>
-                    
+                   
                     <div className='w-[80%] flex gap-2'>
                         <input
                             type="text"
@@ -296,7 +298,7 @@ const AddUpdateItem = () => {
                             placeholder="Name (English)"
                             className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                         />
-                        
+                       
                         <input
                             type="text"
                             name="name_hu"
@@ -305,7 +307,7 @@ const AddUpdateItem = () => {
                             placeholder="Name (Hungarian)"
                             className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                         />
-                        
+                       
                         <input
                             type="text"
                             name="name_de"
@@ -315,7 +317,7 @@ const AddUpdateItem = () => {
                             className="w-[100%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                         />
                     </div>
-                    
+                   
                     <input
                         type="text"
                         name="description_en"
@@ -324,7 +326,7 @@ const AddUpdateItem = () => {
                         placeholder="Description (English)"
                         className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
-                    
+                   
                     <input
                         type="text"
                         name="description_hu"
@@ -333,7 +335,7 @@ const AddUpdateItem = () => {
                         placeholder="Description (Hungarian)"
                         className="w-[80%] p-2 rounded-lg border-2 border-gray-300 focus:border-accent outline-none"
                     />
-                    
+                   
                     <input
                         type="text"
                         name="description_de"
@@ -365,6 +367,8 @@ const AddUpdateItem = () => {
                         >
                             <option value="food">Food</option>
                             <option value="merch">Merch</option>
+                            <option value="food">Food</option>
+                            <option value="merch">Merch</option>
                         </select>
                     }
 
@@ -380,8 +384,8 @@ const AddUpdateItem = () => {
                     }
 
                     {(isAddBoxOpened.value || isUpdateBoxOpened.value) &&
-                        <FoodDropDown 
-                            onFoodsSelected={handleFoodsSelected} 
+                        <FoodDropDown
+                            onFoodsSelected={handleFoodsSelected}
                             initialSelectedIds={selectedFoods}
                         />
                     }
@@ -391,14 +395,14 @@ const AddUpdateItem = () => {
                             text="Cancel"
                             onClick={handleClose}
                         />
-                        <PrimaryBtn 
+                        <PrimaryBtn
                             text= {
-                                (isAddItemOpened.value && 'Add Merch or Food') || 
-                                (isUpdateItemOpened.value && 'Update Item') || 
+                                (isAddItemOpened.value && 'Add Merch or Food') ||
+                                (isUpdateItemOpened.value && 'Update Item') ||
                                 (isAddBoxOpened.value && 'Add Box') ||
                                 (isUpdateBoxOpened.value && 'Update Box')
                             }
-                            type="submit" 
+                            type="submit"
                         />
                     </div>
                 </form>
@@ -408,4 +412,3 @@ const AddUpdateItem = () => {
 };
 
 export default AddUpdateItem;
-

@@ -6,7 +6,7 @@ import AmountCounter from './AmountCounter';
 import MiniAdminItemBtn from './admin/MiniAdminItemBtn';
 import { GoPencil } from "react-icons/go";
 import AvailabilityToggle from './admin/AvailabilityToggle';
-import { cartCount, isUpdateBoxOpened, isUpdateItemOpened, isWebshopOpen } from '../signals';
+import { airbnbStoreOpen, cartCount, isUpdateBoxOpened, isUpdateItemOpened, publicStoreOpen, } from '../signals';
 import { LanguageContext } from '../context/LanguageContext';
 import AllergenDropDown from './AllergenDropDown';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -25,6 +25,11 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
     // Image swiper states for box type
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const intervalRef = useRef(null);
+
+     const shouldShowWarning = () => {
+         return airbnbStoreOpen.value || publicStoreOpen.value;
+     };
+    
     
     // Use items' images if available, otherwise use placeholder
     const images = type === 'box' && items && items.length > 0
@@ -93,7 +98,16 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         localStorage.setItem(cartKey, JSON.stringify(updatedCart));
         cartCount.value = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
         window.dispatchEvent(new Event('cartUpdated'));
-    };    
+    };  
+    
+    const handleDeleteAttempt = () => {
+        if (shouldShowWarning()) {
+            toast.error("Csak akkor törölhető, ha mindkét bolt zárva van!");
+        } else {
+            handleDelete();
+        }
+    };
+    
 
     const handleDelete = async () => {
         try {
@@ -370,7 +384,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
 
                 <DeleteBtn
                     onClick={isAdminItemPage
-                        ? (isWebshopOpen.value ? null : handleDelete)
+                        ? handleDeleteAttempt
                         : handleRemove}
                 />
 
