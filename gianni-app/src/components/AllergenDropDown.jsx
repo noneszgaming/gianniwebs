@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
@@ -56,19 +56,31 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
         }
     }, [isDropdownOpen]);
 
-    // Close dropdown on outside click
+    // Close dropdown on outside click or scroll
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (isDropdownOpen && 
-                dropdownTriggerRef.current && 
+            if (isDropdownOpen &&
+                dropdownTriggerRef.current &&
                 !dropdownTriggerRef.current.contains(event.target) &&
                 !event.target.closest('.allergen-dropdown-menu')) {
                 setIsDropdownOpen(false);
             }
         };
         
+        // Close dropdown on scroll
+        const handleScroll = () => {
+            if (isDropdownOpen) {
+                setIsDropdownOpen(false);
+            }
+        };
+        
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        window.addEventListener('scroll', handleScroll, true); // true for capture phase
+        
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            window.removeEventListener('scroll', handleScroll, true);
+        };
     }, [isDropdownOpen]);
 
     const selectedAllergensCount = Object.values(selectedAllergenes).filter(Boolean).length;
@@ -91,9 +103,9 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
             {isDropdownOpen && createPortal(
                 <div
                     className='fixed allergen-dropdown-menu bg-white border border-accent rounded-lg p-2'
-                    style={{ 
-                        zIndex: 9999, 
-                        top: `${dropdownPosition.top}px`, 
+                    style={{
+                        zIndex: 9999,
+                        top: `${dropdownPosition.top}px`,
                         left: `${dropdownPosition.left}px`,
                         width: `${dropdownPosition.width}px`,
                         maxHeight: '200px',
