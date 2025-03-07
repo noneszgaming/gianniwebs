@@ -1,3 +1,10 @@
+/* eslint-disable react/prop-types */
+import { IoIosArrowDown } from "react-icons/io";
+import FoodDropDownItem from "./admin/FoodDropDownItem";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
 const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -139,3 +146,5 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
         </div>
     );
 };
+
+export default FoodDropDown;
