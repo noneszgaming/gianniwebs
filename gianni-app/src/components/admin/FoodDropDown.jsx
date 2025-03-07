@@ -5,8 +5,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowDown } from "react-icons/io";
 import FoodDropDownItem from './FoodDropDownItem';
+import { airbnbStoreOpen, publicStoreOpen } from '../../signals';
+import toast from 'react-hot-toast';
+import { useSignals } from '@preact/signals-react/runtime';
 
 const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
+
+    useSignals();
+
     const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedFoodItems, setSelectedFoodItems] = useState({});
@@ -110,18 +116,30 @@ const FoodDropDown = ({ onFoodsSelected, initialSelectedIds = [] }) => {
     // Calculate selected count
     const selectedFoodItemsCount = Object.values(selectedFoodItems).filter(Boolean).length;
 
+    const openDropdownAttempt = () => {  
+        if (shouldShowWarning()) {
+            toast.error("Csak akkor módosítható, ha mindkét bolt zárva van!");
+        } else {
+            setIsDropdownOpen(!isDropdownOpen);
+        }
+    }
+
+    const shouldShowWarning = () => {
+        return airbnbStoreOpen.value || publicStoreOpen.value;
+    };
+    
     return (
         <div className='w-[80%] min-w-50 mb-4 relative select-none'>
             <div
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className='w-full p-2 border border-accent rounded-lg flex justify-between items-center cursor-pointer'
+                onClick={openDropdownAttempt}
+                className={`w-full p-2 border border-accent rounded-lg flex justify-between items-center ${shouldShowWarning() ? 'text-slate-400 cursor-not-allowed' : 'text-dark cursor-pointer'}`}
             >
-                <span>
+                <p>
                     {selectedFoodItemsCount
                         ? `Food Selected (${selectedFoodItemsCount})`
                         : 'Select Foods'
                     }
-                </span>
+                </p>
                 <IoIosArrowDown className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </div>
 
