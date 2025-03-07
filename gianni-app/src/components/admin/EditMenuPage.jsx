@@ -1,14 +1,14 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import Item from '../Item';
 import PrimaryBtn from '../buttons/PrimaryBtn';
-import { isAddAllergeneOpened, isAddBoxOpened, isAddItemOpened, isWebshopOpen } from '../../signals';
+import { airbnbStoreOpen, isAddAllergeneOpened, isAddBoxOpened, isAddItemOpened, isWebshopOpen, publicStoreOpen } from '../../signals';
 import { MdSubdirectoryArrowLeft } from "react-icons/md";
 import { IoIosAdd } from "react-icons/io";
 import { useTranslation } from 'react-i18next';
 import { useSignals } from '@preact/signals-react/runtime';
 import DeleteBtn from '../buttons/DeleteBtn';
+import toast from 'react-hot-toast';
 
 const EditMenuPage = () => {
     useSignals();
@@ -23,71 +23,7 @@ const EditMenuPage = () => {
     const [startDate, setStartDate] = useState('');
     const [allergeneInput, setAllergeneInput] = useState({ hu: '', en: '', de: '' });
 
-    const handleAllergeneSubmit = async () => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/specialtypes`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                },
-                body: JSON.stringify({
-                    name: allergeneInput
-                })
-            });
-
-            if (response.ok) {
-                // Clear input after successful submission
-                setAllergeneInput({ hu: '', en: '', de: '' });
-                isAddAllergeneOpened.value = false;
-                fetchAllergenes();
-            }
-        } catch (error) {
-            console.error('Error submitting allergene:', error);
-        }
-    };
-
-    const handleUserSubmit = async () => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                },
-                body: JSON.stringify({
-                    end_date: endDate,
-                    start_date: startDate
-                })
-            });
-
-            if (response.ok) {
-                setEndDate('');
-                setStartDate('');
-                setIsAddUserOpened(false);
-                fetchUsers();
-            }
-        } catch (error) {
-            console.error('Error creating user:', error);
-        }
-    };
-
-    const deleteUser = async (id) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
-
-            if (response.ok) {
-                fetchUsers();
-            }
-        } catch (error) {
-            console.error('Error deleting user:', error);
-        }
-    };
+    const addErrorText = "Csak akkor adható hozzá, ha mindkét bolt zárva van!"; 
 
     const fetchBoxes = async () => {
         try {
@@ -143,6 +79,43 @@ const EditMenuPage = () => {
         }
     };
 
+    const handleAllergeneSubmit = async () => {
+        if (shouldShowWarning()) {
+            toast.error(addErrorText);
+        }
+        else {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/specialtypes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({
+                        name: allergeneInput
+                    })
+                });
+    
+                if (response.ok) {
+                    // Clear input after successful submission
+                    setAllergeneInput({ hu: '', en: '', de: '' });
+                    isAddAllergeneOpened.value = false;
+                    fetchAllergenes();
+                }
+            } catch (error) {
+                console.error('Error submitting allergene:', error);
+            }
+        }
+    };
+
+    const handleAddAllergeneAttempt = () => {
+        if (shouldShowWarning()) {
+            toast.error(addErrorText);
+        } else {
+            isAddAllergeneOpened.value = !isAddAllergeneOpened.value;
+        }
+    };
+
     const deleteAllergene = async (id) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/specialtypes/${id}`, {
@@ -158,6 +131,19 @@ const EditMenuPage = () => {
         } catch (error) {
             console.error('Error deleting allergene:', error);
         }
+    };
+
+    const handleAllergeneDeleteAttempt = (id) => {
+        if (shouldShowWarning()) {
+            toast.error("Csak akkor törölhető, ha mindkét bolt zárva van!");
+        }
+        else {
+            deleteAllergene(id);
+        }
+    }  
+
+    const shouldShowWarning = () => {
+        return airbnbStoreOpen.value || publicStoreOpen.value;
     };
 
     useEffect(() => {
@@ -232,7 +218,7 @@ const EditMenuPage = () => {
                         <h2 className='text-xl font-bold text-dark self-center'>{t("allergens.title")}</h2>
                         <button
                             className='w-8 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
-                            onClick={() => { isAddAllergeneOpened.value = !isAddAllergeneOpened.value; }}
+                            onClick={handleAddAllergeneAttempt}
                         >
                             <IoIosAdd className={`w-8 h-8 text-light transition-transform duration-500 ${isAddAllergeneOpened.value ? 'rotate-45' : ''}`} />
                         </button>
@@ -276,7 +262,7 @@ const EditMenuPage = () => {
                                 <div key={allergene.id} className="w-full flex justify-between items-center p-2">
                                     <span>{allergene.name[i18n.language]}</span>
                                     <DeleteBtn
-                                        onClick={() => deleteAllergene(allergene.id)}
+                                        onClick={() => handleAllergeneDeleteAttempt(allergene.id)}
                                     />
                                 </div>
                             ))
