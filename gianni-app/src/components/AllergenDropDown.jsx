@@ -12,6 +12,7 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
     const [allergenes, setAllergenes] = useState([]);
     const [selectedAllergenes, setSelectedAllergenes] = useState(initialSelectedAllergenes);
     const dropdownTriggerRef = useRef(null);
+    const dropdownRef = useRef(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 
     const fetchAllergenes = async () => {
@@ -67,9 +68,15 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
             }
         };
         
-        // Close dropdown on scroll
-        const handleScroll = () => {
+        // Close dropdown on scroll, but only if scroll is outside the dropdown
+        const handleScroll = (event) => {
             if (isDropdownOpen) {
+                // Ha a scroll esemény a dropdown menün belül történik, ne zárjuk be
+                const dropdownMenu = document.querySelector('.allergen-dropdown-menu');
+                if (dropdownMenu && (dropdownMenu.contains(event.target) || event.target === dropdownMenu)) {
+                    return;
+                }
+                // Egyébként zárjuk be
                 setIsDropdownOpen(false);
             }
         };
@@ -102,6 +109,7 @@ const AllergenDropDown = ({ className, initialSelectedAllergenes = {}, onAllerge
 
             {isDropdownOpen && createPortal(
                 <div
+                    ref={dropdownRef}
                     className='fixed allergen-dropdown-menu bg-white border border-accent rounded-lg p-2'
                     style={{
                         zIndex: 9999,
