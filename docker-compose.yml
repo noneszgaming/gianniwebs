@@ -16,11 +16,14 @@ services:
 
   mongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Gik8Z1GrTX74
+    command: ["--auth", "--bind_ip", "127.0.0.1,mongodb"]
     volumes:
       - mongodb_data:/data/db
-
+    networks:
+      - app-network
   backend:
     build: 
       context: ./webshop-server
