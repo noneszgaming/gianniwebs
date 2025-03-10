@@ -24,6 +24,7 @@ services:
     command: ["--auth", "--bind_ip", "127.0.0.1,mongodb"]
     volumes:
       - mongodb_data:/data/db
+      - ./mongodb-init:/docker-entrypoint-initdb.d
     networks:
       - app-network
 
