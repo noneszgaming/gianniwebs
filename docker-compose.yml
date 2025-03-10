@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   nginx:
@@ -13,6 +13,8 @@ services:
       - /var/www/certbot:/var/www/certbot    
     depends_on:
       - frontend
+    networks:
+      - app-network
 
   mongodb:
     image: mongo:latest
@@ -24,6 +26,7 @@ services:
       - mongodb_data:/data/db
     networks:
       - app-network
+
   backend:
     build: 
       context: ./webshop-server
@@ -36,6 +39,8 @@ services:
       - CORS_ORIGIN=https://giannigiovanni.hu
     depends_on:
       - mongodb
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -47,10 +52,12 @@ services:
       - VITE_API_URL=https://giannigiovanni.hu/api
     depends_on:
       - backend
+    networks:
+      - app-network
 
 volumes:
   mongodb_data:
 
 networks:
   app-network:
-    driver: bridge
+    driver: bridge    driver: bridge
