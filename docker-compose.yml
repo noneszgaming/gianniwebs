@@ -31,7 +31,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/webshop
+      - MONGODB_URI=mongodb://admin:Gik8Z1GrTX74@mongodb:27017/webshop?authSource=admin
       - PORT=3001
       - CORS_ORIGIN=https://giannigiovanni.hu
     depends_on:
