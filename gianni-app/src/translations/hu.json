@@ -17,7 +17,8 @@
             "closed": "ZÁRVA"
         },
         "summary": {
-            "name": "Név",
+            "lastName": "Vezetéknév",
+            "firstName": "Keresztnév",
             "email": "Email",
             "title": "Összegzés",
             "subtotal": "Részösszeg",

@@ -90,9 +90,10 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   }, [cartKey]);
 
   const initialOptions = {
-    clientId: "AUugzFtEnv8l8EOE0knHrxPMSL7G6ESl4Asw7_uJ_tC9UpvcUe06nNH12oyeV8l5e__eW0Df5pe5wmfL",
+    clientId: "ASZvRtE_zKYyJePhTTV3Nl3mNHOevhLIeEofyj2YOx3V1tlIbLF6CIbXdTY3wghDEEiLqt-I7HoRuuRU",
     currency: "HUF",
     intent: "capture",
+
   };
 
   const handlePaymentSuccess = (details) => {
@@ -115,14 +116,6 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     isSuccessfulPaymentOpened.value = true;
   };
 
-  const generateTimeOptions = () => {
-    const options = [];
-    for (let hour = 8; hour <= 20; hour++) {
-      options.push(`${hour.toString().padStart(2, '0')}:00`);
-      options.push(`${hour.toString().padStart(2, '0')}:30`);
-    }
-    return options;
-  };
 
   const validateMobile = (number) => {
     const digitsOnly = number.replace(/\D/g, '');
@@ -141,9 +134,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     return emailPattern.test(email);
   };
 
-  const validateName = (name) => {
-    return name.trim().length >= 2;
-  };
+
 
   const handleMobileChange = (e) => {
     const number = e.target.value;
@@ -154,10 +145,25 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     setOrderNote(e.target.value);
   };
 
-  const handleNameChange = (e) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [isValidFirstName, setIsValidFirstName] = useState(false);
+  const [isValidLastName, setIsValidLastName] = useState(false);
+
+  const validateName = (name) => {
+    return name.trim().length >= 2;
+  };
+
+  const handleFirstNameChange = (e) => {
     const name = e.target.value;
-    setCustomerName(name);
-    setIsValidName(validateName(name));
+    setFirstName(name);
+    setIsValidFirstName(validateName(name));
+  };
+
+  const handleLastNameChange = (e) => {
+    const name = e.target.value;
+    setLastName(name);
+    setIsValidLastName(validateName(name));
   };
 
   const handleEmailChange = (e) => {
@@ -169,17 +175,28 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   // Check if all required fields are valid for showing payment
   const areAllFieldsValid = () => {
     if (orderType === 'airbnb') {
-      return isCheckedAcceptTerms && isValidMobile && isValidName && isValidEmail && isWebshopOpen.value;
+      return isCheckedAcceptTerms && isValidMobile && 
+             isValidFirstName && isValidLastName && 
+             isValidEmail && isWebshopOpen.value;
     }
     return isCheckedAcceptTerms && isValidMobile && isWebshopOpen.value;
   };
 
   const createOrderData = (details) => {
     console.log('Cart items before processing:', cartItems);
-  
-    // Determine customer information based on order type
-    let customerInfo = {};
-    let addressInfo = {};
+      // Determine customer information based on order type
+      let customerInfo = {};
+      let addressInfo = {};
+    // Update the createOrderData function to use firstName and lastName
+    // In the customerInfo object:
+    customerInfo = {
+      firstName: firstName,
+      lastName: lastName,
+      name: `${lastName} ${firstName}`, // Keep name for compatibility
+      email: customerEmail,
+      phone: mobileNumber
+    };
+
   
     // Get userData for address information (for Airbnb orders)
     const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -188,7 +205,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
     if (orderType === 'airbnb') {
       // For Airbnb orders, use the customer's inputted information
       customerInfo = {
-        name: customerName,
+        name: `${lastName} ${firstName}`,
         email: customerEmail,
         phone: mobileNumber
       };
@@ -275,7 +292,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       }),
       termsAccepted: isCheckedAcceptTerms,
       deliveryDate: document.querySelector('input[type="date"]').value,
-      deliveryTime: document.querySelector('select').value
+
     };
   
     console.log('Final order data:', baseOrderData);
@@ -300,11 +317,19 @@ const TotalSummaryWidget = ({ totalPrice }) => {
       {orderType === 'airbnb' && (
         <>
           <FormElement
-            label={t("summary.name")}
+            label={t("summary.lastName") || "Vezetéknév"}
             type="text"
             width="md:w-[80%] w-full"
-            value={customerName}
-            onChange={handleNameChange}
+            value={lastName}
+            onChange={handleLastNameChange}
+            required={true}
+          />
+          <FormElement
+            label={t("summary.firstName") || "Keresztnév"}
+            type="text"
+            width="md:w-[80%] w-full"
+            value={firstName}
+            onChange={handleFirstNameChange}
             required={true}
           />
           <FormElement
@@ -354,11 +379,7 @@ const TotalSummaryWidget = ({ totalPrice }) => {
             onChange={(e) => setSelectedDate(e.target.value)}
             className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent"
           />
-          <select className="px-4 py-2 rounded-lg bg-white text-accent outline-none border-2 border-accent">
-            {generateTimeOptions().map((time) => (
-              <option key={time} value={time}>{time}</option>
-            ))}
-          </select>
+       
         </div>
       </div>
 

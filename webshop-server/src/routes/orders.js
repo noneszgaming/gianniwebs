@@ -187,12 +187,8 @@ router.post('/orders', async (req, res) => {
   router.post('/orders/airbnb', userAuth, async (req, res) => {
       try {
           // Verify paymentId is provided
-          if (!req.body.paymentId) {
-              return res.status(400).send({
-                  success: false,
-                  message: 'Payment ID is required'
-              });
-          }
+          const isPaymentValid = await verifyPayPalPayment(req.body.paymentId);
+          const orderStatus = isPaymentValid ? 'Paid' : 'pending';
       
           const user = req.user;
       
@@ -327,10 +323,10 @@ router.post('/orders', async (req, res) => {
               user: user._id,
               userSnapshot: {
                   originalId: user._id,
-                  email: user.email,
-                  firstName: user.firstName || req.body.customer.name.split(' ')[0],
-                  lastName: user.lastName || req.body.customer.name.split(' ').slice(1).join(' '),
-                  phoneNumber: user.phoneNumber || req.body.customer.phone
+                  email: req.body.customer.email,
+                  firstName: req.body.customer.name.split(' ')[0],
+                  lastName: req.body.customer.name.split(' ').slice(1).join(' '),
+                  phoneNumber: req.body.customer.phone
               },
               addressModel: 'User_Address',
               addressReference: addressId,
@@ -347,7 +343,7 @@ router.post('/orders', async (req, res) => {
               order_note: req.body.note,
               deliveryDate: req.body.deliveryDate ? new Date(req.body.deliveryDate) : new Date(),
               deliveryTime: req.body.deliveryTime,
-              status: 'pending'
+              status: orderStatus
           });
           await order.save();
           res.status(201).send({

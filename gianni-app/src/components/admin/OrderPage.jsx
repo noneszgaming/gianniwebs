@@ -112,20 +112,15 @@ const OrderPage = () => {
       if (response.ok) {
         const transformedOrders = data.orders.map(order => {
           // Extract user data from either user or userSnapshot
-          const userName = order.user?.name || 
-                         (order.userSnapshot ? 
-                           `${order.userSnapshot.firstName} ${order.userSnapshot.lastName}` : 
-                           '-');
+          const userName = order.userSnapshot && order.userSnapshot.firstName && order.userSnapshot.lastName ? 
+          `${order.userSnapshot.firstName} ${order.userSnapshot.lastName}` : "-";
         
-          const userEmail = order.user?.email || 
-                            (order.userSnapshot ? 
-                              order.userSnapshot.email : 
-                              '-');
+        const userEmail = order.userSnapshot && order.userSnapshot.email ? 
+          order.userSnapshot.email : "-";
         
-          const userPhone = order.user?.phone || 
-                            (order.userSnapshot ? 
-                              order.userSnapshot.phoneNumber : 
-                              '-');
+        const userPhone = order.userSnapshot && order.userSnapshot.phoneNumber ? 
+          order.userSnapshot.phoneNumber : "-";
+        
         
           return {
             ...order,
