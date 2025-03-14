@@ -74,11 +74,7 @@ const Item = ({ id, name, description, price, count, img, available, type, onUpd
         const cartKey = isAirbnb ? 'cart_airbnb' : 'cart_public';
         
         const currentCart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const itemIndex = currentCart.findIndex(item =>
-            item.id === id ||
-            (typeof name === 'object' && item.name?.en === name.en)
-        );
-        
+        const itemIndex = currentCart.findIndex(item => item.id === id);
         if (itemIndex !== -1) {
             if (JSON.stringify(currentCart[itemIndex].allergenes) !== JSON.stringify(updatedAllergenes)) {
                 currentCart[itemIndex].allergenes = updatedAllergenes;

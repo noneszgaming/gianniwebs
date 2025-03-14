@@ -32,42 +32,80 @@ const TotalSummaryWidget = ({ totalPrice }) => {
   const [customerEmail, setCustomerEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(false);
   const [isValidName, setIsValidName] = useState(false);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const defaultDate = tomorrow.toISOString().split('T')[0];
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const defaultDate = tomorrow.toISOString().split('T')[0];
+    const [cartTotal, setCartTotal] = useState(0);
+    const [cartItems, setCartItems] = useState([]);
+    const [dateRange, setDateRange] = useState({
+      min: defaultDate,
+      max: defaultDate,
+      default: defaultDate
+    });
+    const [selectedDate, setSelectedDate] = useState(defaultDate);
 
-  const [cartTotal, setCartTotal] = useState(0);
-  const [cartItems, setCartItems] = useState([]);
-  const [dateRange, setDateRange] = useState({
-    min: defaultDate,
-    max: defaultDate,
-    default: defaultDate
-  });
-  const [selectedDate, setSelectedDate] = useState(defaultDate);
-
-  useEffect(() => {
-    if (orderType === 'airbnb') {
-      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-      if (userData.start_date && userData.end_date) {
-        const startDate = new Date(userData.start_date).toISOString().split('T')[0];
-        const endDate = new Date(userData.end_date).toISOString().split('T')[0];
-        console.log(startDate, endDate);
-        setDateRange({
-          min: startDate,
-          max: endDate,
+    useEffect(() => {
+      const today = new Date();
+      const currentHour = today.getHours();
+    
+      // Holnapi dátum (alapértelmezett minimum)
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+    
+      // Alapértelmezett minimum dátum: holnap
+      let minDate = tomorrow.toISOString().split('T')[0];
+    
+      // Ha Airbnb felhasználó, akkor a userData-ból vesszük a dátumtartományt
+      if (orderType === 'airbnb') {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        if (userData.start_date && userData.end_date) {
+          const startDate = new Date(userData.start_date);
+          const endDate = new Date(userData.end_date);
+        
+          // Ellenőrizzük, hogy a startDate nem a múltban van-e
+          if (startDate > today) {
+            minDate = startDate.toISOString().split('T')[0];
+          }
+        
+          // A maximális dátum a userData end_date-je
+          const maxDate = endDate.toISOString().split('T')[0];
+        
+          setDateRange({
+            min: minDate,
+            max: maxDate
           });
-        setSelectedDate(startDate);
+        
+          // Alapértelmezetten a legkorábbi elérhető dátumot állítjuk be
+          setSelectedDate(minDate);
+        } else {
+          // Ha nincs userData, akkor az alapértelmezett értékeket használjuk
+          setDateRange({
+            min: minDate,
+            max: minDate
+          });
+          setSelectedDate(minDate);
+        }
+      } else {
+        // Publikus rendelés esetén
+        // Ha délután 12 óra után vagyunk, akkor a minimum dátum holnapután lesz
+        if (currentHour >= 12) {
+          const dayAfterTomorrow = new Date();
+          dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+          minDate = dayAfterTomorrow.toISOString().split('T')[0];
+        }
+      
+        // Publikus rendelésnél a maximum dátum lehet pl. 14 nappal később
+        const maxDate = new Date();
+        maxDate.setDate(maxDate.getDate() + 14); // 2 hét előre
+      
+        setDateRange({
+          min: minDate,
+          max: maxDate.toISOString().split('T')[0]
+        });
+        setSelectedDate(minDate);
       }
-    } else {
-      setDateRange({
-        min: defaultDate,
-        max: defaultDate,
-        default: defaultDate
-      });
-    }
-  }, [orderType, defaultDate]);
-  
+    }, [orderType, defaultDate]);
   useEffect(() => {
     // Get cart from the correct storage key
     const storedCart = JSON.parse(localStorage.getItem(cartKey)) || [];

@@ -26,6 +26,17 @@ const AddressPage = () => {
         zipCode: ''
     });
 
+    // Handle start date change and reset end date if it's before the new start date
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+        
+        // If end date exists and is before the new start date, reset it
+        if (endDate && endDate < newStartDate) {
+            setEndDate('');
+        }
+    };
+
     const handleAddressInputChange = (e) => {
         const { name, value } = e.target;
         setAddressForm({
@@ -48,6 +59,13 @@ const AddressPage = () => {
             // Ellenőrizzük, hogy valid dátumokat adott-e meg
             if (!startDate || !endDate) {
                 toast.error('Kérjük adja meg a kezdő és lejárati dátumot!');
+                setLoading(false);
+                return;
+            }
+
+            // Ellenőrizzük, hogy a lejárati dátum a kezdő dátum után van-e
+            if (endDate <= startDate) {
+                toast.error('A lejárati dátumnak a kezdő dátum után kell lennie!');
                 setLoading(false);
                 return;
             }
@@ -334,7 +352,7 @@ const AddressPage = () => {
             <div className="w-full flex flex-col gap-10 mt-15">
                 <div className='bg-light w-full h-fit flex flex-col justify-center items-center gap-4 rounded-[30px] px-4 pt-2 pb-4 shadow-black/50 shadow-2xl'>
                     <div className='w-full h-fit flex justify-center items-center gap-2'>
-                        <h2 className='text-xl font-bold text-dark self-center'>Új AirBnB Cím</h2>
+                    <h2 className='text-xl font-bold text-dark self-center'>Új AirBnB Cím</h2>
                         <button
                             className='w-8 aspect-square bg-accent hover:bg-dark-accent rounded-[8px] flex justify-center items-center duration-500 cursor-pointer'
                             onClick={() => setIsAddAddressOpened(!isAddAddressOpened)}
@@ -411,7 +429,7 @@ const AddressPage = () => {
                                     id="start-date"
                                     type="date"
                                     value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
+                                    onChange={handleStartDateChange}
                                     className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
                                     disabled={loading}
                                 />
@@ -425,6 +443,7 @@ const AddressPage = () => {
                                     onChange={(e) => setEndDate(e.target.value)}
                                     className='w-full h-10 px-2 bg-light border-2 border-dark focus:border-accent rounded-[8px] outline-none caret-accent focus:text-accent'
                                     disabled={loading}
+                                    min={startDate || undefined}
                                 />
                             </div>
                             <div className="flex flex-col">

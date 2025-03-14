@@ -22,7 +22,8 @@ const Widget = ({ type = 'merch' }) => {
         
         // Filter items by the requested type
         const filteredItems = data.filter(item => item.type === type);
-        setItems(filteredItems);
+        const availableItems = filteredItems.filter(item => item.available)
+        setItems(availableItems);
       } catch (error) {
         console.log(`Error fetching ${type} items:`, error);
       }
