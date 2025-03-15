@@ -42,6 +42,16 @@
             "lactose": "Lactose",
             "nuts": "Nuts",
             "eggs": "Eggs"
-        }
+        },
+        "footer": {
+            "companyName": "Gianni's Food",
+            "copyright": "All rights reserved",
+            "navigation": "Navigation",
+            "home": "Home",
+            "cart": "Cart",
+            "contact": "Contact Us",
+            "email": "Email",
+            "phone": "Phone"
+          }
     }
 }

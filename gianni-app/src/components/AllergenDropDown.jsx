@@ -6,12 +6,12 @@ import { IoIosArrowDown } from "react-icons/io";
 import AllergenDropDownItem from './AllergenDropDownItem';
 import { createPortal } from 'react-dom';
 
-const AllergenDropDown = ({ 
-    className, 
-    initialSelectedAllergenes = {}, 
-    onAllergenChange, 
+const AllergenDropDown = ({
+    className,
+    initialSelectedAllergenes = {},
+    onAllergenChange,
     itemId,
-    slideIdentifier 
+    slideIdentifier
   }) => {
 
     const { t, i18n } = useTranslation();
@@ -27,7 +27,7 @@ const AllergenDropDown = ({
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/specialtypes`);
             const data = await response.json();
             setAllergenes(data);
-            
+           
             // Only initialize if no initial value
             if (Object.keys(initialSelectedAllergenes).length === 0) {
                 const initialSelected = {};
@@ -59,19 +59,31 @@ const AllergenDropDown = ({
         }
     }, [selectedAllergenes, onAllergenChange, initialSelectedAllergenes]);
 
-    // Update dropdown position when it opens
-    useEffect(() => {
+    // Update dropdown position when it opens and on scroll
+    const updateDropdownPosition = () => {
         if (isDropdownOpen && dropdownTriggerRef.current) {
             const rect = dropdownTriggerRef.current.getBoundingClientRect();
             setDropdownPosition({
-                top: rect.bottom + window.scrollY,
-                left: rect.left + window.scrollX,
+                top: rect.bottom,
+                left: rect.left,
                 width: rect.width
             });
         }
+    };
+
+    useEffect(() => {
+        if (isDropdownOpen) {
+            updateDropdownPosition();
+            // Add scroll event listener to update position on scroll
+            window.addEventListener('scroll', updateDropdownPosition, { passive: true });
+        }
+        
+        return () => {
+            window.removeEventListener('scroll', updateDropdownPosition);
+        };
     }, [isDropdownOpen]);
 
-    // Close dropdown on outside click or scroll
+    // Close dropdown on outside click
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (isDropdownOpen &&
@@ -81,26 +93,11 @@ const AllergenDropDown = ({
                 setIsDropdownOpen(false);
             }
         };
-        
-        // Close dropdown on scroll, but only if scroll is outside the dropdown
-        const handleScroll = (event) => {
-            if (isDropdownOpen) {
-                // Ha a scroll esemény a dropdown menün belül történik, ne zárjuk be
-                const dropdownMenu = document.querySelector('.allergen-dropdown-menu');
-                if (dropdownMenu && (dropdownMenu.contains(event.target) || event.target === dropdownMenu)) {
-                    return;
-                }
-                // Egyébként zárjuk be
-                setIsDropdownOpen(false);
-            }
-        };
-        
+       
         document.addEventListener('mousedown', handleClickOutside);
-        window.addEventListener('scroll', handleScroll, true); // true for capture phase
-        
+       
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-            window.removeEventListener('scroll', handleScroll, true);
         };
     }, [isDropdownOpen]);
 
@@ -124,12 +121,11 @@ const AllergenDropDown = ({
             {isDropdownOpen && createPortal(
                 <div
                     ref={dropdownRef}
-                    className='fixed allergen-dropdown-menu bg-white border border-accent rounded-lg p-2'
+                    className='w-fit fixed allergen-dropdown-menu bg-white border border-accent rounded-lg p-2'
                     style={{
                         zIndex: 9999,
                         top: `${dropdownPosition.top}px`,
                         left: `${dropdownPosition.left}px`,
-                        width: `${dropdownPosition.width}px`,
                         maxHeight: '200px',
                         overflowY: 'auto'
                     }}

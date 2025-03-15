@@ -89,7 +89,7 @@ const NavBar = ({ type }) => {
   }, [storeType.value]);
   return (
     <div 
-      className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 bg-slate-50 rounded-b-2xl select-none`}
+      className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 fixed bg-slate-50 rounded-b-2xl select-none`}
       style={{ zIndex: 3000 }}
     >
       <img className='w-fit h-[80%] hidden md:block' src={logo} alt="" />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import Card from '../components/Card'
 import BoxCard from '../components/BoxCard'
+import Footer from '../components/Footer'
 
 const HomePage = () => {
   const [foods, setFoods] = useState([])
