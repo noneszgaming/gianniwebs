@@ -37,7 +37,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://admin:Gik8Z1GrTX74@mongodb:27017/webshop?authSource=admin
       - PORT=3001
-      - CORS_ORIGIN=https://giannigiovanni.hu
+      - CORS_ORIGIN=https://giannigiovanni.hu,https://www.giannigiovanni.hu
     depends_on:
       - mongodb
     networks:
