@@ -7,7 +7,10 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="w-full bg-slate-600 text-light py-6 mt-auto">
+    <footer 
+      className="w-full bg-slate-600 text-light py-6 mt-auto"
+      style={{zIndex : 1000}}
+    >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>

@@ -5,7 +5,7 @@ import WidgetItem from './WidgetItem';
 import { useTranslation } from 'react-i18next';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const Widget = ({ type = 'merch' }) => {
+const Widget = ({ type = 'merch', isPublic = false }) => {
   const [items, setItems] = useState([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
@@ -117,6 +117,7 @@ const Widget = ({ type = 'merch' }) => {
                     allergenes={item.allergenes}
                     currentIndex={currentItemIndex} // Átadjuk az aktuális indexet
                     itemIndex={index} // Átadjuk az elem saját indexét is
+                    isPublic={isPublic}
                   />
                 </div>
                 ))}

@@ -87,6 +87,7 @@ const NavBar = ({ type }) => {
     window.addEventListener('cartUpdated', handleCartUpdate);
     return () => window.removeEventListener('cartUpdated', handleCartUpdate);
   }, [storeType.value]);
+  
   return (
     <div 
       className={`w-full min-h-16 h-16 justify-between flex items-center font-poppins px-3 fixed bg-slate-50 rounded-b-2xl select-none`}

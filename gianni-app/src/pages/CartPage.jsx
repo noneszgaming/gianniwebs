@@ -62,14 +62,21 @@ const CartPage = () => {
         <div className='w-full h-fit grid grid-cols-1 lg:grid-cols-4 gap-x-10 gap-y-14 font-poppins pt-[2%] pb-[4%]' style={{ zIndex: 1 }}>
             {location.pathname === "/airbnb/cart" &&
                 <div className='w-full flex md:flex-row flex-col gap-10 lg:col-span-4 col-span-2 '>
-                    <Widget type="food"/>
-                    <Widget type="merch"/>
+                    <Widget 
+                        type="food" 
+                    />
+                    <Widget 
+                        type="merch" 
+                    />
                 </div>
             }
             <div className="w-full lg:order-2 order-1 col-span-2 lg:col-span-1 flex flex-col gap-10 md:mt-15">
                 <TotalSummaryWidget totalPrice={calculateTotal()} />
                 {location.pathname === "/cart" &&
-                    <Widget type="merch"/>
+                    <Widget
+                        type="merch"
+                        isPublic={true}
+                    />
                 }
             </div>
 

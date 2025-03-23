@@ -17,7 +17,8 @@ const WidgetItem = ({
     type = 'merch', 
     allergenes,
     currentIndex,
-    itemIndex
+    itemIndex,
+    isPublic
   }) => {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [selectedAllergenes, setSelectedAllergenes] = useState(allergenes || {});
@@ -103,7 +104,7 @@ const WidgetItem = ({
                 
                 {/* Controls section */}
                 <div className='flex flex-col gap-2 sm:gap-4 overflow-y-visible relative'>
-                    <div className='w-full flex justify-between items-center'>
+                    <div className={`w-full flex justify-between items-center ${isPublic ? 'flex-col gap-4' : 'flex-row'}`}>
                         <AmountCounter onQuantityChange={setSelectedQuantity} />
                         <p className='text-base sm:text-lg md:text-[20px] font-semibold'>{price} Ft</p>
                     </div>
@@ -120,6 +121,7 @@ const WidgetItem = ({
                     <PrimaryBtn
                         onClick={handleAddToCart}
                         text={t("primaryBtn.addToCart")}
+                        className="scale-70"
                     />
                 </div>
             </div>
