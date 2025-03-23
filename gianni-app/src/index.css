@@ -44,7 +44,7 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-background: #e2e8f0;
+background: rgba(0, 0, 0, 0) !important;
 }
 
 /* Handle */

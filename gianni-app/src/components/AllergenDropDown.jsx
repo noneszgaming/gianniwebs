@@ -123,7 +123,7 @@ const AllergenDropDown = ({
                     ref={dropdownRef}
                     className='w-fit fixed allergen-dropdown-menu bg-white border border-accent rounded-lg p-2'
                     style={{
-                        zIndex: 9999,
+                        zIndex: 2999,
                         top: `${dropdownPosition.top}px`,
                         left: `${dropdownPosition.left}px`,
                         maxHeight: '200px',
